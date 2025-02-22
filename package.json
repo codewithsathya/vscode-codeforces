@@ -1,0 +1,69 @@
+{
+    "name": "vscode-codeforces",
+    "displayName": "Codeforces",
+    "description": "Solve codeforces problems from vscode",
+    "version": "0.0.1",
+    "author": "codewithsathya",
+    "publisher": "codewithsathya",
+    "license": "MIT",
+    "icon": "resources/codeforces.png",
+    "engines": {
+        "vscode": "^1.97.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "preview": true,
+    "activationEvents": [],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [
+            {
+                "command": "vscode-codeforces.helloWorld",
+                "title": "Hello World"
+            }
+        ],
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "codeforces",
+                    "title": "Codeforces",
+                    "icon": "resources/codeforces.svg"
+                }
+            ]
+        },
+        "views": {
+            "leetnotion": [
+                {
+                    "id": "codeforcesExplorer",
+                    "name": "Problems"
+                }
+            ]
+        }
+    },
+    "repository": "https://github.com/codewithsathya/vscode-codeforces",
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "npm run compile && npm run lint",
+        "lint": "eslint src",
+        "test": "vscode-test"
+    },
+    "devDependencies": {
+        "@types/mocha": "^10.0.10",
+        "@types/node": "20.x",
+        "@types/vscode": "^1.97.0",
+        "@typescript-eslint/eslint-plugin": "^8.22.0",
+        "@typescript-eslint/parser": "^8.22.0",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.4.1",
+        "eslint": "^9.19.0",
+        "typescript": "^5.7.3"
+    },
+    "dependencies": {
+        "puppeteer": "^24.2.1",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2"
+    }
+}
