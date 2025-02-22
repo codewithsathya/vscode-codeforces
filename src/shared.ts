@@ -11,7 +11,7 @@ export interface IProblem {
     contestId: number;
     index: string;
     name: string;
-    points: number | undefined;
+    rating: number | undefined;
     tags: string[];
     solvedCount: number;
 }
@@ -22,7 +22,7 @@ export const defaultProblem: IProblem = {
     contestId: 0,
     index: "",
     name: "",
-    points: undefined,
+    rating: undefined,
     tags: [],
     solvedCount: 0,
 };

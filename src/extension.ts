@@ -3,6 +3,7 @@ import { browserClient } from "./browserClient";
 import { codeforcesChannel } from "./codeforcesChannel";
 import { codeforcesTreeDataProvider } from "./explorer/codeforcesTreeDataProvider";
 import { explorerNodeManager } from "./explorer/explorerNodeManager";
+import { leetCodeTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -16,6 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(
             codeforcesChannel,
             explorerNodeManager,
+            vscode.window.registerFileDecorationProvider(leetCodeTreeItemDecorationProvider),
             vscode.window.createTreeView("codeforcesExplorer", {
                 treeDataProvider: codeforcesTreeDataProvider,
                 showCollapseAll: true,

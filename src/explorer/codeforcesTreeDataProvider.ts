@@ -26,7 +26,7 @@ export class CodeforcesTreeDataProvider
             contextValue = element.id.toLowerCase();
         }
         return {
-            label: element.isProblem ? `${element.contestId}${element.index} ${element.name}` : element.name,
+            label: element.isProblem ? `[${element.contestId}${element.index}] ${element.name}` : element.name,
             tooltip: "codeforces",
             collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
             command: element.isProblem ? {
@@ -34,7 +34,7 @@ export class CodeforcesTreeDataProvider
                 command: "codeforces.previewProblem",
                 arguments: [element],
             } : undefined,
-            resourceUri: element.isProblem ? vscode.Uri.parse(`https://codeforces.com/problemset/problem/${element.contestId}/${element.index}`) : undefined,
+            resourceUri: element.uri,
             contextValue
         };
     }

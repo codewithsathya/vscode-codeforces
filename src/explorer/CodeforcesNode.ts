@@ -24,8 +24,8 @@ export class CodeforcesNode {
         return this.data.name;
     }
 
-    public get points(): number | undefined {
-        return toInteger(this.data.points);
+    public get rating(): number | undefined {
+        return this.data.rating;
     }
 
     public get tags(): string[] {
@@ -54,5 +54,14 @@ export class CodeforcesNode {
             command: "leetnotion.previewProblem",
             arguments: [this],
         };
+    }
+
+    public get uri(): Uri {
+        return Uri.from({
+            scheme: "codeforces",
+            authority: this.isProblem ? "problems" : "tree-node",
+            path: `/${this.id}`,
+            query: `rating=${this.rating}`,
+        });
     }
 }

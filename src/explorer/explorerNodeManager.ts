@@ -23,7 +23,7 @@ class ExplorerNodeManager implements Disposable {
             codeforcesChannel.appendLine(`Adding problem ${node.id}`);
             codeforcesChannel.appendLine(`Adding problem ${node.name}`);
             this.explorerNodeMap.set(node.id, node);
-            this.difficultySet.add(problem.points ? problem.points.toString() : "UNKNOWN");
+            this.difficultySet.add(problem.rating ? problem.rating.toString() : "UNKNOWN");
             for (const tag of problem.tags) {
                 this.tagSet.add(tag);
             }
@@ -59,6 +59,11 @@ class ExplorerNodeManager implements Disposable {
                 name: difficulty,
             }), false));
         }
+        res.sort((a, b) => {
+            let aRating = a.name === "UNKNOWN" ? 0 : parseInt(a.name);
+            let bRating = b.name === "UNKNOWN" ? 0 : parseInt(b.name);
+            return aRating - bRating;
+        });
         return res;
     }
 
@@ -84,11 +89,11 @@ class ExplorerNodeManager implements Disposable {
         for (const node of this.explorerNodeMap.values()) {
             switch (metaInfo[0]) {
                 case Category.Difficulty:
-                    if(!node.points && metaInfo[1] === "UNKNOWN") {
+                    if(!node.rating && metaInfo[1] === "UNKNOWN") {
                         res.push(node);
                         break;
                     }
-                    if(node.points && node.points.toString() === metaInfo[1]) {
+                    if(node.rating && node.rating.toString() === metaInfo[1]) {
                         res.push(node);
                         break;
                     }

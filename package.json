@@ -39,7 +39,99 @@
                     "name": "Problems"
                 }
             ]
-        }
+        },
+        "colors": [
+            {
+                "id": "codeforces.newbie",
+                "description": "Color for newbie difficulty problems (rating < 1200)",
+                "defaults": {
+                    "dark": "#c5c5c5",
+                    "light": "#c5c5c5",
+                    "highContrast": "#c5c5c5"
+                }
+            },
+            {
+                "id": "codeforces.pupil",
+                "description": "Color for pupil difficulty problems (rating 1200-1399)",
+                "defaults": {
+                    "dark": "#88f97c",
+                    "light": "#88f97c",
+                    "highContrast": "#88f97c"
+                }
+            },
+            {
+                "id": "codeforces.specialist",
+                "description": "Color for specialist difficulty problems (rating 1400-1599)",
+                "defaults": {
+                    "dark": "#7ed4b5",
+                    "light": "#7ed4b5",
+                    "highContrast": "#7ed4b5"
+                }
+            },
+            {
+                "id": "codeforces.expert",
+                "description": "Color for expert difficulty problems (rating 1600-1899)",
+                "defaults": {
+                    "dark": "#9ea3f8",
+                    "light": "#9ea3f8",
+                    "highContrast": "#9ea3f8"
+                }
+            },
+            {
+                "id": "codeforces.candidateMaster",
+                "description": "Color for candidate master difficulty problems (rating 1900-2099)",
+                "defaults": {
+                    "dark": "#f288f8",
+                    "light": "#f288f8",
+                    "highContrast": "#f288f8"
+                }
+            },
+            {
+                "id": "codeforces.master",
+                "description": "Color for master difficulty problems (rating 2100-2299)",
+                "defaults": {
+                    "dark": "#fac686",
+                    "light": "#fac686",
+                    "highContrast": "#fac686"
+                }
+            },
+            {
+                "id": "codeforces.internationalMaster",
+                "description": "Color for international master difficulty problems (rating 2300-2399)",
+                "defaults": {
+                    "dark": "#f8b45b",
+                    "light": "#f8b45b",
+                    "highContrast": "#f8b45b"
+                }
+            },
+            {
+                "id": "codeforces.grandmaster",
+                "description": "Color for grandmaster difficulty problems (rating 2400-2599)",
+                "defaults": {
+                    "dark": "#f3746f",
+                    "light": "#f3746f",
+                    "highContrast": "#f3746f"
+                }
+            },
+            {
+                "id": "codeforces.internationalGrandmaster",
+                "description": "Color for international grandmaster difficulty problems (rating 2600-2899)",
+                "defaults": {
+                    "dark": "#f04135",
+                    "light": "#f04135",
+                    "highContrast": "#f04135"
+                }
+            },
+            {
+                "id": "codeforces.legendaryGrandmaster",
+                "description": "Color for legendary grandmaster difficulty problems (rating ≥ 2900)",
+                "defaults": {
+                    "dark": "#971e12",
+                    "light": "#971e12",
+                    "highContrast": "#971e12"
+                }
+            }
+        ]
     },
     "repository": "https://github.com/codewithsathya/vscode-codeforces",
     "scripts": {
