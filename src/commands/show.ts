@@ -3,6 +3,34 @@ import { explorerNodeManager } from "../explorer/explorerNodeManager";
 import { IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
 
+export async function pickOne(): Promise<void> {
+    const problems: CodeforcesNode[] = explorerNodeManager.getAllNodes();
+    const ratings = explorerNodeManager.getAllRatingNodes();
+    const ratingPick = vscode.window.createQuickPick<IQuickItemEx<string>>();
+    ratingPick.placeholder = "Pick rating";
+    ratingPick.items = [{ label: "RANDOM", value: "RANDOM" }, ...ratings.map((node: CodeforcesNode) => {
+        return {
+            label: node.name,
+            value: node.name,
+        };
+    })];
+    ratingPick.onDidAccept(() => {
+        const choice = ratingPick.selectedItems[0];
+        if (choice) {
+            if(choice.value === "RANDOM") {
+                const randomProblem: IProblem = problems[Math.floor(Math.random() * problems.length)];
+                vscode.window.showInformationMessage(`Selected: ${randomProblem.contestId}${randomProblem.index} ${randomProblem.name}`);
+            } else {
+                const filteredProblems = problems.filter((problem: IProblem) => problem.rating === parseInt(choice.value));
+                const randomProblem: IProblem = filteredProblems[Math.floor(Math.random() * filteredProblems.length)];
+                vscode.window.showInformationMessage(`Selected: ${randomProblem.contestId}${randomProblem.index} ${randomProblem.name}`);
+            }
+        }
+        ratingPick.hide();
+    });
+    ratingPick.show();
+}
+
 export async function searchProblem(): Promise<void> {
     const nodes = explorerNodeManager.getAllNodes();
     const allPicks = parseProblemsToPicks(nodes);

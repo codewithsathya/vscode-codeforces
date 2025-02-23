@@ -6,7 +6,7 @@ import { explorerNodeManager } from "./explorer/explorerNodeManager";
 import { codeforcesTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
 import { CodeforcesNode } from "./explorer/CodeforcesNode";
 import { switchSortingStrategy } from "./commands/plugin";
-import { searchProblem } from "./commands/show";
+import { pickOne, searchProblem } from "./commands/show";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -39,10 +39,10 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.signout", () => {}),
             vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => {}),
             vscode.commands.registerCommand("codeforces.showProblem", (node: CodeforcesNode) => {}),
-            vscode.commands.registerCommand("codeforces.pickOne", () => {}),
+            vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),
             vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => {}),
-            vscode.commands.registerCommand("codeforces.refreshExplorer", () => {}),
+            vscode.commands.registerCommand("codeforces.refreshExplorer", () => codeforcesTreeDataProvider.refresh()),
             vscode.commands.registerCommand("codeforces.testSolution", (uri?: vscode.Uri) => {}),
             vscode.commands.registerCommand("codeforces.submitSolution", (uri?: vscode.Uri) => {}),
             vscode.commands.registerCommand("codeforces.switchDefaultLanguage", () => {}),

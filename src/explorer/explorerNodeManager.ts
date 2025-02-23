@@ -55,7 +55,7 @@ class ExplorerNodeManager implements Disposable {
         return this.applySortingStrategy(Array.from(this.explorerNodeMap.values()));
     }
 
-    public getAllDifficultyNodes(): CodeforcesNode[] {
+    public getAllRatingNodes(): CodeforcesNode[] {
         const res: CodeforcesNode[] = [];
         for(const difficulty of this.difficultySet.values()) {
             res.push(new CodeforcesNode(Object.assign({}, defaultProblem, {

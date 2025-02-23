@@ -59,7 +59,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
         if (id === Category.All) {
             return explorerNodeManager.getAllNodes();
         } else if (id === Category.Difficulty) {
-            return explorerNodeManager.getAllDifficultyNodes();
+            return explorerNodeManager.getAllRatingNodes();
         } else if (id === Category.Tag) {
             return explorerNodeManager.getAllTagNodes();
         } else {
