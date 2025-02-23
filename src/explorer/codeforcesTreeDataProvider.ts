@@ -1,15 +1,20 @@
 import * as vscode from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
 import { explorerNodeManager } from "./explorerNodeManager";
-import { Category } from "../shared";
-export class CodeforcesTreeDataProvider
-    implements vscode.TreeDataProvider<CodeforcesNode>
-{
+import { Category, ProblemState } from "../shared";
+import path from "path";
+export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<CodeforcesNode> {
+    private context: vscode.ExtensionContext | null = null;
+
     private onDidChangeTreeDataEvent: vscode.EventEmitter<CodeforcesNode | undefined | null> = new vscode.EventEmitter<
         CodeforcesNode| undefined | null
     >();    
     
     public readonly onDidChangeTreeData: vscode.Event<any> = this.onDidChangeTreeDataEvent.event;
+
+    public initialize(context: vscode.ExtensionContext): void {
+        this.context = context;
+    }
 
     public async refresh(): Promise<void> {
         await explorerNodeManager.refreshCache();
@@ -27,13 +32,14 @@ export class CodeforcesTreeDataProvider
         }
         return {
             label: element.isProblem ? `[${element.contestId}${element.index}] ${element.name}` : element.name,
-            tooltip: "codeforces",
+            tooltip: element.isProblem ? `Rating: ${element.rating ? element.rating : "UNKNOWN"}\nSolved Count: ${element.solvedCount}\nTags: ${element.tags}`: `${element.name}`,
             collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
             command: element.isProblem ? {
                 title: "Preview Problem",
                 command: "codeforces.previewProblem",
                 arguments: [element],
             } : undefined,
+            iconPath: this.parseIconPathFromProblemState(element),
             resourceUri: element.uri,
             contextValue
         };
@@ -61,6 +67,25 @@ export class CodeforcesTreeDataProvider
         }
     }
 
+    private parseIconPathFromProblemState(element: CodeforcesNode): string {
+        if(!this.context) {
+            return "";
+        }
+        if (!element.isProblem) {
+            return "";
+        }
+        switch (element.state) {
+            case ProblemState.ACCEPTED:
+                return this.context.asAbsolutePath(path.join("resources", "check.png"));
+            case ProblemState.PARTIAL:
+            case ProblemState.WRONG_ANSWER:
+                return this.context.asAbsolutePath(path.join("resources", "x.png"));
+            case ProblemState.UNKNOWN:
+                return this.context.asAbsolutePath(path.join("resources", "blank.png"));
+            default:
+                return "";
+        }
+    }
 }
 
 export const codeforcesTreeDataProvider: CodeforcesTreeDataProvider = new CodeforcesTreeDataProvider();

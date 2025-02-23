@@ -1,9 +1,10 @@
 import * as _ from "lodash";
 import { Disposable } from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
-import { Category, defaultProblem, IProblem } from "../shared";
+import { Category, defaultProblem, IProblem, ProblemsResponse, ProblemState, SortingStrategy } from "../shared";
 import { codeforcesChannel } from "../codeforcesChannel";
 import axiosClient from 'axios';
+import { getSortingStrategy } from "../commands/plugin";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<string, CodeforcesNode>();
@@ -12,20 +13,23 @@ class ExplorerNodeManager implements Disposable {
 
     public async refreshCache(): Promise<void> {
         this.dispose();
-        codeforcesChannel.appendLine("Fetching problems from codeforces");
-        const { data } = await axiosClient.get("https://codeforces.com/api/problemset.problems") as { data: { result: { problems: IProblem[] } } };
-        codeforcesChannel.appendLine("Fetched problems from codeforces");
+        const { data } = await axiosClient.get("https://codeforces.com/api/problemset.problems") as { data: ProblemsResponse };
         const problems = data.result.problems;
-        codeforcesChannel.appendLine(`Fetched ${problems.length} problems from codeforces`);
         for (const problem of problems) {
             const node = new CodeforcesNode(problem, true);
             node.id = `${problem.contestId}:${problem.index}`;
-            codeforcesChannel.appendLine(`Adding problem ${node.id}`);
-            codeforcesChannel.appendLine(`Adding problem ${node.name}`);
+            node.state = ProblemState.UNKNOWN;
             this.explorerNodeMap.set(node.id, node);
             this.difficultySet.add(problem.rating ? problem.rating.toString() : "UNKNOWN");
             for (const tag of problem.tags) {
                 this.tagSet.add(tag);
+            }
+        }
+        const problemStatistics = data.result.problemStatistics;
+        for (const statistic of problemStatistics) {
+            const node = this.explorerNodeMap.get(`${statistic.contestId}:${statistic.index}`);
+            if (node) {
+                node.solvedCount = statistic.solvedCount;
             }
         }
     }
@@ -48,7 +52,7 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public getAllNodes(): CodeforcesNode[] {
-        return Array.from(this.explorerNodeMap.values());
+        return this.applySortingStrategy(Array.from(this.explorerNodeMap.values()));
     }
 
     public getAllDifficultyNodes(): CodeforcesNode[] {
@@ -75,6 +79,9 @@ class ExplorerNodeManager implements Disposable {
                 name: _.startCase(tag),
             }), false));
         }
+        res.sort((a, b) => {
+            return a.name.localeCompare(b.name);
+        });
         return res;
     }
 
@@ -106,13 +113,52 @@ class ExplorerNodeManager implements Disposable {
                     break;
             }
         }
-        return res;
+        return this.applySortingStrategy(res);
     }
 
     public dispose(): void {
         this.explorerNodeMap.clear();
         this.difficultySet.clear();
         this.tagSet.clear();
+    }
+
+    private applySortingStrategy(nodes: CodeforcesNode[]): CodeforcesNode[] {
+        const strategy: SortingStrategy = getSortingStrategy();
+        switch(strategy) {
+            case SortingStrategy.ContestAsc:
+                return nodes.sort((a, b) => {
+                    if(a.contestId === b.contestId) {
+                        return a.index.localeCompare(b.index);
+                    }
+                    return a.contestId - b.contestId;
+                }
+            );
+            case SortingStrategy.ContestDesc:
+                return nodes.sort((a, b) => {
+                    if(a.contestId === b.contestId) {
+                        return a.index.localeCompare(b.index);
+                    }
+                    return b.contestId - a.contestId;
+                }
+            );
+            case SortingStrategy.SolvedCountAsc:
+                return nodes.sort((a, b) => {
+                    if(a.solvedCount === b.solvedCount) {
+                        return a.index.localeCompare(b.index);
+                    }
+                    return a.solvedCount - b.solvedCount;
+                }
+            );
+            case SortingStrategy.SolvedCountDesc:
+                return nodes.sort((a, b) => {
+                    if(a.solvedCount === b.solvedCount) {
+                        return a.index.localeCompare(b.index);
+                    }
+                    return b.solvedCount - a.solvedCount;
+                }
+            );
+        }
+        return nodes;
     }
 }
 

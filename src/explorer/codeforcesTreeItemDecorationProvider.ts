@@ -1,5 +1,5 @@
 import { URLSearchParams } from "url";
-import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri } from "vscode";
+import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri, workspace, WorkspaceConfiguration } from "vscode";
 import { codeforcesChannel } from "../codeforcesChannel";
 
 export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
@@ -76,11 +76,21 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
         if(rating === "UNKNOWN") {
             return;
         }
+        if(!this.isColorizingEnabled()) {
+            return {
+                badge: this.DIFFICULTY_BADGE_LABEL[rating],
+            };
+        }
         return {
             badge: this.DIFFICULTY_BADGE_LABEL[rating],
             color: this.ITEM_COLOR[rating],
         };
     }
+
+    private isColorizingEnabled(): boolean {
+        const configuration: WorkspaceConfiguration = workspace.getConfiguration();
+        return configuration.get<boolean>("codeforces.colorizeProblems", false);
+    }
 }
 
-export const leetCodeTreeItemDecorationProvider: CodeforcesTreeItemDecorationProvider = new CodeforcesTreeItemDecorationProvider();
+export const codeforcesTreeItemDecorationProvider: CodeforcesTreeItemDecorationProvider = new CodeforcesTreeItemDecorationProvider();

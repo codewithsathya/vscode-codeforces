@@ -21,8 +21,208 @@
             {
                 "command": "vscode-codeforces.helloWorld",
                 "title": "Hello World"
+            },
+            {
+                "command": "codeforces.signin",
+                "title": "Sign In",
+                "category": "codeforces",
+                "icon": "$(sign-in)"
+            },
+            {
+                "command": "codeforces.signout",
+                "title": "Sign Out",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.refreshExplorer",
+                "title": "Refresh",
+                "category": "codeforces",
+                "icon": "$(refresh)"
+            },
+            {
+                "command": "codeforces.pickOne",
+                "title": "Pick One",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.showProblem",
+                "title": "Show Problem",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.previewProblem",
+                "title": "Preview Problem",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.searchProblem",
+                "title": "Search Problem",
+                "category": "codeforces",
+                "icon": "$(search)"
+            },
+            {
+                "command": "codeforces.showSolution",
+                "title": "Show Top Voted Solution",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.testSolution",
+                "title": "Test",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.submitSolution",
+                "title": "Submit to Codeforces",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.addFavorite",
+                "title": "Add to Favorite List",
+                "category": "codeforces",
+                "icon": {
+                    "light": "resources/light/like.png",
+                    "dark": "resources/dark/like.png"
+                }
+            },
+            {
+                "command": "codeforces.removeFavorite",
+                "title": "Remove from Favorite List",
+                "category": "codeforces",
+                "icon": {
+                    "light": "resources/light/dislike.png",
+                    "dark": "resources/dark/dislike.png"
+                }
+            },
+            {
+                "command": "codeforces.switchDefaultLanguage",
+                "title": "Switch Default Language",
+                "category": "codeforces"
+            },
+            {
+                "command": "codeforces.problems.sort",
+                "title": "Sort Problems",
+                "category": "codeforces",
+                "icon": "$(sort-precedence)"
             }
         ],
+        "menus": {
+            "view/title": [
+                {
+                    "command": "codeforces.signin",
+                    "when": "view == codeforcesExplorer",
+                    "group": "navigation@0"
+                },
+                {
+                    "command": "codeforces.searchProblem",
+                    "when": "view == codeforcesExplorer",
+                    "group": "navigation@1"
+                },
+                {
+                    "command": "codeforces.refreshExplorer",
+                    "when": "view == codeforcesExplorer",
+                    "group": "navigation@2"
+                },
+                {
+                    "command": "codeforces.signout",
+                    "when": "view == codeforcesExplorer",
+                    "group": "overflow@1"
+                },
+                {
+                    "command": "codeforces.pickOne",
+                    "when": "view == codeforcesExplorer",
+                    "group": "overflow@2"
+                },
+                {
+                    "command": "codeforces.problems.sort",
+                    "when": "view == codeforcesExplorer",
+                    "group": "overflow@3"
+                }
+            ],
+            "view/item/context": [
+                {
+                    "command": "codeforces.previewProblem",
+                    "when": "view == codeforcesExplorer && viewItem =~ /problem*/",
+                    "group": "codeforces@1"
+                },
+                {
+                    "command": "codeforces.showProblem",
+                    "when": "view == codeforcesExplorer && viewItem =~ /problem*/",
+                    "group": "codeforces@2"
+                },
+                {
+                    "command": "codeforces.showSolution",
+                    "when": "view == codeforcesExplorer && viewItem =~ /problem*/",
+                    "group": "codeforces@3"
+                },
+                {
+                    "command": "codeforces.addFavorite",
+                    "when": "view == codeforcesExplorer && viewItem == problem",
+                    "group": "inline"
+                },
+                {
+                    "command": "codeforces.removeFavorite",
+                    "when": "view == codeforcesExplorer && viewItem == problem-favorite",
+                    "group": "inline"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "codeforces.showProblem",
+                    "when": "never"
+                },
+                {
+                    "command": "codeforces.showSolution",
+                    "when": "never"
+                },
+                {
+                    "command": "codeforces.previewProblem",
+                    "when": "never"
+                },
+                {
+                    "command": "codeforces.addFavorite",
+                    "when": "never"
+                },
+                {
+                    "command": "codeforces.removeFavorite",
+                    "when": "never"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "command": "codeforces.testSolution",
+                    "when": "explorerResourceIsFolder == false",
+                    "group": "codeforces@1"
+                },
+                {
+                    "command": "codeforces.submitSolution",
+                    "when": "explorerResourceIsFolder == false",
+                    "group": "codeforces@2"
+                }
+            ],
+            "editor/context": [
+                {
+                    "submenu": "codeforces.editorAction"
+                }
+            ],
+            "codeforces.editorAction": [
+                {
+                    "command": "codeforces.testSolution",
+                    "group": "codeforces@1"
+                },
+                {
+                    "command": "codeforces.submitSolution",
+                    "group": "codeforces@2"
+                },
+                {
+                    "command": "codeforces.showSolution",
+                    "group": "codeforces@3"
+                },
+                {
+                    "command": "codeforces.previewProblem",
+                    "group": "codeforces@4"
+                }
+            ]
+        },
         "viewsContainers": {
             "activitybar": [
                 {
@@ -131,7 +331,39 @@
                     "highContrast": "#971e12"
                 }
             }
-        ]
+        ],
+        "submenus": [
+            {
+                "id": "codeforces.editorAction",
+                "label": "codeforces"
+            }
+        ],
+        "configuration": {
+            "title": "Codeforces",
+            "properties": {
+                "codeforces.colorizeProblems": {
+                    "type": "boolean",
+                    "default": true,
+                    "scope": "application",
+                    "description": "Colorize problems files in explorer tree."
+                },
+                "codeforces.problems.sortStrategy": {
+                    "type": "string",
+                    "default": "None",
+                    "scope": "application",
+                    "enum": [
+                        "None",
+                        "Contest Order (Ascending)",
+                        "Contest Order (Descending)",
+                        "Rating (Ascending)",
+                        "Rating (Descending)",
+                        "Solved Count (Ascending)",
+                        "Solved Count (Descending)"
+                    ],
+                    "description": "Sort strategy for problems"
+                }
+            }
+        }
     },
     "repository": "https://github.com/codewithsathya/vscode-codeforces",
     "scripts": {

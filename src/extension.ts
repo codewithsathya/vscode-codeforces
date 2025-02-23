@@ -3,11 +3,14 @@ import { browserClient } from "./browserClient";
 import { codeforcesChannel } from "./codeforcesChannel";
 import { codeforcesTreeDataProvider } from "./explorer/codeforcesTreeDataProvider";
 import { explorerNodeManager } from "./explorer/explorerNodeManager";
-import { leetCodeTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
+import { codeforcesTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
+import { CodeforcesNode } from "./explorer/CodeforcesNode";
+import { switchSortingStrategy } from "./commands/plugin";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
         browserClient.initialize();
+        codeforcesTreeDataProvider.initialize(context);
 
         codeforcesTreeDataProvider.refresh();
         
@@ -17,7 +20,7 @@ export function activate(context: vscode.ExtensionContext) {
         context.subscriptions.push(
             codeforcesChannel,
             explorerNodeManager,
-            vscode.window.registerFileDecorationProvider(leetCodeTreeItemDecorationProvider),
+            vscode.window.registerFileDecorationProvider(codeforcesTreeItemDecorationProvider),
             vscode.window.createTreeView("codeforcesExplorer", {
                 treeDataProvider: codeforcesTreeDataProvider,
                 showCollapseAll: true,
@@ -31,6 +34,20 @@ export function activate(context: vscode.ExtensionContext) {
                     codeforcesChannel.appendLine(content);
                 },
             ),
+            vscode.commands.registerCommand("codeforces.signin", () => {}),
+            vscode.commands.registerCommand("codeforces.signout", () => {}),
+            vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.showProblem", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.pickOne", () => {}),
+            vscode.commands.registerCommand("codeforces.searchProblem", () => {}),
+            vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => {}),
+            vscode.commands.registerCommand("codeforces.refreshExplorer", () => {}),
+            vscode.commands.registerCommand("codeforces.testSolution", (uri?: vscode.Uri) => {}),
+            vscode.commands.registerCommand("codeforces.submitSolution", (uri?: vscode.Uri) => {}),
+            vscode.commands.registerCommand("codeforces.switchDefaultLanguage", () => {}),
+            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );
     } catch (error) {}
 }

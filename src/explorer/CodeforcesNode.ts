@@ -12,6 +12,10 @@ export class CodeforcesNode {
         return this.data.state;
     }
 
+    public set state(state: ProblemState) {
+        this.data.state = state;
+    }
+
     public get contestId(): number {
         return this.data.contestId;
     }
@@ -48,10 +52,14 @@ export class CodeforcesNode {
         return this.data.solvedCount;
     }
 
+    public set solvedCount(solvedCount: number) {
+        this.data.solvedCount = solvedCount;
+    }
+
     public get previewCommand(): Command {
         return {
             title: "Preview Problem",
-            command: "leetnotion.previewProblem",
+            command: "codeforces.previewProblem",
             arguments: [this],
         };
     }
