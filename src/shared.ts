@@ -22,6 +22,33 @@ export enum ProblemState {
     UNKNOWN = 4,
 }
 
+export interface ISampleTest {
+    input: {line: string, type: "even" | "odd"}[]; 
+    output: {line: string, type: "even" | "odd"}[]; 
+}
+
+export interface DescLine {
+    type: "paragraph" | "ul" | "ol"
+    content: string | string[]
+}
+
+export interface IDescription {
+    title: string;
+    // statements: DescLine[];
+    // input: DescLine[];
+    // output: DescLine[];
+    // sampleTests: ISampleTest[];
+    // note: DescLine[];
+    url: string;
+    body: string;
+    tags: string[];
+    rating: string;
+}
+
+export interface IWebViewMessage {
+    command: string;
+}
+
 export interface IProblem {
     id: string;
     state: ProblemState;
