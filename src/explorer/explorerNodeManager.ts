@@ -5,6 +5,7 @@ import { Category, ContestsResponse, defaultProblem, IContest, IProblem, Problem
 import { codeforcesChannel } from "../codeforcesChannel";
 import axiosClient from 'axios';
 import { getCodeforcesHandle, getSortingStrategy } from "../commands/plugin";
+import { shouldHideSolvedProblem } from "../utils/settingUtils";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<string, CodeforcesNode>();
@@ -62,8 +63,8 @@ class ExplorerNodeManager implements Disposable {
                 name: Category.All,
             }), false),
             new CodeforcesNode(Object.assign({}, defaultProblem, {
-                id: Category.Difficulty,
-                name: Category.Difficulty,
+                id: Category.Rating,
+                name: Category.Rating,
             }), false),
             new CodeforcesNode(Object.assign({}, defaultProblem, {
                 id: Category.Tag,
@@ -85,6 +86,10 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public getAllNodes(): CodeforcesNode[] {
+        const hideSolved = shouldHideSolvedProblem();
+        if (hideSolved) {
+            return this.applySortingStrategy(Array.from(this.explorerNodeMap.values()).filter((node) => node.state !== ProblemState.ACCEPTED));
+        }
         return this.applySortingStrategy(Array.from(this.explorerNodeMap.values()));
     }
 
@@ -92,7 +97,7 @@ class ExplorerNodeManager implements Disposable {
         const res: CodeforcesNode[] = [];
         for (const difficulty of this.difficultySet.values()) {
             res.push(new CodeforcesNode(Object.assign({}, defaultProblem, {
-                id: `${Category.Difficulty}.${difficulty}`,
+                id: `${Category.Rating}.${difficulty}`,
                 name: difficulty,
             }), false));
         }
@@ -168,10 +173,14 @@ class ExplorerNodeManager implements Disposable {
     public getChildrenNodesById(id: string): CodeforcesNode[] {
         const metaInfo: string[] = id.split(".");
         const res: CodeforcesNode[] = [];
+        const hideSolved = shouldHideSolvedProblem();
 
         for (const node of this.explorerNodeMap.values()) {
+            if(hideSolved && node.state === ProblemState.ACCEPTED) {
+                continue;
+            }
             switch (metaInfo[0]) {
-                case Category.Difficulty:
+                case Category.Rating:
                     if (!node.rating && metaInfo[1] === "UNKNOWN") {
                         res.push(node);
                         break;
@@ -197,7 +206,7 @@ class ExplorerNodeManager implements Disposable {
             }
         }
         switch (metaInfo[0]) {
-            case Category.Difficulty:
+            case Category.Rating:
                 return this.applySortingStrategy(res);
             case Category.Tag:
                 return this.applySortingStrategy(res);

@@ -49,6 +49,9 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.switchDefaultLanguage", () => {}),
             vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => {}),
             vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => {
+                vscode.env.openExternal(vscode.Uri.parse("https://codeforces.com/contest/" + node.contest?.id));
+            }),
             vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );
     } catch (error) {}

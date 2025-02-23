@@ -28,6 +28,8 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
         let contextValue: string;
         if (element.isProblem) {
             contextValue = "problem";
+        } else if(element.contest !== null) {
+            contextValue = "contest";
         } else {
             contextValue = element.id.toLowerCase();
         }
@@ -35,11 +37,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
             label: element.isProblem ? `[${element.contestId}${element.index}] ${element.name}` : element.name,
             tooltip: this.parseTooltipFromProblemState(element),
             collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
-            command: element.isProblem ? {
-                title: "Preview Problem",
-                command: "codeforces.previewProblem",
-                arguments: [element],
-            } : undefined,
+            command: element.isProblem ? element.previewCommand : undefined,
             iconPath: this.parseIconPathFromProblemState(element),
             resourceUri: element.uri,
             contextValue
@@ -59,7 +57,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
     private getChildrenByElementId(id: string): CodeforcesNode[] {
         if (id === Category.All) {
             return explorerNodeManager.getAllNodes();
-        } else if (id === Category.Difficulty) {
+        } else if (id === Category.Rating) {
             return explorerNodeManager.getAllRatingNodes();
         } else if (id === Category.Tag) {
             return explorerNodeManager.getAllTagNodes();
