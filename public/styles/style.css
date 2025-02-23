@@ -1,0 +1,64 @@
+code {
+    white-space: pre-wrap;
+}
+.header {
+    display: none;
+}
+
+center {
+    font-size: 0.8em;
+    display: block;
+    text-align: center;
+}
+
+.tex-graphics {
+    display: block;
+    margin: 0 auto;
+}
+
+.tex-font-size-small {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
+
+.section-title {
+    font-size: 1.6em;
+    font-weight: bold;
+}
+
+.sample-tests .title {
+    font-size: 1.4em;
+}
+
+.input,.output{
+    margin: 0.6rem 0rem;
+}
+
+.test-example-line-even {
+    background-color: var(--vscode-textPreformat-background);
+}
+
+.input-output-copier {
+    font-size: 0.6em;
+    float: right;
+    cursor: pointer;
+    border: 0;
+    margin: 0 0;
+    padding: 0.2rem 1rem;
+    color: white;
+    background-color: var(--vscode-button-background);
+}
+
+.input-output-copier:hover {
+    background-color: var(--vscode-button-hoverBackground);
+}
+.input-output-copier:active {
+    border: 0;
+}
+
+.sample-tests pre {
+    padding: 0.25em;
+    margin: 0;
+}
+

@@ -6,12 +6,14 @@ import { explorerNodeManager } from "./explorer/explorerNodeManager";
 import { codeforcesTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
 import { CodeforcesNode } from "./explorer/CodeforcesNode";
 import { switchSortingStrategy } from "./commands/plugin";
-import { addHandle, pickOne, searchProblem } from "./commands/show";
+import { addHandle, pickOne, previewProblem, searchProblem } from "./commands/show";
+import { globalState } from "./globalState";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
         browserClient.initialize();
         codeforcesTreeDataProvider.initialize(context);
+        globalState.initialize(context);
 
         codeforcesTreeDataProvider.refresh();
         
@@ -38,7 +40,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.addhandle", () => addHandle()),
             vscode.commands.registerCommand("codeforces.signin", () => {}),
             vscode.commands.registerCommand("codeforces.signout", () => {}),
-            vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => previewProblem(node)),
             vscode.commands.registerCommand("codeforces.showProblem", (node: CodeforcesNode) => {}),
             vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),

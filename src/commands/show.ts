@@ -3,6 +3,13 @@ import { explorerNodeManager } from "../explorer/explorerNodeManager";
 import { IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
 import { setCodeforcesHandle } from "./plugin";
+import { codeforcesExecutor } from "../codeforcesExecutor";
+import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
+
+export async function previewProblem(input: IProblem, isSideMode: boolean = false): Promise<void> {
+    const html: string = await codeforcesExecutor.getProblem(input.contestId, input.index);
+    codeforcesPreviewProvider.show(html, input, isSideMode);
+}
 
 export async function addHandle(): Promise<void> {
     const handle = await vscode.window.showInputBox({
@@ -31,11 +38,11 @@ export async function pickOne(): Promise<void> {
         if (choice) {
             if(choice.value === "RANDOM") {
                 const randomProblem: IProblem = problems[Math.floor(Math.random() * problems.length)];
-                vscode.window.showInformationMessage(`Selected: ${randomProblem.contestId}${randomProblem.index} ${randomProblem.name}`);
+                previewProblem(randomProblem);
             } else {
                 const filteredProblems = problems.filter((problem: IProblem) => problem.rating === parseInt(choice.value));
                 const randomProblem: IProblem = filteredProblems[Math.floor(Math.random() * filteredProblems.length)];
-                vscode.window.showInformationMessage(`Selected: ${randomProblem.contestId}${randomProblem.index} ${randomProblem.name}`);
+                previewProblem(randomProblem);
             }
         }
         ratingPick.hide();
@@ -61,8 +68,7 @@ export async function searchProblem(): Promise<void> {
     quickPick.onDidAccept(() => {
         const choice = quickPick.selectedItems[0];
         if (choice) {
-            // Handle the selected problem
-            vscode.window.showInformationMessage(`Selected: ${choice.label}`);
+            previewProblem(choice.value);
         }
         quickPick.hide();
     });
