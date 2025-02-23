@@ -3,6 +3,7 @@ import { CodeforcesNode } from "./CodeforcesNode";
 import { explorerNodeManager } from "./explorerNodeManager";
 import { Category, ProblemState } from "../shared";
 import path from "path";
+import { formatDuration, getFormattedDate } from "../utils/dateUtils";
 export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<CodeforcesNode> {
     private context: vscode.ExtensionContext | null = null;
 
@@ -32,7 +33,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
         }
         return {
             label: element.isProblem ? `[${element.contestId}${element.index}] ${element.name}` : element.name,
-            tooltip: element.isProblem ? `Rating: ${element.rating ? element.rating : "UNKNOWN"}\nSolved Count: ${element.solvedCount}\nTags: ${element.tags}`: `${element.name}`,
+            tooltip: this.parseTooltipFromProblemState(element),
             collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
             command: element.isProblem ? {
                 title: "Preview Problem",
@@ -62,9 +63,25 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
             return explorerNodeManager.getAllRatingNodes();
         } else if (id === Category.Tag) {
             return explorerNodeManager.getAllTagNodes();
+        } else if (id === Category.PastContests) {
+            return explorerNodeManager.getAllPastContestNodes();
+        } else if (id === Category.UpcomingContests) {
+            return explorerNodeManager.getAllUpcomingContestNodes();
+        } else if (id === Category.RunningContests) {
+            return explorerNodeManager.getAllRunningContestNodes();
         } else {
             return explorerNodeManager.getChildrenNodesById(id);
         }
+    }
+
+    private parseTooltipFromProblemState(element: CodeforcesNode): string {
+        if (!element.isProblem) {
+            if(element.contest !== null) {
+                return `Contest: ${element.contest.name}\nType: ${element.contest.type}\nStart: ${getFormattedDate(element.contest.startTimeSeconds)}\nDuration: ${formatDuration(element.contest.durationSeconds)}`;
+            }
+            return "";
+        }
+        return `Rating: ${element.rating ? element.rating : "UNKNOWN"}\nSolved Count: ${element.solvedCount}\nTags: ${element.tags}`;
     }
 
     private parseIconPathFromProblemState(element: CodeforcesNode): string {

@@ -38,3 +38,14 @@ export function getSortingStrategy(): SortingStrategy {
     const codeforcesConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("codeforces");
     return codeforcesConfig.get<SortingStrategy>("problems.sortStrategy", SortingStrategy.None);
 }
+
+export async function setCodeforcesHandle(handle: string): Promise<void> {
+    const codeforcesConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("codeforces");
+    codeforcesConfig.update("handle", handle, true);
+    await codeforcesTreeDataProvider.refresh();
+}
+
+export function getCodeforcesHandle(): string {
+    const codeforcesConfig: vscode.WorkspaceConfiguration = vscode.workspace.getConfiguration("codeforces");
+    return codeforcesConfig.get<string>("handle", "");
+}

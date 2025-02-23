@@ -23,6 +23,12 @@
                 "title": "Hello World"
             },
             {
+                "command": "codeforces.addhandle",
+                "title": "Add Handle",
+                "category": "codeforces",
+                "icon": "$(account)"
+            },
+            {
                 "command": "codeforces.signin",
                 "title": "Sign In",
                 "category": "codeforces",
@@ -108,19 +114,24 @@
         "menus": {
             "view/title": [
                 {
-                    "command": "codeforces.signin",
+                    "command": "codeforces.addhandle",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@0"
                 },
                 {
-                    "command": "codeforces.searchProblem",
+                    "command": "codeforces.signin",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "codeforces.refreshExplorer",
+                    "command": "codeforces.searchProblem",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@2"
+                },
+                {
+                    "command": "codeforces.refreshExplorer",
+                    "when": "view == codeforcesExplorer",
+                    "group": "navigation@3"
                 },
                 {
                     "command": "codeforces.signout",
@@ -341,6 +352,12 @@
         "configuration": {
             "title": "Codeforces",
             "properties": {
+                "codeforces.handle": {
+                    "type": "string",
+                    "default": "",
+                    "scope": "application",
+                    "description": "Codeforces handle"
+                },
                 "codeforces.colorizeProblems": {
                     "type": "boolean",
                     "default": true,
@@ -355,8 +372,6 @@
                         "None",
                         "Contest Order (Ascending)",
                         "Contest Order (Descending)",
-                        "Rating (Ascending)",
-                        "Rating (Descending)",
                         "Solved Count (Ascending)",
                         "Solved Count (Descending)"
                     ],

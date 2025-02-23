@@ -66,7 +66,6 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
     };
 
     public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration>  {
-        codeforcesChannel.appendLine(`Decorating ${uri.toString()}`);
         if (uri.scheme !== "codeforces" || uri.authority !== "problems") {
             return;
         }

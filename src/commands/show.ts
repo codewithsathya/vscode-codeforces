@@ -2,6 +2,18 @@ import { CodeforcesNode } from "../explorer/CodeforcesNode";
 import { explorerNodeManager } from "../explorer/explorerNodeManager";
 import { IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
+import { setCodeforcesHandle } from "./plugin";
+
+export async function addHandle(): Promise<void> {
+    const handle = await vscode.window.showInputBox({
+        placeHolder: "Enter your codeforces handle",
+        prompt: "Enter your codeforces handle",
+    });
+    if (handle) {
+        setCodeforcesHandle(handle);
+        vscode.window.showInformationMessage(`Handle added: ${handle}`);
+    }
+}
 
 export async function pickOne(): Promise<void> {
     const problems: CodeforcesNode[] = explorerNodeManager.getAllNodes();
