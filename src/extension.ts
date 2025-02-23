@@ -6,7 +6,7 @@ import { explorerNodeManager } from "./explorer/explorerNodeManager";
 import { codeforcesTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
 import { CodeforcesNode } from "./explorer/CodeforcesNode";
 import { switchSortingStrategy } from "./commands/plugin";
-import { pickOne, searchProblem } from "./commands/show";
+import { addHandle, pickOne, searchProblem } from "./commands/show";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -35,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
                     codeforcesChannel.appendLine(content);
                 },
             ),
+            vscode.commands.registerCommand("codeforces.addhandle", () => addHandle()),
             vscode.commands.registerCommand("codeforces.signin", () => {}),
             vscode.commands.registerCommand("codeforces.signout", () => {}),
             vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => {}),
@@ -48,6 +49,9 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.switchDefaultLanguage", () => {}),
             vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => {}),
             vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => {
+                vscode.env.openExternal(vscode.Uri.parse("https://codeforces.com/contest/" + node.contest?.id));
+            }),
             vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );
     } catch (error) {}

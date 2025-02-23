@@ -4,6 +4,17 @@ export interface IQuickItemEx<T> extends vscode.QuickPickItem {
     value: T;
 }
 
+export interface IContest {
+    id: number;
+    name: string;
+    type: string;
+    phase: string;
+    frozen: boolean;
+    durationSeconds: number;
+    startTimeSeconds: number;
+    relativeTimeSeconds: number;
+}
+
 export enum ProblemState {
     WRONG_ANSWER = 1,
     PARTIAL = 2,
@@ -35,6 +46,11 @@ export interface ProblemsResponse {
     }
 }
 
+export interface ContestsResponse {
+    status: string;
+    result: IContest[];
+}
+
 export const defaultProblem: IProblem = {
     id: "",
     state: ProblemState.UNKNOWN,
@@ -48,8 +64,12 @@ export const defaultProblem: IProblem = {
 
 export enum Category {
     All = "All",
-    Difficulty = "Difficulty",
+    Rating = "Rating",
     Tag = "Tag",
+    PastContests = "Past Contests",
+    UpcomingContests = "Upcoming Contests",
+    RunningContests = "Running Contests",
+    User = "User",
 }
 
 export enum SortingStrategy {

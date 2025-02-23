@@ -23,6 +23,12 @@
                 "title": "Hello World"
             },
             {
+                "command": "codeforces.addhandle",
+                "title": "Add Handle",
+                "category": "codeforces",
+                "icon": "$(account)"
+            },
+            {
                 "command": "codeforces.signin",
                 "title": "Sign In",
                 "category": "codeforces",
@@ -94,6 +100,12 @@
                 }
             },
             {
+                "command": "codeforces.openContest",
+                "title": "Open Contest",
+                "category": "codeforces",
+                "icon": "$(link-external)"
+            },
+            {
                 "command": "codeforces.switchDefaultLanguage",
                 "title": "Switch Default Language",
                 "category": "codeforces"
@@ -108,19 +120,24 @@
         "menus": {
             "view/title": [
                 {
-                    "command": "codeforces.signin",
+                    "command": "codeforces.addhandle",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@0"
                 },
                 {
-                    "command": "codeforces.searchProblem",
+                    "command": "codeforces.signin",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "codeforces.refreshExplorer",
+                    "command": "codeforces.searchProblem",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@2"
+                },
+                {
+                    "command": "codeforces.refreshExplorer",
+                    "when": "view == codeforcesExplorer",
+                    "group": "navigation@3"
                 },
                 {
                     "command": "codeforces.signout",
@@ -162,6 +179,11 @@
                 {
                     "command": "codeforces.removeFavorite",
                     "when": "view == codeforcesExplorer && viewItem == problem-favorite",
+                    "group": "inline"
+                },
+                {
+                    "command": "codeforces.openContest",
+                    "when": "view == codeforcesExplorer && viewItem == contest",
                     "group": "inline"
                 }
             ],
@@ -341,11 +363,23 @@
         "configuration": {
             "title": "Codeforces",
             "properties": {
+                "codeforces.handle": {
+                    "type": "string",
+                    "default": "",
+                    "scope": "application",
+                    "description": "Codeforces handle"
+                },
                 "codeforces.colorizeProblems": {
                     "type": "boolean",
                     "default": true,
                     "scope": "application",
                     "description": "Colorize problems files in explorer tree."
+                },
+                "codeforces.hideSolved": {
+                    "type": "boolean",
+                    "default": false,
+                    "scope": "application",
+                    "description": "Hide solved problems in explorer tree."
                 },
                 "codeforces.problems.sortStrategy": {
                     "type": "string",
@@ -355,8 +389,6 @@
                         "None",
                         "Contest Order (Ascending)",
                         "Contest Order (Descending)",
-                        "Rating (Ascending)",
-                        "Rating (Descending)",
                         "Solved Count (Ascending)",
                         "Solved Count (Descending)"
                     ],

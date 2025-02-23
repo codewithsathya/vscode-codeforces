@@ -1,6 +1,7 @@
 import { URLSearchParams } from "url";
 import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri, workspace, WorkspaceConfiguration } from "vscode";
 import { codeforcesChannel } from "../codeforcesChannel";
+import { Category } from "../shared";
 
 export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
@@ -66,8 +67,24 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
     };
 
     public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration>  {
-        codeforcesChannel.appendLine(`Decorating ${uri.toString()}`);
-        if (uri.scheme !== "codeforces" || uri.authority !== "problems") {
+        if (uri.scheme !== "codeforces") {
+            return;
+        }
+        if(uri.authority !== "problems") {
+            codeforcesChannel.appendLine(uri.path);
+            if(uri.path.indexOf(Category.Rating) !== -1) {
+                const rating: string = uri.path.split(".")[1];
+                codeforcesChannel.appendLine(rating);
+                if(rating === "UNKNOWN") {
+                    return;
+                }
+                if(!this.isColorizingEnabled()) {
+                    return;
+                }
+                return {
+                    color: this.ITEM_COLOR[rating],
+                };
+            }
             return;
         }
 
