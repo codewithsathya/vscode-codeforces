@@ -47,6 +47,7 @@ export interface IDescription {
 
 export interface IWebViewMessage {
     command: string;
+    
 }
 
 export interface IProblem {

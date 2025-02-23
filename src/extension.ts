@@ -8,6 +8,7 @@ import { CodeforcesNode } from "./explorer/CodeforcesNode";
 import { switchSortingStrategy } from "./commands/plugin";
 import { addHandle, pickOne, previewProblem, searchProblem } from "./commands/show";
 import { globalState } from "./globalState";
+import { codeforcesProblemParser } from "./parsers/codeforcesProblemParser";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -41,7 +42,12 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.signin", () => {}),
             vscode.commands.registerCommand("codeforces.signout", () => {}),
             vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => previewProblem(node)),
-            vscode.commands.registerCommand("codeforces.showProblem", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.showProblem", async (node: CodeforcesNode, html: string) => {
+                const url = `https://codeforces.com/contest/${node.contestId}/problem/${node.index}`;
+                const problem = await codeforcesProblemParser.parse(url, html);
+                const res = JSON.stringify(problem);
+                codeforcesChannel.appendLine(res);
+            }),
             vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),
             vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => {}),

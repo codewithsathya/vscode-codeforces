@@ -423,12 +423,14 @@
         "@types/lodash": "^4.17.15",
         "@types/markdown-it": "^14.1.2",
         "axios": "^1.7.9",
+        "cyrillic-to-translit-js": "^3.2.1",
         "highlight.js": "^11.11.1",
         "jsdom": "^26.0.0",
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
         "puppeteer": "^24.2.1",
         "puppeteer-extra": "^3.3.6",
-        "puppeteer-extra-plugin-stealth": "^2.11.2"
+        "puppeteer-extra-plugin-stealth": "^2.11.2",
+        "snarkdown": "^2.0.0"
     }
 }
