@@ -3,18 +3,9 @@ import { InputConfiguration, OutputConfiguration } from '../models/IOConfigurati
 import { LanguageConfiguration } from '../models/LanguageConfiguration';
 import { Test } from '../models/Test';
 import { TestType } from '../models/TestType';
+import { Problem } from '../cph/types';
 
 const cyrillicToLatin = cyrillicToTranslit();
-
-export interface ParsedProblem {
-    name: string,
-    url: string,
-    interactive: boolean,
-    memoryLimit: number,
-    timeLimit: number,
-    group: string,
-    tests: Test[],
-}
 
 export class TaskBuilder {
     public name: string = '';
@@ -128,7 +119,7 @@ export class TaskBuilder {
         return this;
     }
 
-    public build(): ParsedProblem {
+    public build(): Problem {
         return {
             name: this.name,
             url: this.url,
@@ -137,6 +128,7 @@ export class TaskBuilder {
             timeLimit: this.timeLimit,
             group: this.group,
             tests: this.tests,
+            srcPath: ""
         };
     }
 }

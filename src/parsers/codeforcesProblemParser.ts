@@ -1,10 +1,10 @@
 import { codeforcesChannel } from '../codeforcesChannel';
+import { Problem } from '../cph/types';
 import { decodeHtml, htmlToElement } from '../utils/domUtils';
-import { ParsedProblem, TaskBuilder } from './taskBuilder';
-import { JSDOM } from 'jsdom';
+import { TaskBuilder } from './taskBuilder';
 
 export class CodeforcesProblemParser {
-    public async parse(url: string, html: string): Promise<ParsedProblem> {
+    public async parse(url: string, html: string): Promise<Problem> {
         const task = new TaskBuilder('Codeforces').setUrl(url);
 
         if (url.includes('/problemsets/acmsguru')) {

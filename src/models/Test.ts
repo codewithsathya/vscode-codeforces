@@ -1,4 +1,5 @@
 export class Test {
+    public id: number;
     public input: string;
     public output: string;
 

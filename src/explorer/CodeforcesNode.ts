@@ -4,8 +4,8 @@ import { toInteger } from "lodash";
 
 export class CodeforcesNode {
     constructor(
-        private data: IProblem,
-        private isProblemNode: boolean = true,
+        public data: IProblem,
+        public isProblemNode: boolean = true,
         public contest: IContest | null = null,
     ) {}
 
