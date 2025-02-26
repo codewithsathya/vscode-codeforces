@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import type { Cookie } from "rebrowser-puppeteer-core";
 
 class GlobalState {
     private context!: vscode.ExtensionContext;
@@ -19,6 +20,18 @@ class GlobalState {
 
     public async update(key: string, value: any) {
         await this._state.update(key, value);
+    }
+
+    public async saveCookies(cookies: Cookie[]) {
+        await this.update("codeforces.cookies", cookies);
+    }
+
+    public getCookies(): Cookie[] {
+        const cookies = this.get("codeforces.cookies") as undefined | Cookie[];
+        if(!cookies) {
+            return [];
+        }
+        return cookies;
     }
 }
 

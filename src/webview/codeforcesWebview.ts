@@ -6,9 +6,9 @@ import { markdownEngine } from "./markdownEngine";
 import * as vscode from "vscode";
 import { globalState } from "../globalState";
 
-export abstract class LeetCodeWebview implements Disposable {
+export abstract class CodeforcesWebview implements Disposable {
 
-    protected readonly viewType: string = "leetnotion.webview";
+    protected readonly viewType: string = "codeforces.webview";
     protected panel: WebviewPanel | undefined;
     private listeners: Disposable[] = [];
 
@@ -66,7 +66,7 @@ export abstract class LeetCodeWebview implements Disposable {
 
     protected async onDidReceiveMessage(_message: any): Promise<void> { /* no special rule */ }
 
-    protected abstract getWebviewOption(): ILeetCodeWebviewOption;
+    protected abstract getWebviewOption(): ICodeforcesWebviewOption;
 
     protected abstract getWebviewContent(): string;
 
@@ -74,7 +74,7 @@ export abstract class LeetCodeWebview implements Disposable {
     }
 }
 
-export interface ILeetCodeWebviewOption {
+export interface ICodeforcesWebviewOption {
     title: string;
     viewColumn: ViewColumn;
     preserveFocus?: boolean;

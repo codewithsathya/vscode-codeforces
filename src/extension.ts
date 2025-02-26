@@ -8,6 +8,15 @@ import { CodeforcesNode } from "./explorer/CodeforcesNode";
 import { switchSortingStrategy } from "./commands/plugin";
 import { addHandle, pickOne, previewProblem, searchProblem } from "./commands/show";
 import { globalState } from "./globalState";
+import { codeforcesProblemParser } from "./parsers/codeforcesProblemParser";
+import JudgeViewProvider, { judgeViewProvider } from "./webview/judgeViewProvider";
+import { getRetainWebviewContextPref } from "./cph/preferences";
+import { getProblemUrl, openContestUrl } from "./utils/urlUtils";
+import { checkLaunchWebview, editorChanged, editorClosed } from "./webview/editorChange";
+import { handleNewProblem } from "./cph/companion";
+import runTestCases from "./cph/runTestCases";
+import { submitToCodeForces } from "./cph/submit";
+import { codeforcesManager } from "./codeforcesManager";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -16,10 +25,7 @@ export function activate(context: vscode.ExtensionContext) {
         globalState.initialize(context);
 
         codeforcesTreeDataProvider.refresh();
-        
-        console.log(
-            'Congratulations, your extension "vscode-codeforces" is now active!',
-        );
+
         context.subscriptions.push(
             codeforcesChannel,
             explorerNodeManager,
@@ -28,35 +34,52 @@ export function activate(context: vscode.ExtensionContext) {
                 treeDataProvider: codeforcesTreeDataProvider,
                 showCollapseAll: true,
             }),
-            vscode.commands.registerCommand(
-                "vscode-codeforces.helloWorld",
-                async () => {
-                    const content = await browserClient.getData(
-                        "https://codeforces.com/contest/1426/problem/D",
-                    );
-                    codeforcesChannel.appendLine(content);
-                },
-            ),
+            vscode.window.registerWebviewViewProvider(JudgeViewProvider.viewType, judgeViewProvider, {
+                webviewOptions: {
+                    retainContextWhenHidden: getRetainWebviewContextPref()
+                }
+            }),
             vscode.commands.registerCommand("codeforces.addhandle", () => addHandle()),
-            vscode.commands.registerCommand("codeforces.signin", () => {}),
-            vscode.commands.registerCommand("codeforces.signout", () => {}),
+            vscode.commands.registerCommand("codeforces.signin", () => codeforcesManager.signIn()),
+            vscode.commands.registerCommand("codeforces.signout", () => codeforcesManager.signOut()),
             vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => previewProblem(node)),
-            vscode.commands.registerCommand("codeforces.showProblem", (node: CodeforcesNode) => {}),
+            vscode.commands.registerCommand("codeforces.showProblem", async (node: CodeforcesNode, html: string) => {
+                const problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
+                handleNewProblem(problem, node, html);
+            }),
+            vscode.commands.registerCommand("codeforces.runTestCases", () => runTestCases()),
+            vscode.commands.registerCommand("codeforces.submitSolution", () => submitToCodeForces()),
             vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),
-            vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => {}),
+            vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => { }),
             vscode.commands.registerCommand("codeforces.refreshExplorer", () => codeforcesTreeDataProvider.refresh()),
-            vscode.commands.registerCommand("codeforces.testSolution", (uri?: vscode.Uri) => {}),
-            vscode.commands.registerCommand("codeforces.submitSolution", (uri?: vscode.Uri) => {}),
-            vscode.commands.registerCommand("codeforces.switchDefaultLanguage", () => {}),
-            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => {}),
-            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => {}),
-            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => {
-                vscode.env.openExternal(vscode.Uri.parse("https://codeforces.com/contest/" + node.contest?.id));
-            }),
+            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => { }),
+            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => { }),
+            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => openContestUrl(node.contestId)),
             vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );
-    } catch (error) {}
+        checkLaunchWebview();
+
+        vscode.workspace.onDidCloseTextDocument((e) => {
+            editorClosed(e);
+        });
+
+        vscode.window.onDidChangeActiveTextEditor((e) => {
+            editorChanged(e);
+        });
+
+        vscode.window.onDidChangeVisibleTextEditors((editors) => {
+            if (editors.length === 0) {
+                judgeViewProvider.extensionToJudgeViewMessage({
+                    command: 'new-problem',
+                    problem: undefined,
+                });
+            }
+        });
+
+    } catch (error) {
+        codeforcesChannel.appendLine(`Error activating extension: ${error}`);
+    }
 }
 
 export function deactivate() {

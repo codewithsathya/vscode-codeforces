@@ -1,17 +1,17 @@
 import { JSDOM } from 'jsdom';
 import { commands, ViewColumn } from "vscode";
 import { IDescription, IProblem, IWebViewMessage } from "../shared";
-import { ILeetCodeWebviewOption, LeetCodeWebview } from "./codeforcesWebview";
+import { ICodeforcesWebviewOption, CodeforcesWebview } from "./codeforcesWebview";
 import { markdownEngine } from "./markdownEngine";
 import { codeforcesChannel } from '../codeforcesChannel';
-import * as path from 'path';
 import * as vscode from 'vscode';
 import * as os from 'os';
 import { globalState } from '../globalState';
 
-class CodeforcesPreviewProvider extends LeetCodeWebview {
-    protected readonly viewType: string = "leetnotion.preview";
+class CodeforcesPreviewProvider extends CodeforcesWebview {
+    protected readonly viewType: string = "codeforces.preview";
     private node!: IProblem;
+    private problemHtml!: string;
     private description!: IDescription;
     private sideMode: boolean = false;
 
@@ -20,13 +20,14 @@ class CodeforcesPreviewProvider extends LeetCodeWebview {
     }
 
     public show(descString: string, node: IProblem, isSideMode: boolean = false): void {
+        this.problemHtml = descString;
         this.description = this.parseDescription(descString, node);
         this.node = node;
         this.sideMode = isSideMode;
         this.showWebviewInternal();
     }
 
-    protected getWebviewOption(): ILeetCodeWebviewOption {
+    protected getWebviewOption(): ICodeforcesWebviewOption {
         if (!this.sideMode) {
             return {
                 title: `${this.node.name}: Preview`,
@@ -98,6 +99,7 @@ class CodeforcesPreviewProvider extends LeetCodeWebview {
                 ">
                 ${styles}
                 ${!this.sideMode ? button.style : ""}
+                ${button.style}
                 ${scripts}
             </head>
             <body>
@@ -147,9 +149,10 @@ class CodeforcesPreviewProvider extends LeetCodeWebview {
     }
 
     protected async onDidReceiveMessage(message: IWebViewMessage): Promise<void> {
+        codeforcesChannel.appendLine("Message received");
         switch (message.command) {
             case "ShowProblem": {
-                await commands.executeCommand("leetnotion.showProblem", this.node);
+                await commands.executeCommand("codeforces.showProblem", this.node, this.problemHtml);
                 break;
             }
         }

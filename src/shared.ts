@@ -45,8 +45,21 @@ export interface IDescription {
     rating: string;
 }
 
+export enum DescriptionConfiguration {
+    InWebView = "In Webview",
+    InFileComment = "In File Comment",
+    Both = "Both",
+    None = "None",
+}
+
+export interface IDescriptionConfiguration {
+    showInComment: boolean;
+    showInWebview: boolean;
+}
+
 export interface IWebViewMessage {
     command: string;
+    
 }
 
 export interface IProblem {
