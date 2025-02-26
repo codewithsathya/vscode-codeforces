@@ -6,6 +6,7 @@ import { getTimeOutPref } from './preferences';
 import * as vscode from 'vscode';
 import path from 'path';
 import { onlineJudgeEnv } from './compiler';
+import { codeforcesChannel } from '../codeforcesChannel';
 
 const runningBinaries: ChildProcessWithoutNullStreams[] = [];
 
@@ -119,7 +120,7 @@ export const runTestCase = (
     }
 
     process.on('error', (err) => {
-        // globalThis.logger.error(err);
+        codeforcesChannel.appendLine(`Could not launch testcase process: ${err}`);
         vscode.window.showErrorMessage(
             `Could not launch testcase process. Is '${language.compiler}' in your PATH?`,
         );

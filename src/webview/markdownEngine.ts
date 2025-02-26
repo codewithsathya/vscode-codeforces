@@ -5,7 +5,6 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { codeforcesChannel } from "../codeforcesChannel";
 import { MarkdownConfiguration } from "./markdownConfiguration";
-import { globalState } from "../globalState";
 
 class MarkdownEngine implements vscode.Disposable {
     private engine: MarkdownIt | undefined;
@@ -65,9 +64,8 @@ class MarkdownEngine implements vscode.Disposable {
                 return webview.asWebviewUri(styleUri);
             });
         } catch (error) {
-            codeforcesChannel.appendLine("[Error] Fail to load built-in markdown style file.");
+            codeforcesChannel.appendLine(`[Error] Fail to load built-in markdown style file: ${error}`);
         }
-        codeforcesChannel.appendLine(`${styles}`);
         return styles.map((style: vscode.Uri) => `<link rel="stylesheet" type="text/css" href="${style.toString()}">`).join(os.EOL);
     }
 

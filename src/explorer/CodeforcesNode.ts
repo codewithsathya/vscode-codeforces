@@ -1,6 +1,5 @@
 import { Command, Uri } from "vscode";
 import { IContest, IProblem, ProblemState } from "../shared";
-import { toInteger } from "lodash";
 
 export class CodeforcesNode {
     constructor(

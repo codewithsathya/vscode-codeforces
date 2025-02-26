@@ -1,6 +1,5 @@
 import { URLSearchParams } from "url";
 import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri, workspace, WorkspaceConfiguration } from "vscode";
-import { codeforcesChannel } from "../codeforcesChannel";
 import { Category } from "../shared";
 
 export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
@@ -71,10 +70,8 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
             return;
         }
         if(uri.authority !== "problems") {
-            codeforcesChannel.appendLine(uri.path);
             if(uri.path.indexOf(Category.Rating) !== -1) {
                 const rating: string = uri.path.split(".")[1];
-                codeforcesChannel.appendLine(rating);
                 if(rating === "UNKNOWN") {
                     return;
                 }
@@ -106,7 +103,7 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
 
     private isColorizingEnabled(): boolean {
         const configuration: WorkspaceConfiguration = workspace.getConfiguration();
-        return configuration.get<boolean>("codeforces.colorizeProblems", false);
+        return configuration.get<boolean>("codeforces.colorizeProblems", true);
     }
 }
 

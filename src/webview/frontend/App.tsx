@@ -14,8 +14,6 @@ import CaseView from './CaseView';
 
 let notificationTimeout: NodeJS.Timeout | undefined = undefined;
 
-const originalConsole = { ...window.console };
-
 declare const vscodeApi: {
     postMessage: (message: WebviewToVSEvent) => void;
     getState: () => WebViewpersistenceState | undefined;

@@ -1,6 +1,8 @@
 code {
     white-space: pre-wrap;
+    display: block !important;
 }
+
 .header {
     display: none;
 }

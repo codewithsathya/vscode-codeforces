@@ -1,8 +1,7 @@
 import * as _ from "lodash";
 import { Disposable } from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
-import { Category, ContestsResponse, defaultProblem, IContest, IProblem, ProblemsResponse, ProblemState, SortingStrategy } from "../shared";
-import { codeforcesChannel } from "../codeforcesChannel";
+import { Category, ContestsResponse, defaultProblem, IContest, ProblemsResponse, ProblemState, SortingStrategy } from "../shared";
 import axiosClient from 'axios';
 import { getCodeforcesHandle, getSortingStrategy } from "../commands/plugin";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";

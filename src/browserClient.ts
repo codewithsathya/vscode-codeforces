@@ -10,7 +10,7 @@ class BrowserClient {
 
     public async initialize() {
         const { browser, page } = await connect({
-            headless: false,
+            headless: true,
             turnstile: true,
         });
         this.browser = browser;
@@ -37,8 +37,21 @@ class BrowserClient {
         if (!this.page) {
             throw new Error("not-initialized");
         }
+    
+        const rawHtmlPromise = new Promise<string>((resolve) => {
+            this.page.on("response", async (response) => {
+                if (response.url() === url && response.request().resourceType() === "document") {
+                    resolve(await response.text());
+                }
+            });
+        });
+    
         await this.page.goto(url, { waitUntil: "domcontentloaded" });
-        return await this.page.content();
+    
+        const rawHtml = await rawHtmlPromise;
+    
+        codeforcesChannel.appendLine(rawHtml);
+        return rawHtml;
     }
 
     public async login(username: string, password: string) {
@@ -62,7 +75,6 @@ class BrowserClient {
             codeforcesChannel.appendLine("Waiting for login confirmation...");
 
             await sleep(5000);
-            codeforcesChannel.appendLine(await this.page.content());
 
             // Wait for either the success or error condition
             const result = await Promise.race([

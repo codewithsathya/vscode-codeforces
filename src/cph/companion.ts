@@ -1,5 +1,5 @@
 import config from './config';
-import { Problem, CphSubmitResponse, CphEmptyResponse } from './types';
+import { Problem } from './types';
 import { saveProblem } from './parser';
 import * as vscode from 'vscode';
 import path from 'path';
@@ -7,7 +7,6 @@ import { writeFileSync, readFileSync, existsSync } from 'fs';
 import { isCodeforcesUrl, randomId } from './utils';
 import {
     getDefaultLangPref,
-    getLanguageId,
     useShortCodeForcesName,
     getMenuChoices,
     getDefaultLanguageTemplateFileLocation,
@@ -19,9 +18,7 @@ import { CodeforcesNode } from '../explorer/CodeforcesNode';
 import { IDescriptionConfiguration, IProblem } from '../shared';
 import { codeforcesPreviewProvider } from '../webview/codeforcesPreviewProvider';
 import { getDescriptionConfiguration } from '../utils/settingUtils';
-import { codeforcesChannel } from '../codeforcesChannel';
 
-const emptyResponse: CphEmptyResponse = { empty: true };
 
 export const getProblemFileName = (problem: Problem, ext: string) => {
     if (isCodeforcesUrl(new URL(problem.url)) && useShortCodeForcesName()) {
@@ -112,8 +109,6 @@ export const handleNewProblem = async (problem: Problem, node: CodeforcesNode, h
     await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
     const descriptionConfig: IDescriptionConfiguration = getDescriptionConfiguration();
     if (descriptionConfig.showInWebview) {
-        codeforcesChannel.appendLine(html);
-        codeforcesChannel.appendLine(JSON.stringify(node));
         showDescriptionView(html, node.data);
     }
     judgeViewProvider.extensionToJudgeViewMessage({

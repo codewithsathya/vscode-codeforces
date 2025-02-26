@@ -17,7 +17,8 @@ const config = {
     },
     devtool: false,
     externals: {
-        vscode: 'commonjs vscode', 
+        vscode: 'commonjs vscode',
+        'puppeteer-real-browser': 'commonjs puppeteer-real-browser'
     },
     resolve: {
         extensions: ['.ts', '.js'],

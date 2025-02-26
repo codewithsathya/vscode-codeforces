@@ -50,7 +50,6 @@ class CodeforcesManager {
     public async handleSignIn(username: string, password: string) {
         try {
             const { cookies, handle } = await browserClient.login(username, password);
-            codeforcesChannel.appendLine(JSON.stringify(cookies));
             await setCodeforcesHandle(handle);
             await globalState.saveCookies(cookies);
             promptForOpenOutputChannel(`Login successful`, DialogType.completed);

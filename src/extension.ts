@@ -47,14 +47,14 @@ export function activate(context: vscode.ExtensionContext) {
                 const problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
                 handleNewProblem(problem, node, html);
             }),
-            vscode.commands.registerCommand("codeforces.runTestCases", () => runTestCases()),
+            vscode.commands.registerCommand("codeforces.testSolution", () => runTestCases()),
             vscode.commands.registerCommand("codeforces.submitSolution", () => submitToCodeForces()),
             vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),
-            vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => { }),
+            vscode.commands.registerCommand("codeforces.showSolution", () => { }),
             vscode.commands.registerCommand("codeforces.refreshExplorer", () => codeforcesTreeDataProvider.refresh()),
-            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => { }),
-            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => { }),
+            vscode.commands.registerCommand("codeforces.addFavorite", () => { }),
+            vscode.commands.registerCommand("codeforces.removeFavorite", () => { }),
             vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => openContestUrl(node.contestId)),
             vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );

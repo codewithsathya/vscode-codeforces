@@ -1,6 +1,5 @@
 import { getProblem } from './parser';
 import * as vscode from 'vscode';
-import { judgeViewProvider } from '../webview/judgeViewProvider';
 import { getLanguageId } from './preferences';
 import fs from "fs";
 import { getDetailsFromProblemUrl } from '../utils/urlUtils';

@@ -85,7 +85,6 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             markdownEngine.render(this.description.tags.map((t: string) => `${t}`).join(", ")),
             `</details>`,
         ].join("\n");
-        codeforcesChannel.appendLine(body);
         return `
             <!DOCTYPE html>
             <html>
@@ -107,36 +106,43 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 ${info}
                 ${tags}
                 ${body}
-                <hr />
                 ${!this.sideMode ? button.element : ""}
                 <script>
                     const vscode = acquireVsCodeApi();
                     ${!this.sideMode ? button.script : ""}
-                    document.addEventListener("DOMContentLoaded", () => {
+                    document.addEventListener("DOMContentLoaded", function () {
                         if (window.renderMathInElement) {
                             renderMathInElement(document.body, {
                                 delimiters: [
-                                    { left: "$$$", right: "$$$", display: false },
                                     { left: "$$$$$$", right: "$$$$$$", display: true },
+                                    { left: "$$$", right: "$$$", display: false }
                                 ]
                             });
                         }
-                        const clipboard = new ClipboardJS('.input-output-copier', {
-                            target: function(trigger) {
-                                return document.querySelector(trigger.getAttribute('data-clipboard-target'));
+                        document.querySelectorAll(".input, .output").forEach((block, index) => {
+                            const titleDiv = block.querySelector(".title");
+                            const codeBlock = block.querySelector("pre code");
+
+                            if (titleDiv && codeBlock) {
+                                const copyButton = document.createElement("button");
+                                copyButton.textContent = "Copy";
+                                copyButton.classList.add("input-output-copier");
+                                
+                                const uniqueId = "copy-target-" + index;
+                                codeBlock.setAttribute("id", uniqueId);
+                                copyButton.setAttribute("data-clipboard-target", "#" + uniqueId);
+
+                                titleDiv.appendChild(copyButton);
                             }
                         });
-
-                        clipboard.on('success', function(e) {
-                            console.log('Text copied successfully!');
+                        const clipboard = new ClipboardJS('.input-output-copier');
+                        clipboard.on('success', function (e) {
                             e.clearSelection();
                         });
-
-                        clipboard.on('error', function(e) {
+                        clipboard.on('error', function () {
                             console.error('Error copying text.');
                         });
                     });
-
                 </script>
             </body>
             </html>
@@ -167,7 +173,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 return this.panel ? this.panel.webview.asWebviewUri(onDiskPath) : onDiskPath;
             });
         } catch (error) {
-            codeforcesChannel.appendLine("[Error] Fail to load built-in markdown style file.");
+            codeforcesChannel.appendLine("[Error] Fail to load codeforces preview styles.");
         }
         return styles.map((style: vscode.Uri) => `<link rel="stylesheet" type="text/css" href="${style}">`).join(os.EOL);
     }
@@ -181,7 +187,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 return this.panel ? this.panel.webview.asWebviewUri(onDiskPath) : onDiskPath;
             });
         } catch (error) {
-            codeforcesChannel.appendLine("[Error] Fail to load built-in markdown style file.");
+            codeforcesChannel.appendLine("[Error] Fail to load codeforces preview scripts.");
         }
         return scripts.map((script: vscode.Uri) => `<script src="${script.toString()}"></script>`).join(os.EOL);
     }

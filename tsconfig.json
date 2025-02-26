@@ -1,8 +1,8 @@
 {
     "compilerOptions": {
         "module": "CommonJS",
-        "target": "ES2022",
-        "outDir": "out",
+        "target": "es6",
+        "outDir": "dist",
         "lib": ["ES2022", "DOM"],
         "jsx": "react",
         "sourceMap": false,
@@ -11,5 +11,14 @@
         "strictNullChecks": false,
         "esModuleInterop": true,
         "resolveJsonModule": true,
+
+        "noEmitHelpers": true,       /* Avoids emitting TypeScript helpers */
+        "importHelpers": true,        /* Uses tslib instead of duplicating helpers */
+        "removeComments": true,       /* Removes comments */
+        "downlevelIteration": false,  /* Avoids extra polyfills for loops */
+        "skipLibCheck": true,         /* Skips checking .d.ts files to speed up build */
+        "noUnusedLocals": true,       /* Removes unused variables */
+        "noUnusedParameters": true,   /* Removes unused function parameters */
+        "moduleResolution": "node",
     }
 }

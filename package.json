@@ -15,7 +15,7 @@
     ],
     "preview": true,
     "activationEvents": [],
-    "main": "./out/extension.js",
+    "main": "./dist/extension.js",
     "contributes": {
         "commands": [
             {
@@ -111,16 +111,6 @@
                 "title": "Sort Problems",
                 "category": "codeforces",
                 "icon": "$(sort-precedence)"
-            },
-            {
-                "command": "cph.runTestCases",
-                "title": "Run Testcases",
-                "icon": "resources/play.png"
-            },
-            {
-                "command": "cph.submitToCodeForces",
-                "title": "Submit to CodeForces",
-                "icon": "resources/play.png"
             }
         ],
         "menus": {
@@ -381,11 +371,11 @@
         "keybindings": [
             {
                 "key": "ctrl+alt+b",
-                "command": "codeforces.runTestCases"
+                "command": "codeforces.testSolution"
             },
             {
                 "key": "ctrl+alt+s",
-                "command": "codeforces.submitToCodeForces"
+                "command": "codeforces.submitSolution"
             },
             {
                 "key": "ctrl+alt+d",
@@ -749,7 +739,7 @@
     },
     "repository": "https://github.com/codewithsathya/vscode-codeforces",
     "scripts": {
-        "vscode:prepublish": "npm run webpack-frontend-production && npm run webpack-production",
+        "vscode:prepublish": "npm run webpack-frontend-production && npm run compile",
         "webpack-production": "webpack --mode production",
         "webpack-frontend-production": "webpack --mode production --config ./webpack.frontend.config.js",
         "compile": "tsc -p ./",
@@ -791,5 +781,8 @@
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-textarea-autosize": "^8.5.7"
-    }
+    },
+    "extensionDependencies": [
+        "vscode.markdown-language-features"
+    ]
 }
