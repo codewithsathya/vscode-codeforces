@@ -99,6 +99,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 ">
                 ${styles}
                 ${!this.sideMode ? button.style : ""}
+                ${button.style}
                 ${scripts}
             </head>
             <body>

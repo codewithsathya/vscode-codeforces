@@ -19,10 +19,6 @@
     "contributes": {
         "commands": [
             {
-                "command": "vscode-codeforces.helloWorld",
-                "title": "Hello World"
-            },
-            {
                 "command": "codeforces.addhandle",
                 "title": "Add Handle",
                 "category": "codeforces",
@@ -791,12 +787,9 @@
         "jsdom": "^26.0.0",
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
-        "puppeteer": "^24.2.1",
-        "puppeteer-extra": "^3.3.6",
-        "puppeteer-extra-plugin-stealth": "^2.11.2",
+        "puppeteer-real-browser": "^1.4.2",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
-        "react-textarea-autosize": "^8.5.7",
-        "snarkdown": "^2.0.0"
+        "react-textarea-autosize": "^8.5.7"
     }
 }

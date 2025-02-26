@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import { storeSubmitProblem } from '../cph/companion';
 import { killRunning } from '../cph/executions';
 import { saveProblem } from '../cph/parser';
 import { VSToWebViewMessage, WebviewToVSEvent } from '../cph/types';
@@ -14,6 +13,8 @@ import {
 import { setOnlineJudgeEnv } from '../cph/compiler';
 import { globalState } from '../globalState';
 import { codeforcesChannel } from '../codeforcesChannel';
+import { showDescription } from './showDescription';
+import { submitProblem } from '../cph/submit';
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'codeforces.judgeView';
@@ -41,6 +42,12 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(
             async (message: WebviewToVSEvent) => {
                 switch (message.command) {
+                    case 'show-description': {
+                        const problem = message.problem;
+                        showDescription(problem);
+                        break;
+                    }
+
                     case 'run-single-and-save': {
                         const problem = message.problem;
                         const id = message.id;
@@ -74,7 +81,8 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                     }
 
                     case 'submitCf': {
-                        storeSubmitProblem(message.problem);
+                        const problem = message.problem;
+                        await submitProblem(problem);
                         break;
                     }
 

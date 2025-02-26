@@ -27,9 +27,6 @@ interface CustomWindow extends Window {
 }
 declare const window: CustomWindow;
 
-// Original: www.paypal.com/ncp/payment/CMLKCFEJEMX5L
-// const payPalUrl = 'https://rb.gy/5iiorz';
-
 function Judge(props: {
     problem: Problem;
     updateProblem: (problem: Problem) => void;
@@ -48,18 +45,6 @@ function Judge(props: {
     const [waitingForSubmit, setWaitingForSubmit] = useState<boolean>(false);
     const [onlineJudgeEnv, setOnlineJudgeEnv] = useState<boolean>(false);
 
-    const [webviewState, setWebviewState] = useState<WebViewpersistenceState>(
-        () => {
-            const vscodeState = vscodeApi.getState();
-            const ret = {
-                dialogCloseDate: vscodeState?.dialogCloseDate || Date.now(),
-            };
-            vscodeApi.setState(ret);
-            console.log('Restored to state:', ret);
-            return ret;
-        },
-    );
-
     // Update problem if cases change. The only place where `updateProblem` is
     // allowed to ensure sync.
     useEffect(() => {
@@ -69,15 +54,6 @@ function Judge(props: {
             tests: testCases,
         });
     }, [cases]);
-
-    const closeDonateBox = () => {
-        const newState = {
-            ...webviewState,
-            dialogCloseDate: Date.now(),
-        };
-        setWebviewState(newState);
-        vscodeApi.setState(newState);
-    };
 
     const sendMessageToVSCode = (message: WebviewToVSEvent) => {
         vscodeApi.postMessage(message);
@@ -182,6 +158,13 @@ function Judge(props: {
         setFocusLast(true);
     };
 
+    const showDescription = () => {
+        sendMessageToVSCode({
+            command: 'show-description',
+            problem,
+        });
+    };
+
     // Stop running executions.
     const stop = () => {
         notify('Stopped any running processes');
@@ -213,7 +196,7 @@ function Judge(props: {
             problem,
         });
 
-        setWaitingForSubmit(true);
+        // setWaitingForSubmit(true);
     };
 
     const debounceFocusLast = () => {
@@ -421,16 +404,16 @@ function Judge(props: {
                         </span>{' '}
                         <span className="action-text">Stop</span>
                     </button>
-                    {/* <button
+                    <button
                         className="btn"
-                        title="Info"
-                        onClick={() => showInfoPage()}
+                        title="Show Problem Description"
+                        onClick={showDescription}
                     >
                         <span className="icon">
                             <i className="codicon codicon-info"></i>
                         </span>{' '}
-                        <span className="action-text"></span>
-                    </button> */}
+                        <span className="action-text">Description</span>
+                    </button>
                     <button
                         className="btn btn-red right"
                         onClick={deleteTcs}

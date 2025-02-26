@@ -12,3 +12,23 @@ export function openContestUrl(contestId?: string | number) {
     const url = getContestUrl(contestId);
     vscode.env.openExternal(vscode.Uri.parse(url));
 }
+
+export function getNodeIdFromUrl(url: string): string {
+    const regex = /contest\/(\d+)\/problem\/([A-Z]?\d*[A-Z]?\d*)/;
+    const match = url.match(regex);
+    if (match) {
+        return `${match[1]}:${match[2]}`;
+    } else {
+        return "";
+    }
+}
+
+export function getDetailsFromProblemUrl(url: string): { contestId: string, index: string } {
+    const regex = /contest\/(\d+)\/problem\/([A-Z]?\d*[A-Z]?\d*)/;
+    const match = url.match(regex);
+    if (match) {
+        return { contestId: match[1], index: match[2] };
+    } else {
+        return null;
+    }
+}

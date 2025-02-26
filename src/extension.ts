@@ -16,6 +16,7 @@ import { checkLaunchWebview, editorChanged, editorClosed } from "./webview/edito
 import { handleNewProblem } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
+import { codeforcesManager } from "./codeforcesManager";
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -39,15 +40,15 @@ export function activate(context: vscode.ExtensionContext) {
                 }
             }),
             vscode.commands.registerCommand("codeforces.addhandle", () => addHandle()),
-            vscode.commands.registerCommand("codeforces.signin", () => { }),
-            vscode.commands.registerCommand("codeforces.signout", () => { }),
+            vscode.commands.registerCommand("codeforces.signin", () => codeforcesManager.signIn()),
+            vscode.commands.registerCommand("codeforces.signout", () => codeforcesManager.signOut()),
             vscode.commands.registerCommand("codeforces.previewProblem", (node: CodeforcesNode) => previewProblem(node)),
             vscode.commands.registerCommand("codeforces.showProblem", async (node: CodeforcesNode, html: string) => {
                 const problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
                 handleNewProblem(problem, node, html);
             }),
             vscode.commands.registerCommand("codeforces.runTestCases", () => runTestCases()),
-            vscode.commands.registerCommand("codeforces.submitToCodeforces", () => submitToCodeForces()),
+            vscode.commands.registerCommand("codeforces.submitSolution", () => submitToCodeForces()),
             vscode.commands.registerCommand("codeforces.pickOne", () => pickOne()),
             vscode.commands.registerCommand("codeforces.searchProblem", () => searchProblem()),
             vscode.commands.registerCommand("codeforces.showSolution", (input: CodeforcesNode | vscode.Uri) => { }),

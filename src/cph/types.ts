@@ -157,6 +157,10 @@ export type GetExtLogs = {
     command: 'get-ext-logs';
 };
 
+export type ShowDescription = {
+    command: 'show-description';
+} & WebviewMessageCommon;
+
 export type WebviewToVSEvent =
     | RunAllCommand
     | GetInitialProblem
@@ -168,7 +172,8 @@ export type WebviewToVSEvent =
     | SubmitCf
     | OnlineJudgeEnv
     | OpenUrl
-    | GetExtLogs;
+    | GetExtLogs
+    | ShowDescription;
 
 export type RunningCommand = {
     command: 'running';

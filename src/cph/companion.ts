@@ -15,7 +15,6 @@ import {
 import { getProblemName } from './submit';
 import { words_in_text } from './utilsPure';
 import { judgeViewProvider } from '../webview/judgeViewProvider';
-import { previewProblem } from '../commands/show';
 import { CodeforcesNode } from '../explorer/CodeforcesNode';
 import { IDescriptionConfiguration, IProblem } from '../shared';
 import { codeforcesPreviewProvider } from '../webview/codeforcesPreviewProvider';
@@ -23,23 +22,6 @@ import { getDescriptionConfiguration } from '../utils/settingUtils';
 import { codeforcesChannel } from '../codeforcesChannel';
 
 const emptyResponse: CphEmptyResponse = { empty: true };
-let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
-
-/** Stores a response to be submitted to CF page soon. */
-export const storeSubmitProblem = (problem: Problem) => {
-    const srcPath = problem.srcPath;
-    const problemName = getProblemName(problem.url);
-    const sourceCode = readFileSync(srcPath).toString();
-    const languageId = getLanguageId(problem.srcPath);
-    savedResponse = {
-        empty: false,
-        url: problem.url,
-        problemName,
-        sourceCode,
-        languageId,
-    };
-    // globalThis.logger.log('Stored savedResponse', savedResponse);
-};
 
 export const getProblemFileName = (problem: Problem, ext: string) => {
     if (isCodeforcesUrl(new URL(problem.url)) && useShortCodeForcesName()) {
@@ -127,7 +109,7 @@ export const handleNewProblem = async (problem: Problem, node: CodeforcesNode, h
         }
     }
 
-    await vscode.window.showTextDocument(doc, vscode.ViewColumn.One)
+    await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
     const descriptionConfig: IDescriptionConfiguration = getDescriptionConfiguration();
     if (descriptionConfig.showInWebview) {
         codeforcesChannel.appendLine(html);
