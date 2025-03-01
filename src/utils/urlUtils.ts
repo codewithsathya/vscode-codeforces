@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { CodeforcesNode } from "../explorer/CodeforcesNode";
 
 export function getProblemUrl(contestId?: string | number, index?: string | number) {
     return `https://codeforces.com/contest/${contestId}/problem/${index}`;
@@ -8,8 +9,8 @@ export function getContestUrl(contestId?: string | number) {
     return `https://codeforces.com/contest/${contestId}`;
 }
 
-export function openContestUrl(contestId?: string | number) {
-    const url = getContestUrl(contestId);
+export function openContestUrl(node: CodeforcesNode) {
+    const url = getContestUrl(node.contest.id);
     vscode.env.openExternal(vscode.Uri.parse(url));
 }
 

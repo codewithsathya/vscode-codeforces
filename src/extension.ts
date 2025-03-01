@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.refreshExplorer", () => codeforcesTreeDataProvider.refresh()),
             vscode.commands.registerCommand("codeforces.addFavorite", () => { }),
             vscode.commands.registerCommand("codeforces.removeFavorite", () => { }),
-            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => openContestUrl(node.contestId)),
+            vscode.commands.registerCommand("codeforces.openContest", (node: CodeforcesNode) => openContestUrl(node)),
             vscode.commands.registerCommand("codeforces.problems.sort", () => switchSortingStrategy()),
         );
         checkLaunchWebview();

@@ -76,9 +76,11 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 }
                 </style>`,
         };
-        const { title, url, rating, body } = this.description;
+        const { title, url, rating, body, timeLimit, memoryLimit } = this.description;
         const head: string = markdownEngine.render(`# [${title}](${url})`);
         const info: string = markdownEngine.render(`**Rating**: ${rating}`);
+        const time: string = markdownEngine.render(`**Time limit per test**: ${timeLimit}`);
+        const memory: string = markdownEngine.render(`**Memory limit per test**: ${memoryLimit}`);
         const tags: string = [
             `<details>`,
             `<summary><strong>Tags</strong></summary>`,
@@ -104,6 +106,8 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             <body>
                 ${head}
                 ${info}
+                ${timeLimit === "" ? "" : time}
+                ${memoryLimit === "" ? "" : memory}
                 ${tags}
                 ${body}
                 ${!this.sideMode ? button.element : ""}
@@ -209,12 +213,31 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         } else {
             console.log("No problem-statement div found.");
         }
+        document.querySelector(".time-limit ")
+        let timeLimitDiv = document.querySelector(".time-limit");
+        let memoryLimitDiv = document.querySelector(".memory-limit");
+        let timeLimit: string = "";
+        let memoryLimit: string = "";
+        if (timeLimitDiv) {
+            const lastChild = timeLimitDiv.lastChild;
+            if (lastChild) {
+                timeLimit = lastChild.textContent.trim();
+            }
+        }
+        if (memoryLimitDiv) {
+            const lastChild = memoryLimitDiv.lastChild;
+            if (lastChild) {
+                memoryLimit = lastChild.textContent.trim();
+            }
+        }
 
         return {
             title: `${problem.index}. ${problem.name}`,
             url: `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`,
             rating: problem.rating ? `${problem.rating}` : "UNKNOWN",
             tags: problem.tags,
+            timeLimit,
+            memoryLimit,
             body
         };
     }

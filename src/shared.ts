@@ -34,15 +34,12 @@ export interface DescLine {
 
 export interface IDescription {
     title: string;
-    // statements: DescLine[];
-    // input: DescLine[];
-    // output: DescLine[];
-    // sampleTests: ISampleTest[];
-    // note: DescLine[];
     url: string;
     body: string;
     tags: string[];
     rating: string;
+    timeLimit: string;
+    memoryLimit: string;
 }
 
 export enum DescriptionConfiguration {

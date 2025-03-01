@@ -1,6 +1,8 @@
 import { URLSearchParams } from "url";
-import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri, workspace, WorkspaceConfiguration } from "vscode";
+import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri } from "vscode";
 import { Category } from "../shared";
+import { isColorizingEnabled } from "../utils/settingUtils";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
@@ -75,7 +77,7 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
                 if(rating === "UNKNOWN") {
                     return;
                 }
-                if(!this.isColorizingEnabled()) {
+                if(!isColorizingEnabled()) {
                     return;
                 }
                 return {
@@ -90,21 +92,18 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
         if(rating === "UNKNOWN") {
             return;
         }
-        if(!this.isColorizingEnabled()) {
+        if(!isColorizingEnabled()) {
             return {
                 badge: this.DIFFICULTY_BADGE_LABEL[rating],
             };
         }
+        codeforcesChannel.appendLine(`Coloring enabled: ${JSON.stringify(this.ITEM_COLOR[rating])}`);
         return {
             badge: this.DIFFICULTY_BADGE_LABEL[rating],
-            color: this.ITEM_COLOR[rating],
+            color: this.ITEM_COLOR[rating]
         };
     }
 
-    private isColorizingEnabled(): boolean {
-        const configuration: WorkspaceConfiguration = workspace.getConfiguration();
-        return configuration.get<boolean>("codeforces.colorizeProblems", true);
-    }
 }
 
 export const codeforcesTreeItemDecorationProvider: CodeforcesTreeItemDecorationProvider = new CodeforcesTreeItemDecorationProvider();
