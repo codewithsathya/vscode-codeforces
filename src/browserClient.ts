@@ -6,6 +6,7 @@ import { globalState } from "./globalState";
 import { DialogType, promptForOpenOutputChannel } from "./utils/uiUtils";
 import { getMyContestSubmissionsUrl } from "./utils/urlUtils";
 import { Status } from "./cph/types";
+import * as vscode from "vscode";
 
 class BrowserClient {
     private browser: Browser | null = null;
@@ -125,67 +126,84 @@ class BrowserClient {
         }
     }
 
-    public async submitProblem(contestId: string, index: string, language: number, code: string, callback: (verdict: Status) => void = () => { }) {
+    public async submitProblem(
+        contestId: string,
+        index: string,
+        language: number,
+        code: string,
+        callback: (verdict: Status) => void = () => { }
+    ) {
         try {
-            await this.page.goto(`https://codeforces.com/contest/${contestId}/submit`);
-            await this.page.waitForSelector("#sourceCodeTextarea", { timeout: 25000 });
-
-            const languageSelector = 'select[name="programTypeId"]';
-            await this.page.waitForSelector(languageSelector);
-            await this.page.select(languageSelector, language.toString());
-
-            const checkbox = await this.page.$("#toggleEditorCheckbox");
-            const isChecked = await this.page.evaluate(el => (el as HTMLInputElement).checked, checkbox);
-
-            if (!isChecked) {
-                await checkbox.click();
-            }
-
-            const problemSelector = 'select[name="submittedProblemIndex"]';
-            await this.page.waitForSelector(problemSelector);
-            await this.page.select(problemSelector, index);
-
-            await this.page.evaluate(() => {
-                (document.querySelector("#sourceCodeTextarea") as HTMLTextAreaElement).value = "";
-            });
-            await this.page.type("#sourceCodeTextarea", code);
-
-            const submitButtonSelector = ".submit";
-
-            let submitSuccess = false;
-            for (let i = 0; i < 3; i++) {
-                await this.page.click(submitButtonSelector);
-
-                const navigationPromise = this.waitForSuccessfulSubmission(contestId);
-                const errorMessagePromise = this.page.waitForSelector("span.error.for__source", { timeout: 5000 }).catch(() => { });
-
-                const result = await Promise.race([navigationPromise, errorMessagePromise]);
-
-                if (result) {
-                    if (await this.page.$("span.error.for__source")) {
-                        throw new Error("duplicate-submission");
+            await vscode.window.withProgress(
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: "Submitting Codeforces Problem...",
+                    cancellable: false,
+                },
+                async () => {
+                    await this.page.goto(`https://codeforces.com/contest/${contestId}/submit`);
+                    await this.page.waitForSelector("#sourceCodeTextarea", { timeout: 25000 });
+    
+                    const languageSelector = 'select[name="programTypeId"]';
+                    await this.page.waitForSelector(languageSelector);
+                    await this.page.select(languageSelector, language.toString());
+    
+                    const checkbox = await this.page.$("#toggleEditorCheckbox");
+                    const isChecked = await this.page.evaluate(el => (el as HTMLInputElement).checked, checkbox);
+                    if (!isChecked) {
+                        await checkbox.click();
                     }
-                    submitSuccess = true;
-                    break;
+    
+                    const problemSelector = 'select[name="submittedProblemIndex"]';
+                    await this.page.waitForSelector(problemSelector);
+                    await this.page.select(problemSelector, index);
+    
+                    await this.page.evaluate(() => {
+                        (document.querySelector("#sourceCodeTextarea") as HTMLTextAreaElement).value = "";
+                    });
+    
+                    await this.page.type("#sourceCodeTextarea", code);
+    
+                    const submitButtonSelector = ".submit";
+    
+                    let submitSuccess = false;
+                    for (let i = 0; i < 3; i++) {
+                        await this.page.click(submitButtonSelector);
+    
+                        const navigationPromise = this.waitForSuccessfulSubmission(contestId);
+                        const errorMessagePromise = this.page.waitForSelector("span.error.for__source", { timeout: 5000 }).catch(() => { });
+    
+                        const result = await Promise.race([navigationPromise, errorMessagePromise]);
+    
+                        if (result) {
+                            if (await this.page.$("span.error.for__source")) {
+                                throw new Error("duplicate-submission");
+                            }
+                            submitSuccess = true;
+                            break;
+                        }
+    
+                        await sleep(2000);
+                    }
+    
+                    if (!submitSuccess) {
+                        throw new Error("Failed to submit problem after multiple attempts");
+                    }
+    
+                    promptForOpenOutputChannel("Submitted successfully", DialogType.completed);
+                    this.trackVerdict(callback);
                 }
-
-                await sleep(2000);
-            }
-
-            if (!submitSuccess) {
-                throw new Error("Failed to submit problem after multiple attempts");
-            }
-
-            promptForOpenOutputChannel("Submitted successfully", DialogType.completed);
-            this.trackVerdict(callback);
+            );
         } catch (error) {
             const err = error as Error;
-            codeforcesChannel.appendLine(`Error submitting problem using browser :${error}`);
+            codeforcesChannel.appendLine(`Error submitting problem using browser: ${error}`);
+    
             if (err.message === "duplicate-submission") {
                 promptForOpenOutputChannel("You have submitted exactly the same code before", DialogType.error);
-                return;
+            } else {
+                promptForOpenOutputChannel("Submission failed", DialogType.error);
+                vscode.window.showErrorMessage(`Submission failed: ${err.message}`);
             }
-
         }
     }
 
