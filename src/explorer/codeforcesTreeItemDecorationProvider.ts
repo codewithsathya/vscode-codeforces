@@ -2,7 +2,6 @@ import { URLSearchParams } from "url";
 import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri } from "vscode";
 import { Category } from "../shared";
 import { isColorizingEnabled } from "../utils/settingUtils";
-import { codeforcesChannel } from "../codeforcesChannel";
 
 export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
@@ -97,7 +96,6 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
                 badge: this.DIFFICULTY_BADGE_LABEL[rating],
             };
         }
-        codeforcesChannel.appendLine(`Coloring enabled: ${JSON.stringify(this.ITEM_COLOR[rating])}`);
         return {
             badge: this.DIFFICULTY_BADGE_LABEL[rating],
             color: this.ITEM_COLOR[rating]

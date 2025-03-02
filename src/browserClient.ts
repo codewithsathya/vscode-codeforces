@@ -4,9 +4,10 @@ import { codeforcesChannel } from "./codeforcesChannel";
 import { sleep } from "./utils/osUtils";
 import { globalState } from "./globalState";
 import { DialogType, promptForOpenOutputChannel } from "./utils/uiUtils";
-import { getMyContestSubmissionsUrl } from "./utils/urlUtils";
+import { getContestUrl, getMyContestSubmissionsUrl } from "./utils/urlUtils";
 import { Status } from "./cph/types";
 import * as vscode from "vscode";
+import { IProblem, ProblemState } from "./shared";
 
 class BrowserClient {
     private browser: Browser | null = null;
@@ -14,7 +15,7 @@ class BrowserClient {
 
     public async initialize() {
         const { browser, page } = await connect({
-            headless: true,
+            headless: false,
             turnstile: true,
         });
         this.browser = browser;
@@ -126,6 +127,47 @@ class BrowserClient {
         }
     }
 
+    public async getContestProblems(contestId: number): Promise<IProblem[]> {
+        try {
+            if (!this.page) {
+                throw new Error("not-initialized");
+            }
+            const url = getContestUrl(contestId);
+            await this.page.goto(url, { waitUntil: "domcontentloaded" });
+            await this.page.waitForSelector("table.problems", { timeout: 20000 });
+
+            const problems: IProblem[] = await this.page.evaluate((contestId, problemState) => {
+                let rows = Array.from(document.querySelectorAll("table.problems tbody tr"));
+                rows = rows.slice(1);
+                return rows.map((row) => {
+                    const idElement = row.querySelector("td.left a");
+                    const nameElement = row.querySelector("td div a");
+                    const solvedCountElement = row.querySelector("td.right a");
+
+                    const index = idElement?.textContent?.trim() ?? "";
+                    const name = nameElement?.textContent?.trim() ?? "";
+                    const solvedCountText = solvedCountElement?.textContent?.trim().replace(/\D/g, "") ?? "0";
+                    const solvedCount = parseInt(solvedCountText, 10);
+                    const tags: string[] = [];
+                    const problem = {
+                        id: `${contestId}:${index}`,
+                        contestId,
+                        index,
+                        name,
+                        state: problemState.UNKNOWN,
+                        tags,
+                        solvedCount,
+                    };
+                    return problem;
+                });
+            }, contestId, ProblemState);
+            codeforcesChannel.appendLine(`Collected running problems for contest ${contestId}: ${problems.length}`);
+            return problems;
+        } catch (error) {
+            codeforcesChannel.appendLine(`Failed to get running problems: ${error}`);
+        }
+    }
+
     public async submitProblem(
         contestId: string,
         index: string,
@@ -143,38 +185,38 @@ class BrowserClient {
                 async () => {
                     await this.page.goto(`https://codeforces.com/contest/${contestId}/submit`);
                     await this.page.waitForSelector("#sourceCodeTextarea", { timeout: 25000 });
-    
+
                     const languageSelector = 'select[name="programTypeId"]';
                     await this.page.waitForSelector(languageSelector);
                     await this.page.select(languageSelector, language.toString());
-    
+
                     const checkbox = await this.page.$("#toggleEditorCheckbox");
                     const isChecked = await this.page.evaluate(el => (el as HTMLInputElement).checked, checkbox);
                     if (!isChecked) {
                         await checkbox.click();
                     }
-    
+
                     const problemSelector = 'select[name="submittedProblemIndex"]';
                     await this.page.waitForSelector(problemSelector);
                     await this.page.select(problemSelector, index);
-    
+
                     await this.page.evaluate(() => {
                         (document.querySelector("#sourceCodeTextarea") as HTMLTextAreaElement).value = "";
                     });
-    
+
                     await this.page.type("#sourceCodeTextarea", code);
-    
+
                     const submitButtonSelector = ".submit";
-    
+
                     let submitSuccess = false;
                     for (let i = 0; i < 3; i++) {
                         await this.page.click(submitButtonSelector);
-    
+
                         const navigationPromise = this.waitForSuccessfulSubmission(contestId);
                         const errorMessagePromise = this.page.waitForSelector("span.error.for__source", { timeout: 5000 }).catch(() => { });
-    
+
                         const result = await Promise.race([navigationPromise, errorMessagePromise]);
-    
+
                         if (result) {
                             if (await this.page.$("span.error.for__source")) {
                                 throw new Error("duplicate-submission");
@@ -182,14 +224,14 @@ class BrowserClient {
                             submitSuccess = true;
                             break;
                         }
-    
+
                         await sleep(2000);
                     }
-    
+
                     if (!submitSuccess) {
                         throw new Error("Failed to submit problem after multiple attempts");
                     }
-    
+
                     promptForOpenOutputChannel("Submitted successfully", DialogType.completed);
                     this.trackVerdict(callback);
                 }
@@ -197,7 +239,7 @@ class BrowserClient {
         } catch (error) {
             const err = error as Error;
             codeforcesChannel.appendLine(`Error submitting problem using browser: ${error}`);
-    
+
             if (err.message === "duplicate-submission") {
                 promptForOpenOutputChannel("You have submitted exactly the same code before", DialogType.error);
             } else {

@@ -65,7 +65,7 @@ export interface IProblem {
     contestId: number;
     index: string;
     name: string;
-    rating: number | undefined;
+    rating?: number;
     tags: string[];
     solvedCount: number;
 }

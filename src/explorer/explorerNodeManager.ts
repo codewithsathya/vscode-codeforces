@@ -5,6 +5,8 @@ import { Category, ContestsResponse, defaultProblem, IContest, ProblemsResponse,
 import axiosClient from 'axios';
 import { getCodeforcesHandle, getSortingStrategy } from "../commands/plugin";
 import { shouldHideSolvedProblem } from "../utils/settingUtils";
+import { browserClient } from "../browserClient";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<string, CodeforcesNode>();
@@ -15,7 +17,7 @@ class ExplorerNodeManager implements Disposable {
     public async refreshCache(): Promise<void> {
         this.dispose();
         const { data } = await axiosClient.get("https://codeforces.com/api/problemset.problems") as { data: ProblemsResponse };
-        const problems = data.result.problems;
+        let problems = data.result.problems;
         for (const problem of problems) {
             const node = new CodeforcesNode(problem, true);
             node.id = `${problem.contestId}:${problem.index}`;
@@ -50,8 +52,23 @@ class ExplorerNodeManager implements Disposable {
         }
         const { data: contestsData } = await axiosClient.get("https://codeforces.com/api/contest.list") as { data: ContestsResponse };
         const contests = contestsData.result;
+        const runningContests = [];
         for (const contest of contests) {
             this.contests.set(contest.id, contest);
+            if(contest.phase === "CODING") {
+                runningContests.push(contest);
+            }
+        }
+        for (const contest of runningContests) {
+            codeforcesChannel.appendLine(`Collecting running contest problems: ${contest.id}`);
+            const problems = await browserClient.getContestProblems(contest.id);
+            if(!problems) {
+                break;
+            }
+            for(const problem of problems) {
+                const node = new CodeforcesNode(problem, true);
+                this.explorerNodeMap.set(problem.id, node);
+            }
         }
     }
 
@@ -194,12 +211,16 @@ class ExplorerNodeManager implements Disposable {
                         break;
                     }
                 case Category.PastContests:
-                case Category.RunningContests:
-                case Category.UpcomingContests:
                     if (node.contestId === parseInt(metaInfo[1])) {
                         res.push(node);
                         break;
                     }
+                case Category.RunningContests:
+                    if (node.contestId === parseInt(metaInfo[1])) {
+                        res.push(node);
+                        break;
+                    }
+                case Category.UpcomingContests:
                 default:
                     break;
             }
