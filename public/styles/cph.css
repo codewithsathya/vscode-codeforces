@@ -12,7 +12,6 @@
     user-select: none;
     /* Non-prefixed version, currently
                                     supported by Chrome and Opera */
-    cursor: default !important;
     box-sizing: border-box;
 }
 
@@ -53,6 +52,7 @@ body {
 
 .btn:hover {
     filter: brightness(125%);
+    cursor: pointer;
 }
 
 .actions {
@@ -90,6 +90,7 @@ body {
 
 a.btn {
     display: inline-block;
+    cursor: pointer;
 }
 
 a,
@@ -116,7 +117,7 @@ a[href]:hover {
 pre,
 textarea {
     background: var(--input-background);
-    font-family: Consolas, 'Ubuntu Mono', monospace;
+    font-family: Consolas, "Ubuntu Mono", monospace;
     width: 100%;
     display: block;
     background: rgba(0, 0, 0, 0.2);
@@ -133,12 +134,12 @@ textarea {
 
 pre,
 code {
-    font-family: Consolas, 'Ubuntu Mono', monospace;
+    font-family: Consolas, "Ubuntu Mono", monospace;
 }
 
 .clearfix {
     clear: both;
-    content: '';
+    content: "";
     width: 100%;
     display: block;
 }
@@ -221,7 +222,43 @@ textarea:active {
     margin-bottom: 5px;
     text-align: center;
     border: 2px solid transparent;
-    cursor: pointer;
+    cursor: pointer !important;
+}
+
+.verdict-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: auto;
+}
+
+.verdict-table th,
+.verdict-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.verdict-table thead {
+    font-weight: bold;
+}
+
+.verdict-accepted {
+    color: #00a800; /* Green */
+    font-weight: bold;
+}
+
+.verdict-failed {
+    color: #d9534f; /* Red */
+    font-weight: bold;
+}
+
+.verdict-running {
+    color: #6c757d; /* Grey */
+    font-weight: bold;
+}
+
+.status.head {
+    font-weight: bold;
 }
 
 .btn-block {

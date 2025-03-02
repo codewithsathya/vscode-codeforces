@@ -221,6 +221,17 @@ export type ExtLogsCommand = {
     logs: string;
 };
 
+export type Status = {
+    verdict: string;
+    time: string;
+    memory: string;
+}
+
+export type TrackingVerdictCommand = {
+    command: 'tracking-verdict';
+    message: Status;
+}
+
 export type VSToWebViewMessage =
     | ResultCommand
     | RunningCommand
@@ -232,7 +243,8 @@ export type VSToWebViewMessage =
     | NotRunningCommand
     | RemoteMessageCommand
     | NewProblemCommand
-    | ExtLogsCommand;
+    | ExtLogsCommand
+    | TrackingVerdictCommand;
 
 export type CphEmptyResponse = {
     empty: true;

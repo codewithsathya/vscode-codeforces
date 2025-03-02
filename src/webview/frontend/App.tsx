@@ -1,5 +1,5 @@
-import React, { useState, useEffect, JSX } from 'react';
-import { createRoot } from 'react-dom/client';
+import React, { useState, useEffect, JSX } from "react";
+import { createRoot } from "react-dom/client";
 import {
     Problem,
     WebviewToVSEvent,
@@ -9,8 +9,9 @@ import {
     ResultCommand,
     RunningCommand,
     WebViewpersistenceState,
-} from '../../cph/types';
-import CaseView from './CaseView';
+    Status,
+} from "../../cph/types";
+import CaseView from "./CaseView";
 
 let notificationTimeout: NodeJS.Timeout | undefined = undefined;
 
@@ -24,6 +25,25 @@ interface CustomWindow extends Window {
     console: Console;
 }
 declare const window: CustomWindow;
+
+const getVerdictClass = (verdict: string) => {
+    if (!verdict) return "";
+    const lowerVerdict = verdict.toLowerCase();
+
+    if (lowerVerdict.includes("accepted")) return "verdict-accepted";
+    if (
+        lowerVerdict.includes("time limit exceeded") ||
+        lowerVerdict.includes("memory limit exceeded") ||
+        lowerVerdict.includes("wrong answer") ||
+        lowerVerdict.includes("runtime error") ||
+        lowerVerdict.includes("compilation error") ||
+        lowerVerdict.includes("idleness limit exceeded")
+    )
+        return "verdict-failed";
+    if (lowerVerdict.includes("running")) return "verdict-running";
+
+    return "";
+};
 
 function Judge(props: {
     problem: Problem;
@@ -42,6 +62,12 @@ function Judge(props: {
     const [notification, setNotification] = useState<string | null>(null);
     const [waitingForSubmit, setWaitingForSubmit] = useState<boolean>(false);
     const [onlineJudgeEnv, setOnlineJudgeEnv] = useState<boolean>(false);
+    const [displayVerdict, setDisplayVerdict] = useState<boolean>(false);
+    const [status, setVerdict] = useState<Status>({
+        verdict: "",
+        time: "",
+        memory: "",
+    });
 
     // Update problem if cases change. The only place where `updateProblem` is
     // allowed to ensure sync.
@@ -61,43 +87,48 @@ function Judge(props: {
         const fn = (event: any) => {
             const data: VSToWebViewMessage = event.data;
             switch (data.command) {
-                case 'new-problem': {
+                case "new-problem": {
                     setOnlineJudgeEnv(false);
                     break;
                 }
 
-                case 'running': {
+                case "running": {
                     handleRunning(data);
                     break;
                 }
-                case 'run-all': {
+                case "run-all": {
                     runAll();
                     break;
                 }
-                case 'compiling-start': {
+                case "compiling-start": {
                     setCompiling(true);
                     break;
                 }
-                case 'compiling-stop': {
+                case "compiling-stop": {
                     setCompiling(false);
                     break;
                 }
-                case 'submit-finished': {
+                case "submit-finished": {
                     setWaitingForSubmit(false);
                     break;
                 }
-                case 'waiting-for-submit': {
+                case "waiting-for-submit": {
                     setWaitingForSubmit(true);
                     break;
                 }
+                case "tracking-verdict": {
+                    setVerdict(data.message);
+                    setDisplayVerdict(true);
+                    break;
+                }
                 default: {
-                    console.log('Invalid event', event.data);
+                    console.log("Invalid event", event.data);
                 }
             }
         };
-        window.addEventListener('message', fn);
+        window.addEventListener("message", fn);
         return () => {
-            window.removeEventListener('message', fn);
+            window.removeEventListener("message", fn);
         };
     }, []);
 
@@ -107,7 +138,7 @@ function Judge(props: {
 
     const refreshOnlineJudge = () => {
         sendMessageToVSCode({
-            command: 'online-judge-env',
+            command: "online-judge-env",
             value: onlineJudgeEnv,
         });
     };
@@ -117,7 +148,7 @@ function Judge(props: {
         const idx = problem.tests.findIndex((testCase) => testCase.id === id);
 
         if (idx === -1) {
-            console.log('No id in problem tests', problem, id);
+            console.log("No id in problem tests", problem, id);
             return;
         }
 
@@ -125,7 +156,7 @@ function Judge(props: {
         problem.tests[idx].output = output;
 
         sendMessageToVSCode({
-            command: 'run-single-and-save',
+            command: "run-single-and-save",
             problem,
             id,
         });
@@ -142,8 +173,8 @@ function Judge(props: {
         const id = Date.now();
         const testCase: TestCase = {
             id,
-            input: '',
-            output: '',
+            input: "",
+            output: "",
         };
         updateCases([
             ...cases,
@@ -158,16 +189,16 @@ function Judge(props: {
 
     const showDescription = () => {
         sendMessageToVSCode({
-            command: 'show-description',
+            command: "show-description",
             problem,
         });
     };
 
     // Stop running executions.
     const stop = () => {
-        notify('Stopped any running processes');
+        notify("Stopped any running processes");
         sendMessageToVSCode({
-            command: 'kill-running',
+            command: "kill-running",
             problem,
         });
     };
@@ -175,7 +206,7 @@ function Judge(props: {
     // Deletes the .prob file and closes webview
     const deleteTcs = () => {
         sendMessageToVSCode({
-            command: 'delete-tcs',
+            command: "delete-tcs",
             problem,
         });
     };
@@ -183,14 +214,14 @@ function Judge(props: {
     const runAll = () => {
         refreshOnlineJudge();
         sendMessageToVSCode({
-            command: 'run-all-and-save',
+            command: "run-all-and-save",
             problem,
         });
     };
 
     const submitCf = () => {
         sendMessageToVSCode({
-            command: 'submitCf',
+            command: "submitCf",
             problem,
         });
 
@@ -221,7 +252,7 @@ function Judge(props: {
         const newEnv = !onlineJudgeEnv;
         setOnlineJudgeEnv(newEnv);
         sendMessageToVSCode({
-            command: 'online-judge-env',
+            command: "online-judge-env",
             value: newEnv,
         });
     };
@@ -268,7 +299,7 @@ function Judge(props: {
                     doFocus={true}
                     forceRunning={getRunningProp(value)}
                     updateCase={updateCase}
-                ></CaseView>,
+                ></CaseView>
             );
             debounceFocusLast();
         } else {
@@ -282,13 +313,13 @@ function Judge(props: {
                     remove={remove}
                     forceRunning={getRunningProp(value)}
                     updateCase={updateCase}
-                ></CaseView>,
+                ></CaseView>
             );
         }
     });
 
     const renderSubmitButton = () => {
-        if (!problem.url.startsWith('http')) {
+        if (!problem.url.startsWith("http")) {
             return null;
         }
 
@@ -299,18 +330,16 @@ function Judge(props: {
             console.error(err, problem);
             return null;
         }
-        if (
-            url.hostname !== 'codeforces.com'
-        ) {
+        if (url.hostname !== "codeforces.com") {
             return null;
         }
 
-        if (url.hostname === 'codeforces.com') {
+        if (url.hostname === "codeforces.com") {
             return (
                 <button className="btn" onClick={submitCf}>
                     <span className="icon">
                         <i className="codicon codicon-cloud-upload"></i>
-                    </span>{' '}
+                    </span>{" "}
                     Submit
                 </button>
             );
@@ -330,7 +359,7 @@ function Judge(props: {
             {notification && <div className="notification">{notification}</div>}
             <div className="meta">
                 <h1 className="problem-name">
-                    <a href={getHref()}>{problem.name}</a>{' '}
+                    <a href={getHref()}>{problem.name}</a>{" "}
                     {compiling && (
                         <b className="compiling" title="Compiling">
                             <span className="loader"></span>
@@ -348,7 +377,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-add"></i>
-                        </span>{' '}
+                        </span>{" "}
                         New Testcase
                     </button>
                     {renderSubmitButton()}
@@ -367,6 +396,24 @@ function Judge(props: {
                 </span>
                 <br />
                 <br />
+                {displayVerdict && (
+                    <table className="verdict-table">
+                        <thead className="status head">
+                            <tr>
+                                <th>Verdict</th>
+                                <th>Time</th>
+                                <th>Memory</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className={`verdict ${getVerdictClass(status.verdict)}`}>{status.verdict}</td>
+                                <td>{status.time}</td>
+                                <td>{status.memory}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                )}
             </div>
             <div className="actions">
                 <div className="row">
@@ -377,7 +424,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-run-above"></i>
-                        </span>{' '}
+                        </span>{" "}
                         <span className="action-text">Run All</span>
                     </button>
                     <button
@@ -387,7 +434,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-add"></i>
-                        </span>{' '}
+                        </span>{" "}
                         <span className="action-text">New</span>
                     </button>
                 </div>
@@ -399,7 +446,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-circle-slash"></i>
-                        </span>{' '}
+                        </span>{" "}
                         <span className="action-text">Stop</span>
                     </button>
                     <button
@@ -409,7 +456,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-info"></i>
-                        </span>{' '}
+                        </span>{" "}
                         <span className="action-text">Description</span>
                     </button>
                     <button
@@ -419,7 +466,7 @@ function Judge(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-trash"></i>
-                        </span>{' '}
+                        </span>{" "}
                         <span className="action-text">Delete</span>
                     </button>
                 </div>
@@ -430,9 +477,9 @@ function Judge(props: {
                     <span className="loader"></span> Waiting for extension ...
                     <br />
                     <small>
-                        To submit to codeforces, you need to have the{' '}
+                        To submit to codeforces, you need to have the{" "}
                         <a href="https://github.com/agrawal-d/cph-submit">
-                            cph-submit browser extension{' '}
+                            cph-submit browser extension{" "}
                         </a>
                         installed, and a browser window open. You can change
                         language ID from VS Code settings.
@@ -476,7 +523,7 @@ function App() {
         setSaving(true);
         if (problem !== undefined) {
             vscodeApi.postMessage({
-                command: 'save',
+                command: "save",
                 problem,
             });
         }
@@ -487,10 +534,10 @@ function App() {
 
     const handleRunSingleResult = (data: ResultCommand) => {
         const idx = cases.findIndex(
-            (testCase) => testCase.id === data.result.id,
+            (testCase) => testCase.id === data.result.id
         );
         if (idx === -1) {
-            console.error('Invalid single result', cases, cases.length, data);
+            console.error("Invalid single result", cases, cases.length, data);
             return;
         }
         const newCases = cases.slice();
@@ -514,7 +561,7 @@ function App() {
         const fn = (event: any) => {
             const data: VSToWebViewMessage = event.data;
             switch (data.command) {
-                case 'new-problem': {
+                case "new-problem": {
                     if (data.problem === undefined) {
                         setShowFallback(true);
                     }
@@ -523,21 +570,21 @@ function App() {
                     setCases(getCasesFromProblem(data.problem));
                     break;
                 }
-                case 'run-single-result': {
+                case "run-single-result": {
                     handleRunSingleResult(data);
                     break;
                 }
             }
         };
-        window.addEventListener('message', fn);
+        window.addEventListener("message", fn);
         return () => {
-            window.removeEventListener('message', fn);
+            window.removeEventListener("message", fn);
         };
     }, [cases]);
 
     const createProblem = () => {
         vscodeApi.postMessage({
-            command: 'create-local-problem',
+            command: "create-local-problem",
         });
     };
 
@@ -554,7 +601,7 @@ function App() {
                         <div className="btn btn-block" onClick={createProblem}>
                             <span className="icon">
                                 <i className="codicon codicon-add"></i>
-                            </span>{' '}
+                            </span>{" "}
                             Create Problem
                         </div>
                         <a
@@ -563,7 +610,7 @@ function App() {
                         >
                             <span className="icon">
                                 <i className="codicon codicon-question"></i>
-                            </span>{' '}
+                            </span>{" "}
                             How to use this extension
                         </a>
                     </div>
@@ -588,5 +635,5 @@ function App() {
     }
 }
 
-const root = createRoot(document.getElementById('app')!);
+const root = createRoot(document.getElementById("app")!);
 root.render(<App />);

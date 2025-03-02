@@ -33,3 +33,7 @@ export function getDetailsFromProblemUrl(url: string): { contestId: string, inde
         return null;
     }
 }
+
+export function getMyContestSubmissionsUrl(contestId: string) {
+    return `https://codeforces.com/contest/${contestId}/my`;
+}
