@@ -14,7 +14,10 @@ export function shouldHideSolvedProblem(): boolean {
 }
 
 export function getDescriptionConfiguration(): IDescriptionConfiguration {
-    const setting: string = getWorkspaceConfiguration().get<string>("showDescription", DescriptionConfiguration.InWebView);
+    const setting: string = getWorkspaceConfiguration().get<string>(
+        "showDescription",
+        DescriptionConfiguration.InWebView,
+    );
     const config: IDescriptionConfiguration = {
         showInComment: false,
         showInWebview: true,

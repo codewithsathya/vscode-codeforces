@@ -1,9 +1,17 @@
 import { URLSearchParams } from "url";
-import { FileDecoration, FileDecorationProvider, ProviderResult, ThemeColor, Uri } from "vscode";
+import {
+    FileDecoration,
+    FileDecorationProvider,
+    ProviderResult,
+    ThemeColor,
+    Uri,
+} from "vscode";
 import { Category } from "../shared";
 import { isColorizingEnabled } from "../utils/settingUtils";
 
-export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvider {
+export class CodeforcesTreeItemDecorationProvider
+    implements FileDecorationProvider
+{
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
         "800": "NE",
         "900": "NE",
@@ -66,17 +74,17 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
         "3500": new ThemeColor("codeforces.legendaryGrandmaster"),
     };
 
-    public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration>  {
+    public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration> {
         if (uri.scheme !== "codeforces") {
             return;
         }
-        if(uri.authority !== "problems") {
-            if(uri.path.indexOf(Category.Rating) !== -1) {
+        if (uri.authority !== "problems") {
+            if (uri.path.indexOf(Category.Rating) !== -1) {
                 const rating: string = uri.path.split(".")[1];
-                if(rating === "UNKNOWN") {
+                if (rating === "UNKNOWN") {
                     return;
                 }
-                if(!isColorizingEnabled()) {
+                if (!isColorizingEnabled()) {
                     return;
                 }
                 return {
@@ -88,20 +96,20 @@ export class CodeforcesTreeItemDecorationProvider implements FileDecorationProvi
 
         const params: URLSearchParams = new URLSearchParams(uri.query);
         const rating: string = params.get("rating")!.toLowerCase();
-        if(rating === "UNKNOWN") {
+        if (rating === "UNKNOWN") {
             return;
         }
-        if(!isColorizingEnabled()) {
+        if (!isColorizingEnabled()) {
             return {
                 badge: this.DIFFICULTY_BADGE_LABEL[rating],
             };
         }
         return {
             badge: this.DIFFICULTY_BADGE_LABEL[rating],
-            color: this.ITEM_COLOR[rating]
+            color: this.ITEM_COLOR[rating],
         };
     }
-
 }
 
-export const codeforcesTreeItemDecorationProvider: CodeforcesTreeItemDecorationProvider = new CodeforcesTreeItemDecorationProvider();
+export const codeforcesTreeItemDecorationProvider: CodeforcesTreeItemDecorationProvider =
+    new CodeforcesTreeItemDecorationProvider();

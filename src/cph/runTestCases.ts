@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import { checkUnsupported, randomId } from './utils';
-import { Problem } from './types';
-import { getProblem, saveProblem } from './parser';
-import { compileFile } from './compiler';
-import runAllAndSave from '../webview/processRunAll';
-import path from 'path';
-import { judgeViewProvider } from '../webview/judgeViewProvider';
+import * as vscode from "vscode";
+import { checkUnsupported, randomId } from "./utils";
+import { Problem } from "./types";
+import { getProblem, saveProblem } from "./parser";
+import { compileFile } from "./compiler";
+import runAllAndSave from "../webview/processRunAll";
+import path from "path";
+import { judgeViewProvider } from "../webview/judgeViewProvider";
 
 /**
  * Execution for the run testcases command. Runs all testcases for the active
@@ -17,7 +17,7 @@ export default async () => {
     // globalThis.logger.log('Running command "runTestCases"');
     const editor = vscode.window.activeTextEditor;
     if (editor === undefined) {
-        checkUnsupported('');
+        checkUnsupported("");
         return;
     }
     const srcPath = editor.document.fileName;
@@ -42,7 +42,7 @@ export default async () => {
     await editor.document.save();
     judgeViewProvider.focus();
     judgeViewProvider.extensionToJudgeViewMessage({
-        command: 'new-problem',
+        command: "new-problem",
         problem: problem,
     });
     runAllAndSave(problem);
@@ -57,27 +57,27 @@ const createLocalProblem = async (editor: vscode.TextEditor) => {
     }
 
     const newProblem: Problem = {
-        name: 'Local: ' + path.basename(srcPath).split('.')[0],
+        name: "Local: " + path.basename(srcPath).split(".")[0],
         url: srcPath,
         tests: [
             {
                 id: randomId(),
-                input: '',
-                output: '',
+                input: "",
+                output: "",
             },
         ],
         interactive: false,
         memoryLimit: 1024,
         timeLimit: 3000,
         srcPath,
-        group: 'local',
+        group: "local",
         local: true,
     };
     // globalThis.logger.log(newProblem);
     saveProblem(srcPath, newProblem);
     judgeViewProvider.focus();
     judgeViewProvider.extensionToJudgeViewMessage({
-        command: 'new-problem',
+        command: "new-problem",
         problem: newProblem,
     });
 };

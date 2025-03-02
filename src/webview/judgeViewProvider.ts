@@ -1,23 +1,23 @@
-import * as vscode from 'vscode';
-import { killRunning } from '../cph/executions';
-import { saveProblem } from '../cph/parser';
-import { VSToWebViewMessage, WebviewToVSEvent } from '../cph/types';
-import { deleteProblemFile, getProblemForDocument } from '../cph/utils';
-import { runSingleAndSave } from './processRunSingle';
-import runAllAndSave from './processRunAll';
-import runTestCases from '../cph/runTestCases';
+import * as vscode from "vscode";
+import { killRunning } from "../cph/executions";
+import { saveProblem } from "../cph/parser";
+import { VSToWebViewMessage, WebviewToVSEvent } from "../cph/types";
+import { deleteProblemFile, getProblemForDocument } from "../cph/utils";
+import { runSingleAndSave } from "./processRunSingle";
+import runAllAndSave from "./processRunAll";
+import runTestCases from "../cph/runTestCases";
 import {
     getAutoShowJudgePref,
     getRetainWebviewContextPref,
-} from '../cph/preferences';
-import { setOnlineJudgeEnv } from '../cph/compiler';
-import { globalState } from '../globalState';
-import { codeforcesChannel } from '../codeforcesChannel';
-import { showDescription } from './showDescription';
-import { submitProblem } from '../cph/submit';
+} from "../cph/preferences";
+import { setOnlineJudgeEnv } from "../cph/compiler";
+import { globalState } from "../globalState";
+import { codeforcesChannel } from "../codeforcesChannel";
+import { showDescription } from "./showDescription";
+import { submitProblem } from "../cph/submit";
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'codeforces.judgeView';
+    public static readonly viewType = "codeforces.judgeView";
 
     private _view?: vscode.WebviewView;
 
@@ -42,72 +42,74 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
         webviewView.webview.onDidReceiveMessage(
             async (message: WebviewToVSEvent) => {
                 switch (message.command) {
-                    case 'show-description': {
+                    case "show-description": {
                         const problem = message.problem;
                         showDescription(problem);
                         break;
                     }
 
-                    case 'run-single-and-save': {
+                    case "run-single-and-save": {
                         const problem = message.problem;
                         const id = message.id;
                         runSingleAndSave(problem, id);
                         break;
                     }
 
-                    case 'run-all-and-save': {
+                    case "run-all-and-save": {
                         const problem = message.problem;
                         runAllAndSave(problem);
                         break;
                     }
 
-                    case 'save': {
+                    case "save": {
                         saveProblem(message.problem.srcPath, message.problem);
                         break;
                     }
 
-                    case 'kill-running': {
+                    case "kill-running": {
                         killRunning();
                         break;
                     }
 
-                    case 'delete-tcs': {
+                    case "delete-tcs": {
                         this.extensionToJudgeViewMessage({
-                            command: 'new-problem',
+                            command: "new-problem",
                             problem: undefined,
                         });
                         deleteProblemFile(message.problem.srcPath);
                         break;
                     }
 
-                    case 'submitCf': {
+                    case "submitCf": {
                         const problem = message.problem;
                         await submitProblem(problem);
                         break;
                     }
 
-                    case 'online-judge-env': {
+                    case "online-judge-env": {
                         setOnlineJudgeEnv(message.value);
                         break;
                     }
 
-                    case 'get-initial-problem': {
+                    case "get-initial-problem": {
                         this.getInitialProblem();
                         break;
                     }
 
-                    case 'create-local-problem': {
+                    case "create-local-problem": {
                         runTestCases();
                         break;
                     }
 
-                    case 'url': {
+                    case "url": {
                         vscode.env.openExternal(vscode.Uri.parse(message.url));
                         break;
                     }
 
                     default: {
-                        codeforcesChannel.appendLine('Unknown event received from webview');
+                        codeforcesChannel.appendLine(
+                            "Unknown event received from webview",
+                        );
                     }
                 }
             },
@@ -117,7 +119,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
     private getInitialProblem() {
         const doc = vscode.window.activeTextEditor?.document;
         this.extensionToJudgeViewMessage({
-            command: 'new-problem',
+            command: "new-problem",
             problem: getProblemForDocument(doc),
         });
 
@@ -134,7 +136,7 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
 
     public async focus() {
         if (!this._view) {
-            await vscode.commands.executeCommand('codeforces.judgeView.focus');
+            await vscode.commands.executeCommand("codeforces.judgeView.focus");
         } else {
             this._view.show?.(true);
         }
@@ -142,15 +144,15 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
 
     private focusIfNeeded = (message: VSToWebViewMessage) => {
         switch (message.command) {
-            case 'waiting-for-submit':
-            case 'compiling-start':
-            case 'run-all': {
+            case "waiting-for-submit":
+            case "compiling-start":
+            case "run-all": {
                 this.focus();
             }
         }
 
         if (
-            message.command === 'new-problem' &&
+            message.command === "new-problem" &&
             message.problem !== undefined &&
             getAutoShowJudgePref()
         ) {
@@ -168,10 +170,10 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
             (this._view && getRetainWebviewContextPref())
         ) {
             this._view.webview.postMessage(message);
-            if (message.command !== 'submit-finished') {
+            if (message.command !== "submit-finished") {
                 codeforcesChannel.appendLine(`View got message: ${message}`);
             }
-            if (message.command === 'new-problem') {
+            if (message.command === "new-problem") {
                 if (message.problem === undefined) {
                     this.problemPath = undefined;
                 } else {
@@ -179,8 +181,10 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                 }
             }
         } else {
-            if (message.command !== 'new-problem') {
-                codeforcesChannel.appendLine(`Pushing to buffer: ${message.command}`);
+            if (message.command !== "new-problem") {
+                codeforcesChannel.appendLine(
+                    `Pushing to buffer: ${message.command}`,
+                );
                 this.messageBuffer.push(message);
             } else {
                 this.messageBuffer = [];
@@ -190,15 +194,30 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
 
     private _getHtmlForWebview(webview: vscode.Webview) {
         const styleUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(globalState.getExtensionUri(), 'public', 'styles', 'cph.css'),
+            vscode.Uri.joinPath(
+                globalState.getExtensionUri(),
+                "public",
+                "styles",
+                "cph.css",
+            ),
         );
 
         const codiconsUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(globalState.getExtensionUri(), 'public', 'styles', 'codicon.css'),
+            vscode.Uri.joinPath(
+                globalState.getExtensionUri(),
+                "public",
+                "styles",
+                "codicon.css",
+            ),
         );
 
         const scriptUri = webview.asWebviewUri(
-            vscode.Uri.joinPath(globalState.getExtensionUri(), 'public', 'scripts', 'frontend.module.js'),
+            vscode.Uri.joinPath(
+                globalState.getExtensionUri(),
+                "public",
+                "scripts",
+                "frontend.module.js",
+            ),
         );
 
         const html = `

@@ -1,16 +1,16 @@
-import { getLanguage, ocHide, ocShow, ocWrite } from './utils';
-import { Language } from './types';
-import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
-import { platform } from 'os';
-import path from 'path';
+import { getLanguage, ocHide, ocShow, ocWrite } from "./utils";
+import { Language } from "./types";
+import { spawn, SpawnOptionsWithoutStdio } from "child_process";
+import { platform } from "os";
+import path from "path";
 import {
     getCOutputArgPref,
     getCppOutputArgPref,
     getSaveLocationPref,
     getHideStderrorWhenCompiledOK,
-} from './preferences';
-import * as vscode from 'vscode';
-import { judgeViewProvider } from '../webview/judgeViewProvider';
+} from "./preferences";
+import * as vscode from "vscode";
+import { judgeViewProvider } from "../webview/judgeViewProvider";
 export let onlineJudgeEnv = false;
 
 export const setOnlineJudgeEnv = (value: boolean) => {
@@ -34,23 +34,23 @@ export const getBinSaveLocation = (srcPath: string): string => {
     }
     let ext: string;
     switch (language.name) {
-        case 'java': {
-            ext = '*.class';
+        case "java": {
+            ext = "*.class";
             break;
         }
-        case 'csharp': {
-            ext = language.compiler.includes('dotnet') ? '_bin' : '.bin';
+        case "csharp": {
+            ext = language.compiler.includes("dotnet") ? "_bin" : ".bin";
             break;
         }
         default: {
-            ext = '.bin';
+            ext = ".bin";
         }
     }
     const savePreference = getSaveLocationPref();
     const srcFileName = path.parse(srcPath).name;
     const binFileName = srcFileName + ext;
     const binDir = path.dirname(srcPath);
-    if (savePreference && savePreference !== '') {
+    if (savePreference && savePreference !== "") {
         return path.join(savePreference, binFileName);
     }
     return path.join(binDir, binFileName);
@@ -66,29 +66,29 @@ export const getBinSaveLocation = (srcPath: string): string => {
 const getFlags = (language: Language, srcPath: string): string[] => {
     // The language.args are fetched from user saved preferences, if any.
     let args = language.args;
-    if (args[0] === '') {
+    if (args[0] === "") {
         args = [];
     }
     let ret: string[];
     switch (language.name) {
-        case 'cpp': {
+        case "cpp": {
             ret = [
                 srcPath,
                 getCppOutputArgPref(),
                 getBinSaveLocation(srcPath),
                 ...args,
-                '-D',
-                'DEBUG',
-                '-D',
-                'CPH',
+                "-D",
+                "DEBUG",
+                "-D",
+                "CPH",
             ];
             if (onlineJudgeEnv) {
-                ret.push('-D');
-                ret.push('ONLINE_JUDGE');
+                ret.push("-D");
+                ret.push("ONLINE_JUDGE");
             }
             break;
         }
-        case 'c': {
+        case "c": {
             {
                 ret = [
                     srcPath,
@@ -97,55 +97,55 @@ const getFlags = (language: Language, srcPath: string): string[] => {
                     ...args,
                 ];
                 if (onlineJudgeEnv) {
-                    ret.push('-D');
-                    ret.push('ONLINE_JUDGE');
+                    ret.push("-D");
+                    ret.push("ONLINE_JUDGE");
                 }
                 break;
             }
         }
-        case 'rust': {
-            ret = [srcPath, '-o', getBinSaveLocation(srcPath), ...args];
+        case "rust": {
+            ret = [srcPath, "-o", getBinSaveLocation(srcPath), ...args];
             break;
         }
-        case 'go': {
+        case "go": {
             ret = [
-                'build',
-                '-o',
+                "build",
+                "-o",
                 getBinSaveLocation(srcPath),
                 srcPath,
                 ...args,
             ];
             break;
         }
-        case 'java': {
+        case "java": {
             const binDir = path.dirname(getBinSaveLocation(srcPath));
-            ret = [srcPath, '-d', binDir, ...args];
+            ret = [srcPath, "-d", binDir, ...args];
             break;
         }
-        case 'hs': {
+        case "hs": {
             ret = [
                 srcPath,
-                '-o',
+                "-o",
                 getBinSaveLocation(srcPath),
-                '-no-keep-hi-files',
-                '-no-keep-o-files',
+                "-no-keep-hi-files",
+                "-no-keep-o-files",
                 ...args,
             ];
             break;
         }
-        case 'csharp': {
+        case "csharp": {
             const projDir = getDotnetProjectLocation(language, srcPath);
             const binPath = getBinSaveLocation(srcPath);
 
-            if (language.compiler.includes('dotnet')) {
+            if (language.compiler.includes("dotnet")) {
                 ret = [
-                    'build',
+                    "build",
                     projDir,
-                    '-c',
-                    'Release',
-                    '-o',
+                    "-c",
+                    "Release",
+                    "-o",
                     binPath,
-                    '--force',
+                    "--force",
                     ...args,
                 ];
                 if (onlineJudgeEnv) {
@@ -156,14 +156,14 @@ const getFlags = (language: Language, srcPath: string): string[] => {
                 // otherwise it will raise error when the paths contain whitespace.
                 let wrpSrcPath = srcPath;
                 let wrpBinPath = binPath;
-                if (platform() === 'win32') {
+                if (platform() === "win32") {
                     wrpSrcPath = '"' + srcPath + '"';
                     wrpBinPath = '"' + binPath + '"';
                 }
 
-                ret = [wrpSrcPath, '-out:' + wrpBinPath, ...args];
+                ret = [wrpSrcPath, "-out:" + wrpBinPath, ...args];
                 if (onlineJudgeEnv) {
-                    ret.push('-define:ONLINE_JUDGE');
+                    ret.push("-define:ONLINE_JUDGE");
                 }
             }
             break;
@@ -187,14 +187,14 @@ const getDotnetProjectLocation = (
     language: Language,
     srcPath: string,
 ): string => {
-    if (!language.compiler.includes('dotnet')) {
+    if (!language.compiler.includes("dotnet")) {
         return srcPath;
     }
 
-    const projName = '.cphcsrun';
+    const projName = ".cphcsrun";
     const srcDir = path.dirname(srcPath);
     const projDir = path.join(srcDir, projName);
-    return path.join(projDir, projName + '.csproj');
+    return path.join(projDir, projName + ".csproj");
 };
 
 /**
@@ -214,16 +214,16 @@ const createDotnetProject = async (
         );
 
         // globalThis.logger.log('Creating new .NET project');
-        const args = ['new', 'console', '--force', '-o', projDir];
+        const args = ["new", "console", "--force", "-o", projDir];
         const newProj = spawn(language.compiler, args);
 
-        let error = '';
+        let error = "";
 
-        newProj.stderr.on('data', (data) => {
+        newProj.stderr.on("data", (data) => {
             error += data;
         });
 
-        newProj.on('exit', (exitcode) => {
+        newProj.on("exit", (exitcode) => {
             const exitCode = exitcode || 0;
             const hideWarningsWhenCompiledOK = getHideStderrorWhenCompiledOK();
 
@@ -237,7 +237,7 @@ const createDotnetProject = async (
                 return;
             }
 
-            if (!hideWarningsWhenCompiledOK && error.trim() !== '') {
+            if (!hideWarningsWhenCompiledOK && error.trim() !== "") {
                 ocWrite(
                     `Exit code: ${exitCode} Warnings while creating new .NET project:\n ` +
                         error,
@@ -245,33 +245,33 @@ const createDotnetProject = async (
                 ocShow();
             }
 
-            const destPath = path.join(projDir, 'Program.cs');
+            const destPath = path.join(projDir, "Program.cs");
             try {
-                const isLinux = platform() === 'linux';
+                const isLinux = platform() === "linux";
 
                 if (isLinux) {
-                    spawn('cp', ['-f', srcPath, destPath]);
+                    spawn("cp", ["-f", srcPath, destPath]);
                 } else {
                     const wrpSrcPath = '"' + srcPath + '"';
                     const wrpDestPath = '"' + destPath + '"';
                     spawn(
-                        'cmd.exe',
-                        ['/c', 'copy', '/y', wrpSrcPath, wrpDestPath],
+                        "cmd.exe",
+                        ["/c", "copy", "/y", wrpSrcPath, wrpDestPath],
                         { windowsVerbatimArguments: true },
                     );
                 }
                 resolve(true);
             } catch (err) {
                 // globalThis.logger.error('Error while copying source code', err);
-                ocWrite('Errors while creating new .NET project:\n' + err);
+                ocWrite("Errors while creating new .NET project:\n" + err);
                 ocShow();
                 resolve(false);
             }
         });
 
-        newProj.on('error', (err) => {
+        newProj.on("error", (err) => {
             // globalThis.logger.log(err);
-            ocWrite('Errors while creating new .NET project:\n' + err);
+            ocWrite("Errors while creating new .NET project:\n" + err);
             ocShow();
             resolve(false);
         });
@@ -304,29 +304,29 @@ export const compileFile = async (srcPath: string): Promise<boolean> => {
         env: process.env,
     };
 
-    if (language.name === 'csharp') {
-        if (language.compiler.includes('dotnet')) {
+    if (language.name === "csharp") {
+        if (language.compiler.includes("dotnet")) {
             const projResult = await createDotnetProject(language, srcPath);
             if (!projResult) {
                 judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'compiling-stop',
+                    command: "compiling-stop",
                 });
                 judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'not-running',
+                    command: "not-running",
                 });
                 return Promise.resolve(false);
             }
         } else {
             // HACK: Mono only provides mcs.bat for Windows?
             // spawn cannot run mcs.bat :(
-            if (platform() === 'win32') {
+            if (platform() === "win32") {
                 spawnOpts.shell = true;
             }
         }
     }
 
     judgeViewProvider.extensionToJudgeViewMessage({
-        command: 'compiling-start',
+        command: "compiling-start",
     });
     const flags: string[] = getFlags(language, srcPath);
     // globalThis.logger.log('Compiling with flags', flags);
@@ -340,30 +340,30 @@ export const compileFile = async (srcPath: string): Promise<boolean> => {
             );
             throw err;
         }
-        let error = '';
+        let error = "";
 
-        compiler.stderr.on('data', (data) => {
+        compiler.stderr.on("data", (data) => {
             error += data;
         });
 
-        compiler.on('error', (err) => {
+        compiler.on("error", (err) => {
             // globalThis.logger.error(err);
             ocWrite(
-                'Errors while compiling:\n' +
+                "Errors while compiling:\n" +
                     err.message +
                     `\n\nHint: Is the compiler ${language.compiler} installed? Check the compiler command in cph settings for the current language.`,
             );
             judgeViewProvider.extensionToJudgeViewMessage({
-                command: 'compiling-stop',
+                command: "compiling-stop",
             });
             judgeViewProvider.extensionToJudgeViewMessage({
-                command: 'not-running',
+                command: "not-running",
             });
             ocShow();
             resolve(false);
         });
 
-        compiler.on('exit', (exitcode) => {
+        compiler.on("exit", (exitcode) => {
             const exitCode = exitcode || 0;
             const hideWarningsWhenCompiledOK = getHideStderrorWhenCompiledOK();
 
@@ -374,16 +374,16 @@ export const compileFile = async (srcPath: string): Promise<boolean> => {
                 ocShow();
                 // globalThis.logger.error('Compilation failed');
                 judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'compiling-stop',
+                    command: "compiling-stop",
                 });
                 judgeViewProvider.extensionToJudgeViewMessage({
-                    command: 'not-running',
+                    command: "not-running",
                 });
                 resolve(false);
                 return;
             }
 
-            if (!hideWarningsWhenCompiledOK && error.trim() !== '') {
+            if (!hideWarningsWhenCompiledOK && error.trim() !== "") {
                 ocWrite(
                     `Exit code: ${exitCode} Warnings while compiling:\n ` +
                         error,
@@ -393,7 +393,7 @@ export const compileFile = async (srcPath: string): Promise<boolean> => {
 
             // globalThis.logger.log('Compilation passed');
             judgeViewProvider.extensionToJudgeViewMessage({
-                command: 'compiling-stop',
+                command: "compiling-stop",
             });
             resolve(true);
             return;

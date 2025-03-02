@@ -1,12 +1,12 @@
-import { Language, Run } from './types';
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { platform } from 'os';
-import config from './config';
-import { getTimeOutPref } from './preferences';
-import * as vscode from 'vscode';
-import path from 'path';
-import { onlineJudgeEnv } from './compiler';
-import { codeforcesChannel } from '../codeforcesChannel';
+import { Language, Run } from "./types";
+import { spawn, ChildProcessWithoutNullStreams } from "child_process";
+import { platform } from "os";
+import config from "./config";
+import { getTimeOutPref } from "./preferences";
+import * as vscode from "vscode";
+import path from "path";
+import { onlineJudgeEnv } from "./compiler";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 const runningBinaries: ChildProcessWithoutNullStreams[] = [];
 
@@ -23,8 +23,8 @@ export const runTestCase = (
 ): Promise<Run> => {
     // globalThis.logger.log('Running testcase', language, binPath, input);
     const result: Run = {
-        stdout: '',
-        stderr: '',
+        stdout: "",
+        stderr: "",
         code: null,
         signal: null,
         time: 0,
@@ -34,8 +34,8 @@ export const runTestCase = (
         timeout: config.timeout,
         env: {
             ...global.process.env,
-            DEBUG: 'true',
-            CPH: 'true',
+            DEBUG: "true",
+            CPH: "true",
         },
     };
 
@@ -47,13 +47,13 @@ export const runTestCase = (
     }, getTimeOutPref());
 
     // HACK - On Windows, `python3` will be changed to `python`!
-    if (platform() === 'win32' && language.compiler === 'python3') {
-        language.compiler = 'python';
+    if (platform() === "win32" && language.compiler === "python3") {
+        language.compiler = "python";
     }
 
     // Start the binary or the interpreter.
     switch (language.name) {
-        case 'python': {
+        case "python": {
             process = spawn(
                 language.compiler, // 'python3' or 'python' TBD
                 [binPath, ...language.args],
@@ -61,7 +61,7 @@ export const runTestCase = (
             );
             break;
         }
-        case 'ruby': {
+        case "ruby": {
             process = spawn(
                 language.compiler,
                 [binPath, ...language.args],
@@ -69,7 +69,7 @@ export const runTestCase = (
             );
             break;
         }
-        case 'js': {
+        case "js": {
             process = spawn(
                 language.compiler,
                 [binPath, ...language.args],
@@ -77,39 +77,39 @@ export const runTestCase = (
             );
             break;
         }
-        case 'java': {
+        case "java": {
             const args: string[] = [];
             if (onlineJudgeEnv) {
-                args.push('-DONLINE_JUDGE');
+                args.push("-DONLINE_JUDGE");
             }
 
             const binDir = path.dirname(binPath);
-            args.push('-cp');
+            args.push("-cp");
             args.push(binDir);
 
             const binFileName = path.parse(binPath).name.slice(0, -1);
             args.push(binFileName);
 
-            process = spawn('java', args);
+            process = spawn("java", args);
             break;
         }
-        case 'csharp': {
+        case "csharp": {
             let binFileName: string;
 
-            if (language.compiler.includes('dotnet')) {
-                const projName = '.cphcsrun';
-                const isLinux = platform() === 'linux';
+            if (language.compiler.includes("dotnet")) {
+                const projName = ".cphcsrun";
+                const isLinux = platform() === "linux";
                 if (isLinux) {
                     binFileName = projName;
                 } else {
-                    binFileName = projName + '.exe';
+                    binFileName = projName + ".exe";
                 }
 
                 const binFilePath = path.join(binPath, binFileName);
-                process = spawn(binFilePath, ['/stack:67108864'], spawnOpts);
+                process = spawn(binFilePath, ["/stack:67108864"], spawnOpts);
             } else {
                 // Run with mono
-                process = spawn('mono', [binPath], spawnOpts);
+                process = spawn("mono", [binPath], spawnOpts);
             }
 
             break;
@@ -119,8 +119,10 @@ export const runTestCase = (
         }
     }
 
-    process.on('error', (err) => {
-        codeforcesChannel.appendLine(`Could not launch testcase process: ${err}`);
+    process.on("error", (err) => {
+        codeforcesChannel.appendLine(
+            `Could not launch testcase process: ${err}`,
+        );
         vscode.window.showErrorMessage(
             `Could not launch testcase process. Is '${language.compiler}' in your PATH?`,
         );
@@ -129,7 +131,7 @@ export const runTestCase = (
     const begin = Date.now();
     const ret: Promise<Run> = new Promise((resolve) => {
         runningBinaries.push(process);
-        process.on('exit', (code, signal) => {
+        process.on("exit", (code, signal) => {
             const end = Date.now();
             clearTimeout(killer);
             result.code = code;
@@ -140,10 +142,10 @@ export const runTestCase = (
             resolve(result);
         });
 
-        process.stdout.on('data', (data) => {
+        process.stdout.on("data", (data) => {
             result.stdout += data;
         });
-        process.stderr.on('data', (data) => (result.stderr += data));
+        process.stderr.on("data", (data) => (result.stderr += data));
 
         // globalThis.logger.log('Wrote to STDIN');
         try {
@@ -153,7 +155,7 @@ export const runTestCase = (
         }
 
         process.stdin.end();
-        process.on('error', (err) => {
+        process.on("error", (err) => {
             const end = Date.now();
             clearTimeout(killer);
             result.code = 1;
@@ -175,23 +177,23 @@ export const deleteBinary = (language: Language, binPath: string) => {
     }
     // globalThis.logger.log('Deleting binary', binPath);
     try {
-        const isLinux = platform() === 'linux';
+        const isLinux = platform() === "linux";
         const isFile = path.extname(binPath);
 
         if (isLinux) {
             if (isFile) {
-                spawn('rm', [binPath]);
+                spawn("rm", [binPath]);
             } else {
-                spawn('rm', ['-r', binPath]);
+                spawn("rm", ["-r", binPath]);
             }
         } else {
             const nrmBinPath = '"' + binPath + '"';
             if (isFile) {
-                spawn('cmd.exe', ['/c', 'del', nrmBinPath], {
+                spawn("cmd.exe", ["/c", "del", nrmBinPath], {
                     windowsVerbatimArguments: true,
                 });
             } else {
-                spawn('cmd.exe', ['/c', 'rd', '/s', '/q', nrmBinPath], {
+                spawn("cmd.exe", ["/c", "rd", "/s", "/q", nrmBinPath], {
                     windowsVerbatimArguments: true,
                 });
             }

@@ -7,18 +7,18 @@
         "jsx": "react",
         "sourceMap": false,
         "rootDir": "src",
-        "strict": true, /* enable all strict type-checking options */
+        "strict": true /* enable all strict type-checking options */,
         "strictNullChecks": false,
         "esModuleInterop": true,
         "resolveJsonModule": true,
 
-        "noEmitHelpers": true,       /* Avoids emitting TypeScript helpers */
-        "importHelpers": true,        /* Uses tslib instead of duplicating helpers */
-        "removeComments": true,       /* Removes comments */
-        "downlevelIteration": false,  /* Avoids extra polyfills for loops */
-        "skipLibCheck": true,         /* Skips checking .d.ts files to speed up build */
-        "noUnusedLocals": true,       /* Removes unused variables */
-        "noUnusedParameters": true,   /* Removes unused function parameters */
-        "moduleResolution": "node",
+        "noEmitHelpers": true /* Avoids emitting TypeScript helpers */,
+        "importHelpers": true /* Uses tslib instead of duplicating helpers */,
+        "removeComments": true /* Removes comments */,
+        "downlevelIteration": false /* Avoids extra polyfills for loops */,
+        "skipLibCheck": true /* Skips checking .d.ts files to speed up build */,
+        "noUnusedLocals": true /* Removes unused variables */,
+        "noUnusedParameters": true /* Removes unused function parameters */,
+        "moduleResolution": "node"
     }
 }

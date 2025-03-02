@@ -1,20 +1,20 @@
-import { getProblem } from './parser';
-import * as vscode from 'vscode';
-import { getLanguageId } from './preferences';
+import { getProblem } from "./parser";
+import * as vscode from "vscode";
+import { getLanguageId } from "./preferences";
 import fs from "fs";
-import { getDetailsFromProblemUrl } from '../utils/urlUtils';
-import { DialogType, promptForOpenOutputChannel } from '../utils/uiUtils';
-import { codeforcesChannel } from '../codeforcesChannel';
-import { browserClient } from '../browserClient';
-import { Problem, Status } from './types';
-import { judgeViewProvider } from '../webview/judgeViewProvider';
+import { getDetailsFromProblemUrl } from "../utils/urlUtils";
+import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
+import { codeforcesChannel } from "../codeforcesChannel";
+import { browserClient } from "../browserClient";
+import { Problem, Status } from "./types";
+import { judgeViewProvider } from "../webview/judgeViewProvider";
 
 export const submitToCodeForces = async () => {
     const srcPath = vscode.window.activeTextEditor?.document.fileName;
 
     if (!srcPath) {
         vscode.window.showErrorMessage(
-            'Active editor is not supported for submission',
+            "Active editor is not supported for submission",
         );
         return;
     }
@@ -26,7 +26,7 @@ export const submitToCodeForces = async () => {
     const problem = getProblem(srcPath);
 
     if (!problem) {
-        vscode.window.showErrorMessage('Failed to parse current code.');
+        vscode.window.showErrorMessage("Failed to parse current code.");
         return;
     }
 
@@ -34,18 +34,16 @@ export const submitToCodeForces = async () => {
     try {
         url = new URL(problem.url);
     } catch (err) {
-        vscode.window.showErrorMessage('Not a codeforces problem.');
+        vscode.window.showErrorMessage("Not a codeforces problem.");
         return;
     }
 
-    if (url.hostname !== 'codeforces.com') {
-        vscode.window.showErrorMessage('Not a codeforces problem.');
+    if (url.hostname !== "codeforces.com") {
+        vscode.window.showErrorMessage("Not a codeforces problem.");
         return;
     }
     await submitProblem(problem);
 };
-
-
 
 export const submitProblem = async (problem: Problem) => {
     const languageId = getLanguageId(problem.srcPath);
@@ -56,12 +54,18 @@ export const submitProblem = async (problem: Problem) => {
         return;
     }
     const srcCode = fs.readFileSync(problem.srcPath).toString();
-    await browserClient.submitProblem(details.contestId, details.index, languageId, srcCode, async (verdict: Status) => {
-        await judgeViewProvider.extensionToJudgeViewMessage({
-            command: "tracking-verdict",
-            message: verdict
-        });
-    });
+    await browserClient.submitProblem(
+        details.contestId,
+        details.index,
+        languageId,
+        srcCode,
+        async (verdict: Status) => {
+            await judgeViewProvider.extensionToJudgeViewMessage({
+                command: "tracking-verdict",
+                message: verdict,
+            });
+        },
+    );
 };
 
 /** Get the problem name ( like 144C ) for a given Codeforces URL string. */
@@ -79,5 +83,5 @@ export const getProblemName = (problemUrl: string): string => {
         }
     }
 
-    return '';
+    return "";
 };

@@ -33,7 +33,8 @@ center {
     font-size: 1.4em;
 }
 
-.input,.output{
+.input,
+.output {
     margin: 0.6rem 0rem;
 }
 
@@ -63,4 +64,3 @@ center {
     padding: 0.25em;
     margin: 0;
 }
-

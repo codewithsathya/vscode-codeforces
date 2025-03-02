@@ -28,7 +28,7 @@ class GlobalState {
 
     public getCookies(): Cookie[] {
         const cookies = this.get("codeforces.cookies") as undefined | Cookie[];
-        if(!cookies) {
+        if (!cookies) {
             return [];
         }
         return cookies;

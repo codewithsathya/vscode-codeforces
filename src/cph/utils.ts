@@ -1,11 +1,11 @@
-import { spawn } from 'child_process';
-import { existsSync, readFileSync } from 'fs';
-import { platform } from 'os';
-import path from 'path';
-import * as vscode from 'vscode';
+import { spawn } from "child_process";
+import { existsSync, readFileSync } from "fs";
+import { platform } from "os";
+import path from "path";
+import * as vscode from "vscode";
 
-import config from './config';
-import { getProbSaveLocation } from './parser';
+import config from "./config";
+import { getProbSaveLocation } from "./parser";
 import {
     getCArgsPref,
     getCppArgsPref,
@@ -27,16 +27,16 @@ import {
     getGoCommand,
     getHaskellCommand,
     getCSharpCommand,
-} from './preferences';
-import { Language, Problem } from './types';
+} from "./preferences";
+import { Language, Problem } from "./types";
 
-const oc = vscode.window.createOutputChannel('cph');
+const oc = vscode.window.createOutputChannel("cph");
 
 /**
  * Get language based on file extension
  */
 export const getLanguage = (srcPath: string): Language => {
-    const extension = path.extname(srcPath).split('.').pop();
+    const extension = path.extname(srcPath).split(".").pop();
     let langName: string | void = undefined;
     for (const [lang, ext] of Object.entries(config.extensions)) {
         if (ext === extension) {
@@ -45,11 +45,11 @@ export const getLanguage = (srcPath: string): Language => {
     }
 
     if (langName === undefined) {
-        throw new Error('Invalid extension');
+        throw new Error("Invalid extension");
     }
 
     switch (langName) {
-        case 'cpp': {
+        case "cpp": {
             return {
                 name: langName,
                 args: [...getCppArgsPref()],
@@ -57,7 +57,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'c': {
+        case "c": {
             return {
                 name: langName,
                 args: [...getCArgsPref()],
@@ -65,7 +65,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'python': {
+        case "python": {
             return {
                 name: langName,
                 args: [...getPythonArgsPref()],
@@ -73,7 +73,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: true,
             };
         }
-        case 'ruby': {
+        case "ruby": {
             return {
                 name: langName,
                 args: [...getRubyArgsPref()],
@@ -81,7 +81,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: true,
             };
         }
-        case 'rust': {
+        case "rust": {
             return {
                 name: langName,
                 args: [...getRustArgsPref()],
@@ -89,7 +89,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'java': {
+        case "java": {
             return {
                 name: langName,
                 args: [...getJavaArgsPref()],
@@ -97,7 +97,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'js': {
+        case "js": {
             return {
                 name: langName,
                 args: [...getJsArgsPref()],
@@ -105,7 +105,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: true,
             };
         }
-        case 'go': {
+        case "go": {
             return {
                 name: langName,
                 args: [...getGoArgsPref()],
@@ -113,7 +113,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'hs': {
+        case "hs": {
             return {
                 name: langName,
                 args: [...getHaskellArgsPref()],
@@ -121,7 +121,7 @@ export const getLanguage = (srcPath: string): Language => {
                 skipCompile: false,
             };
         }
-        case 'csharp': {
+        case "csharp": {
             return {
                 name: langName,
                 args: [...getCSharpArgsPref()],
@@ -130,17 +130,17 @@ export const getLanguage = (srcPath: string): Language => {
             };
         }
     }
-    throw new Error('Invalid State');
+    throw new Error("Invalid State");
 };
 
 export const isValidLanguage = (srcPath: string): boolean => {
     return config.supportedExtensions.includes(
-        path.extname(srcPath).split('.')[1],
+        path.extname(srcPath).split(".")[1],
     );
 };
 
 export const isCodeforcesUrl = (url: URL): boolean => {
-    return url.hostname.includes('codeforces.com');
+    return url.hostname.includes("codeforces.com");
 };
 
 export const ocAppend = (string: string) => {
@@ -182,10 +182,10 @@ export const deleteProblemFile = (srcPath: string) => {
     const probPath = getProbSaveLocation(srcPath);
     // globalThis.logger.log('Deleting problem file', probPath);
     try {
-        if (platform() === 'win32') {
-            spawn('cmd.exe', ['/c', 'del', probPath]);
+        if (platform() === "win32") {
+            spawn("cmd.exe", ["/c", "del", probPath]);
         } else {
-            spawn('rm', [probPath]);
+            spawn("rm", [probPath]);
         }
     } catch (error) {
         // globalThis.logger.error('Error while deleting problem file ', error);

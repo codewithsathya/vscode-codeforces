@@ -5,7 +5,7 @@ import { getNodeIdFromUrl } from "../utils/urlUtils";
 
 export const showDescription = async (problem: Problem) => {
     const nodeId = getNodeIdFromUrl(problem.url);
-    if(nodeId === "") {
+    if (nodeId === "") {
         return;
     }
     const node = explorerNodeManager.getNodeById(nodeId);

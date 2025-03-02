@@ -13,18 +13,21 @@ class MarkdownEngine implements vscode.Disposable {
 
     public constructor() {
         this.reload();
-        this.listener = vscode.workspace.onDidChangeConfiguration((event: vscode.ConfigurationChangeEvent) => {
-            if (event.affectsConfiguration("markdown")) {
-                this.reload();
-            }
-        }, this);
+        this.listener = vscode.workspace.onDidChangeConfiguration(
+            (event: vscode.ConfigurationChangeEvent) => {
+                if (event.affectsConfiguration("markdown")) {
+                    this.reload();
+                }
+            },
+            this,
+        );
     }
 
     public get localResourceRoots(): vscode.Uri[] {
-        if(!this.config) {
+        if (!this.config) {
             return [];
         }
-        return [vscode.Uri.file(path.join(this.config.extRoot, "media"))];;
+        return [vscode.Uri.file(path.join(this.config.extRoot, "media"))];
     }
 
     public dispose(): void {
@@ -37,40 +40,50 @@ class MarkdownEngine implements vscode.Disposable {
     }
 
     public render(md: string, env?: any): string {
-        if(!this.engine) {
+        if (!this.engine) {
             return "";
         }
         return this.engine.render(md, env);
     }
 
     public getStyles(webview: vscode.Webview): string {
-        return [
-            this.getBuiltinStyles(webview),
-            this.getSettingsStyles(),
-        ].join(os.EOL);
+        return [this.getBuiltinStyles(webview), this.getSettingsStyles()].join(
+            os.EOL,
+        );
     }
 
     private getBuiltinStyles(webview: vscode.Webview): string {
-        if(!this.config) {
+        if (!this.config) {
             return "";
         }
         const extRoot = this.config.extRoot;
-        codeforcesChannel.appendLine(`[Info] Load built-in markdown style file from ${extRoot}.`);
+        codeforcesChannel.appendLine(
+            `[Info] Load built-in markdown style file from ${extRoot}.`,
+        );
         let styles: vscode.Uri[] = [];
         try {
-            const stylePaths: string[] = require(path.join(extRoot, "package.json"))["contributes"]["markdown.previewStyles"];
+            const stylePaths: string[] = require(
+                path.join(extRoot, "package.json"),
+            )["contributes"]["markdown.previewStyles"];
             styles = stylePaths.map((p: string) => {
                 const styleUri = vscode.Uri.file(path.join(extRoot, p));
                 return webview.asWebviewUri(styleUri);
             });
         } catch (error) {
-            codeforcesChannel.appendLine(`[Error] Fail to load built-in markdown style file: ${error}`);
+            codeforcesChannel.appendLine(
+                `[Error] Fail to load built-in markdown style file: ${error}`,
+            );
         }
-        return styles.map((style: vscode.Uri) => `<link rel="stylesheet" type="text/css" href="${style.toString()}">`).join(os.EOL);
+        return styles
+            .map(
+                (style: vscode.Uri) =>
+                    `<link rel="stylesheet" type="text/css" href="${style.toString()}">`,
+            )
+            .join(os.EOL);
     }
 
     private getSettingsStyles(): string {
-        if(!this.config) {
+        if (!this.config) {
             return "";
         }
         return [
@@ -91,16 +104,24 @@ class MarkdownEngine implements vscode.Disposable {
             highlight: (code: string, lang?: string): string => {
                 switch (lang && lang.toLowerCase()) {
                     case "mysql":
-                        lang = "sql"; break;
+                        lang = "sql";
+                        break;
                     case "json5":
-                        lang = "json"; break;
+                        lang = "json";
+                        break;
                     case "python3":
-                        lang = "python"; break;
+                        lang = "python";
+                        break;
                 }
                 if (lang && hljs.getLanguage(lang)) {
                     try {
-                        return hljs.highlight(code, { language: lang, ignoreIllegals: true }).value;
-                    } catch (error) { /* do not highlight */ }
+                        return hljs.highlight(code, {
+                            language: lang,
+                            ignoreIllegals: true,
+                        }).value;
+                    } catch (error) {
+                        /* do not highlight */
+                    }
                 }
                 return ""; // use external default escaping
             },
@@ -113,10 +134,12 @@ class MarkdownEngine implements vscode.Disposable {
     }
 
     private addCodeBlockHighlight(md: MarkdownIt): void {
-        const codeBlock: MarkdownIt.Renderer.RenderRule = md.renderer.rules["code_block"] as MarkdownIt.Renderer.RenderRule;
+        const codeBlock: MarkdownIt.Renderer.RenderRule = md.renderer.rules[
+            "code_block"
+        ] as MarkdownIt.Renderer.RenderRule;
         // tslint:disable-next-line:typedef
         md.renderer.rules["code_block"] = (tokens, idx, options, env, self) => {
-            if(!options.highlight) {
+            if (!options.highlight) {
                 return codeBlock(tokens, idx, options, env, self);
             }
             // if any token uses lang-specified code fence, then do not highlight code block
@@ -124,7 +147,11 @@ class MarkdownEngine implements vscode.Disposable {
                 return codeBlock(tokens, idx, options, env, self);
             }
             // otherwise, highlight with default lang in env object.
-            const highlighted: string = options.highlight(tokens[idx].content, env.lang, "");
+            const highlighted: string = options.highlight(
+                tokens[idx].content,
+                env.lang,
+                "",
+            );
             return [
                 `<pre><code ${self.renderAttrs(tokens[idx])} >`,
                 highlighted || md.utils.escapeHtml(tokens[idx].content),
@@ -134,10 +161,14 @@ class MarkdownEngine implements vscode.Disposable {
     }
 
     private addImageUrlCompletion(md: MarkdownIt): void {
-        const image: MarkdownIt.Renderer.RenderRule = md.renderer.rules["image"] as MarkdownIt.Renderer.RenderRule;
+        const image: MarkdownIt.Renderer.RenderRule = md.renderer.rules[
+            "image"
+        ] as MarkdownIt.Renderer.RenderRule;
         // tslint:disable-next-line:typedef
         md.renderer.rules["image"] = (tokens, idx, options, env, self) => {
-            const imageSrc: string[] | undefined = tokens[idx].attrs?.find((value: string[]) => value[0] === "src");
+            const imageSrc: string[] | undefined = tokens[idx].attrs?.find(
+                (value: string[]) => value[0] === "src",
+            );
             if (env.host && imageSrc && imageSrc[1].startsWith("/")) {
                 imageSrc[1] = `${env.host}${imageSrc[1]}`;
             }

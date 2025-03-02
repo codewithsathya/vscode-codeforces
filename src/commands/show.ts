@@ -6,8 +6,14 @@ import { setCodeforcesHandle } from "./plugin";
 import { codeforcesExecutor } from "../codeforcesExecutor";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
 
-export async function previewProblem(input: IProblem, isSideMode: boolean = false): Promise<void> {
-    const html: string = await codeforcesExecutor.getProblem(input.contestId, input.index);
+export async function previewProblem(
+    input: IProblem,
+    isSideMode: boolean = false,
+): Promise<void> {
+    const html: string = await codeforcesExecutor.getProblem(
+        input.contestId,
+        input.index,
+    );
     codeforcesPreviewProvider.show(html, input, isSideMode);
 }
 
@@ -27,21 +33,31 @@ export async function pickOne(): Promise<void> {
     const ratings = explorerNodeManager.getAllRatingNodes();
     const ratingPick = vscode.window.createQuickPick<IQuickItemEx<string>>();
     ratingPick.placeholder = "Pick rating";
-    ratingPick.items = [{ label: "RANDOM", value: "RANDOM" }, ...ratings.map((node: CodeforcesNode) => {
-        return {
-            label: node.name,
-            value: node.name,
-        };
-    })];
+    ratingPick.items = [
+        { label: "RANDOM", value: "RANDOM" },
+        ...ratings.map((node: CodeforcesNode) => {
+            return {
+                label: node.name,
+                value: node.name,
+            };
+        }),
+    ];
     ratingPick.onDidAccept(() => {
         const choice = ratingPick.selectedItems[0];
         if (choice) {
-            if(choice.value === "RANDOM") {
-                const randomProblem: IProblem = problems[Math.floor(Math.random() * problems.length)];
+            if (choice.value === "RANDOM") {
+                const randomProblem: IProblem =
+                    problems[Math.floor(Math.random() * problems.length)];
                 previewProblem(randomProblem);
             } else {
-                const filteredProblems = problems.filter((problem: IProblem) => problem.rating === parseInt(choice.value));
-                const randomProblem: IProblem = filteredProblems[Math.floor(Math.random() * filteredProblems.length)];
+                const filteredProblems = problems.filter(
+                    (problem: IProblem) =>
+                        problem.rating === parseInt(choice.value),
+                );
+                const randomProblem: IProblem =
+                    filteredProblems[
+                        Math.floor(Math.random() * filteredProblems.length)
+                    ];
                 previewProblem(randomProblem);
             }
         }
@@ -58,10 +74,14 @@ export async function searchProblem(): Promise<void> {
     quickPick.placeholder = "Type to search problems...";
     quickPick.items = allPicks;
 
-    quickPick.onDidChangeValue(searchText => {
-        quickPick.items = allPicks.filter(item =>
-            item.label.toLowerCase().includes(searchText.toLowerCase()) ||
-            (item.detail && item.detail.toLowerCase().includes(searchText.toLowerCase()))
+    quickPick.onDidChangeValue((searchText) => {
+        quickPick.items = allPicks.filter(
+            (item) =>
+                item.label.toLowerCase().includes(searchText.toLowerCase()) ||
+                (item.detail &&
+                    item.detail
+                        .toLowerCase()
+                        .includes(searchText.toLowerCase())),
         );
     });
 
@@ -76,7 +96,9 @@ export async function searchProblem(): Promise<void> {
     quickPick.show();
 }
 
-function parseProblemsToPicks(p: CodeforcesNode[]): Array<IQuickItemEx<IProblem>> {
+function parseProblemsToPicks(
+    p: CodeforcesNode[],
+): Array<IQuickItemEx<IProblem>> {
     const picks: Array<IQuickItemEx<IProblem>> = p.map((problem: IProblem) =>
         Object.assign(
             {},
@@ -85,8 +107,8 @@ function parseProblemsToPicks(p: CodeforcesNode[]): Array<IQuickItemEx<IProblem>
                 description: "",
                 detail: `Solved count: ${problem.solvedCount}, Rating : ${problem.rating ? problem.rating : "UNKNOWN"}`,
                 value: problem,
-            }
-        )
+            },
+        ),
     );
     return picks;
 }

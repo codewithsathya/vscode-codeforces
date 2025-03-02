@@ -1,4 +1,4 @@
-import { TestCase, Problem, Case } from './types';
+import { TestCase, Problem, Case } from "./types";
 /**
  * Judge whether the testcase stdout is correct
  *
@@ -10,11 +10,11 @@ export const isResultCorrect = (
     stdout: string,
 ): boolean => {
     // convert crlf to lf
-    const expected = testCase.output.replace(/\r\n/g, '\n');
-    const result = stdout.replace(/\r\n/g, '\n');
+    const expected = testCase.output.replace(/\r\n/g, "\n");
+    const result = stdout.replace(/\r\n/g, "\n");
 
-    const expectedLines = expected.trim().split('\n');
-    const resultLines = result.trim().split('\n');
+    const expectedLines = expected.trim().split("\n");
+    const resultLines = result.trim().split("\n");
     // globalThis.logger.log('res', resultLines);
     if (expectedLines.length !== resultLines.length) {
         // globalThis.logger.log('Failed precheck', expectedLines, resultLines);
@@ -38,8 +38,8 @@ export const getBlankCase = (_problem: Problem): Case => {
         id,
         result: null,
         testcase: {
-            input: '',
-            output: '',
+            input: "",
+            output: "",
             id,
         },
     };

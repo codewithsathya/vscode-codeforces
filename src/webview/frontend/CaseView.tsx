@@ -1,7 +1,7 @@
-import { Case, VSToWebViewMessage } from '../../cph/types';
-import { useState, createRef, useEffect } from 'react';
-import TextareaAutosize from 'react-textarea-autosize';
-import React from 'react';
+import { Case, VSToWebViewMessage } from "../../cph/types";
+import { useState, createRef, useEffect } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import React from "react";
 
 export default function CaseView(props: {
     num: number;
@@ -25,7 +25,7 @@ export default function CaseView(props: {
 
     useEffect(() => {
         if (props.doFocus) {
-            inputBox.current?.scrollIntoView({ behavior: 'smooth' });
+            inputBox.current?.scrollIntoView({ behavior: "smooth" });
         }
     }, [props.doFocus]);
 
@@ -68,7 +68,7 @@ export default function CaseView(props: {
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
-        props.notify('Copied to clipboard');
+        props.notify("Copied to clipboard");
     };
 
     useEffect(() => {
@@ -85,10 +85,10 @@ export default function CaseView(props: {
     }, [running]);
 
     useEffect(() => {
-        window.addEventListener('message', function (event) {
+        window.addEventListener("message", function (event) {
             const data: VSToWebViewMessage = event.data;
             switch (data.command) {
-                case 'not-running': {
+                case "not-running": {
                     setRunning(false);
                     break;
                 }
@@ -96,23 +96,23 @@ export default function CaseView(props: {
         });
     }, [props.case]);
 
-    let resultText = '';
+    let resultText = "";
     const stderror = result?.stderr;
     // Handle several cases for result text
     if (result?.signal) {
         resultText = result?.signal;
     } else if (result?.stdout) {
-        resultText = result.stdout || ' ';
+        resultText = result.stdout || " ";
     }
     if (!result) {
-        resultText = 'Run to show output';
+        resultText = "Run to show output";
     }
     if (running) {
-        resultText = '...';
+        resultText = "...";
     }
-    const passFailText = result ? (result.pass ? 'passed' : 'failed') : '';
-    const caseClassName = 'case ' + (running ? 'running' : passFailText);
-    const timeText = result?.timeOut ? 'Timed Out' : result?.time + 'ms';
+    const passFailText = result ? (result.pass ? "passed" : "failed") : "";
+    const caseClassName = "case " + (running ? "running" : passFailText);
+    const timeText = result?.timeOut ? "Timed Out" : result?.time + "ms";
 
     return (
         <div className={caseClassName}>
@@ -142,12 +142,12 @@ export default function CaseView(props: {
                                 <span
                                     className={
                                         result.pass
-                                            ? 'result-pass'
-                                            : 'result-fail'
+                                            ? "result-pass"
+                                            : "result-fail"
                                     }
                                 >
                                     &nbsp; &nbsp;
-                                    {result.pass ? 'Passed' : 'Failed'}
+                                    {result.pass ? "Passed" : "Failed"}
                                 </span>
                             </span>
                             <span className="exec-time">{timeText}</span>
@@ -163,7 +163,7 @@ export default function CaseView(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-play"></i>
-                        </span>{' '}
+                        </span>{" "}
                     </button>
                     <button
                         className="btn btn-red"
@@ -174,7 +174,7 @@ export default function CaseView(props: {
                     >
                         <span className="icon">
                             <i className="codicon codicon-trash"></i>
-                        </span>{' '}
+                        </span>{" "}
                     </button>
                 </div>
             </div>
@@ -232,7 +232,7 @@ export default function CaseView(props: {
                                 className="expectedoutput"
                                 onClick={() => {
                                     setOutput(trunctateStdout(resultText));
-                                    props.notify('Set As Expected Output');
+                                    props.notify("Set As Expected Output");
                                 }}
                                 title="Set As Expected Output"
                             >
@@ -266,7 +266,7 @@ export default function CaseView(props: {
 /** Limit string length to 100,000. */
 const trunctateStdout = (stdout: string): string => {
     if (stdout.length > 100000) {
-        stdout = '[Truncated]\n' + stdout.substr(0, 100000);
+        stdout = "[Truncated]\n" + stdout.substr(0, 100000);
     }
     return stdout;
 };

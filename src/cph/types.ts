@@ -1,50 +1,50 @@
 /** Valid name for a VS Code preference section for the extension */
 export type prefSection =
-    | 'general.saveLocation'
-    | 'general.defaultLanguage'
-    | 'general.timeOut'
-    | 'general.hideStderrorWhenCompiledOK'
-    | 'general.ignoreSTDERROR'
-    | 'general.firstTime'
-    | 'general.useShortCodeForcesName'
-    | 'general.menuChoices'
-    | 'language.c.Args'
-    | 'language.c.SubmissionCompiler'
-    | 'language.c.Command'
-    | 'language.c.OutputArg'
-    | 'language.cpp.Args'
-    | 'language.cpp.SubmissionCompiler'
-    | 'language.cpp.Command'
-    | 'language.cpp.OutputArg'
-    | 'language.csharp.Args'
-    | 'language.csharp.SubmissionCompiler'
-    | 'language.csharp.Command'
-    | 'language.go.Args'
-    | 'language.go.SubmissionCompiler'
-    | 'language.go.Command'
-    | 'language.rust.Args'
-    | 'language.rust.SubmissionCompiler'
-    | 'language.rust.Command'
-    | 'language.java.Args'
-    | 'language.java.SubmissionCompiler'
-    | 'language.java.Command'
-    | 'language.js.Args'
-    | 'language.js.SubmissionCompiler'
-    | 'language.js.Command'
-    | 'language.python.Args'
-    | 'language.python.SubmissionCompiler'
-    | 'language.python.Command'
-    | 'language.ruby.Args'
-    | 'language.ruby.SubmissionCompiler'
-    | 'language.ruby.Command'
-    | 'language.haskell.Args'
-    | 'language.haskell.SubmissionCompiler'
-    | 'language.haskell.Command'
-    | 'general.retainWebviewContext'
-    | 'general.autoShowJudge'
-    | 'general.defaultLanguageTemplateFileLocation'
-    | 'general.remoteServerAddress'
-    | 'general.showLiveUserCount';
+    | "general.saveLocation"
+    | "general.defaultLanguage"
+    | "general.timeOut"
+    | "general.hideStderrorWhenCompiledOK"
+    | "general.ignoreSTDERROR"
+    | "general.firstTime"
+    | "general.useShortCodeForcesName"
+    | "general.menuChoices"
+    | "language.c.Args"
+    | "language.c.SubmissionCompiler"
+    | "language.c.Command"
+    | "language.c.OutputArg"
+    | "language.cpp.Args"
+    | "language.cpp.SubmissionCompiler"
+    | "language.cpp.Command"
+    | "language.cpp.OutputArg"
+    | "language.csharp.Args"
+    | "language.csharp.SubmissionCompiler"
+    | "language.csharp.Command"
+    | "language.go.Args"
+    | "language.go.SubmissionCompiler"
+    | "language.go.Command"
+    | "language.rust.Args"
+    | "language.rust.SubmissionCompiler"
+    | "language.rust.Command"
+    | "language.java.Args"
+    | "language.java.SubmissionCompiler"
+    | "language.java.Command"
+    | "language.js.Args"
+    | "language.js.SubmissionCompiler"
+    | "language.js.Command"
+    | "language.python.Args"
+    | "language.python.SubmissionCompiler"
+    | "language.python.Command"
+    | "language.ruby.Args"
+    | "language.ruby.SubmissionCompiler"
+    | "language.ruby.Command"
+    | "language.haskell.Args"
+    | "language.haskell.SubmissionCompiler"
+    | "language.haskell.Command"
+    | "general.retainWebviewContext"
+    | "general.autoShowJudge"
+    | "general.defaultLanguageTemplateFileLocation"
+    | "general.remoteServerAddress"
+    | "general.showLiveUserCount";
 
 export type Language = {
     name: LangNames;
@@ -54,16 +54,16 @@ export type Language = {
 };
 
 export type LangNames =
-    | 'python'
-    | 'ruby'
-    | 'c'
-    | 'cpp'
-    | 'rust'
-    | 'java'
-    | 'js'
-    | 'go'
-    | 'hs'
-    | 'csharp';
+    | "python"
+    | "ruby"
+    | "c"
+    | "cpp"
+    | "rust"
+    | "java"
+    | "js"
+    | "go"
+    | "hs"
+    | "csharp";
 
 export type TestCase = {
     input: string;
@@ -108,54 +108,54 @@ export type WebviewMessageCommon = {
 };
 
 export type RunSingleCommand = {
-    command: 'run-single-and-save';
+    command: "run-single-and-save";
     id: number;
 } & WebviewMessageCommon;
 
 export type RunAllCommand = {
-    command: 'run-all-and-save';
+    command: "run-all-and-save";
 } & WebviewMessageCommon;
 
 export type OnlineJudgeEnv = {
-    command: 'online-judge-env';
+    command: "online-judge-env";
     value: boolean;
 };
 
 export type KillRunningCommand = {
-    command: 'kill-running';
+    command: "kill-running";
 } & WebviewMessageCommon;
 
 export type SaveCommand = {
-    command: 'save';
+    command: "save";
 } & WebviewMessageCommon;
 
 export type DeleteTcsCommand = {
-    command: 'delete-tcs';
+    command: "delete-tcs";
 } & WebviewMessageCommon;
 
 export type SubmitCf = {
-    command: 'submitCf';
+    command: "submitCf";
 } & WebviewMessageCommon;
 
 export type GetInitialProblem = {
-    command: 'get-initial-problem';
+    command: "get-initial-problem";
 };
 
 export type CreateLocalProblem = {
-    command: 'create-local-problem';
+    command: "create-local-problem";
 };
 
 export type OpenUrl = {
-    command: 'url';
+    command: "url";
     url: string;
 };
 
 export type GetExtLogs = {
-    command: 'get-ext-logs';
+    command: "get-ext-logs";
 };
 
 export type ShowDescription = {
-    command: 'show-description';
+    command: "show-description";
 } & WebviewMessageCommon;
 
 export type WebviewToVSEvent =
@@ -173,51 +173,51 @@ export type WebviewToVSEvent =
     | ShowDescription;
 
 export type RunningCommand = {
-    command: 'running';
+    command: "running";
     id: number;
 } & WebviewMessageCommon;
 
 export type NotRunningCommand = {
-    command: 'not-running';
+    command: "not-running";
 };
 
 export type ResultCommand = {
-    command: 'run-single-result';
+    command: "run-single-result";
     result: RunResult;
 } & WebviewMessageCommon;
 
 export type CompilingStartCommand = {
-    command: 'compiling-start';
+    command: "compiling-start";
 };
 
 export type CompilingStopCommand = {
-    command: 'compiling-stop';
+    command: "compiling-stop";
 };
 
 export type RunAllInWebViewCommand = {
-    command: 'run-all';
+    command: "run-all";
 };
 
 export type WaitingForSubmitCommand = {
-    command: 'waiting-for-submit';
+    command: "waiting-for-submit";
 };
 
 export type SubmitFinishedCommand = {
-    command: 'submit-finished';
+    command: "submit-finished";
 };
 
 export type NewProblemCommand = {
-    command: 'new-problem';
+    command: "new-problem";
     problem: Problem | undefined;
 };
 
 export type RemoteMessageCommand = {
-    command: 'remote-message';
+    command: "remote-message";
     message: string;
 };
 
 export type ExtLogsCommand = {
-    command: 'ext-logs';
+    command: "ext-logs";
     logs: string;
 };
 
@@ -225,12 +225,12 @@ export type Status = {
     verdict: string;
     time: string;
     memory: string;
-}
+};
 
 export type TrackingVerdictCommand = {
-    command: 'tracking-verdict';
+    command: "tracking-verdict";
     message: Status;
-}
+};
 
 export type VSToWebViewMessage =
     | ResultCommand

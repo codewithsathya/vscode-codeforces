@@ -1,9 +1,9 @@
-import { Problem } from '../cph/types';
-import { runSingleAndSave } from './processRunSingle';
-import { compileFile, getBinSaveLocation } from '../cph/compiler';
-import { deleteBinary } from '../cph/executions';
-import { getLanguage } from '../cph/utils';
-import { judgeViewProvider } from './judgeViewProvider';
+import { Problem } from "../cph/types";
+import { runSingleAndSave } from "./processRunSingle";
+import { compileFile, getBinSaveLocation } from "../cph/compiler";
+import { deleteBinary } from "../cph/executions";
+import { getLanguage } from "../cph/utils";
+import { judgeViewProvider } from "./judgeViewProvider";
 
 /**
  * Run every testcase in a problem one by one. Waits for the first to complete
@@ -17,7 +17,7 @@ export default async (problem: Problem) => {
     }
     for (const testCase of problem.tests) {
         judgeViewProvider.extensionToJudgeViewMessage({
-            command: 'running',
+            command: "running",
             id: testCase.id,
             problem: problem,
         });

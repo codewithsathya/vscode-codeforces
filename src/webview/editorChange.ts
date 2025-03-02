@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import { getProbSaveLocation } from '../cph/parser';
-import { existsSync, readFileSync } from 'fs';
-import { Problem } from '../cph/types';
-import { getProblemForDocument } from '../cph/utils';
-import { getAutoShowJudgePref } from '../cph/preferences';
-import { setOnlineJudgeEnv } from '../cph/compiler';
-import { judgeViewProvider } from './judgeViewProvider';
+import * as vscode from "vscode";
+import { getProbSaveLocation } from "../cph/parser";
+import { existsSync, readFileSync } from "fs";
+import { Problem } from "../cph/types";
+import { getProblemForDocument } from "../cph/utils";
+import { getAutoShowJudgePref } from "../cph/preferences";
+import { setOnlineJudgeEnv } from "../cph/compiler";
+import { judgeViewProvider } from "./judgeViewProvider";
 
 /**
  * Show the webview with the problem details if a source code with existing
@@ -20,14 +20,14 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
 
     if (e === undefined) {
         judgeViewProvider.extensionToJudgeViewMessage({
-            command: 'new-problem',
+            command: "new-problem",
             problem: undefined,
         });
         setOnlineJudgeEnv(false); // reset the non-debug mode set in webview.
         return;
     }
 
-    if (e.document.uri.scheme !== 'file') {
+    if (e.document.uri.scheme !== "file") {
         return;
     }
 
@@ -37,22 +37,19 @@ export const editorChanged = async (e: vscode.TextEditor | undefined) => {
 
     if (problem === undefined) {
         judgeViewProvider.extensionToJudgeViewMessage({
-            command: 'new-problem',
+            command: "new-problem",
             problem: undefined,
         });
         return;
     }
 
-    if (
-        getAutoShowJudgePref() &&
-        judgeViewProvider.isViewUninitialized()
-    ) {
-        vscode.commands.executeCommand('codeforces.judgeView.focus');
+    if (getAutoShowJudgePref() && judgeViewProvider.isViewUninitialized()) {
+        vscode.commands.executeCommand("codeforces.judgeView.focus");
     }
 
     // globalThis.logger.log('Sent problem @', Date.now());
     judgeViewProvider.extensionToJudgeViewMessage({
-        command: 'new-problem',
+        command: "new-problem",
         problem,
     });
 };
@@ -70,7 +67,7 @@ export const editorClosed = (e: vscode.TextDocument) => {
 
     if (judgeViewProvider.problemPath === problem.srcPath) {
         judgeViewProvider.extensionToJudgeViewMessage({
-            command: 'new-problem',
+            command: "new-problem",
             problem: undefined,
         });
     }

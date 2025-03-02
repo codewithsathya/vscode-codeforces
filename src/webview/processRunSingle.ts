@@ -1,12 +1,12 @@
-import { Problem, RunResult } from '../cph/types';
-import { getLanguage } from '../cph/utils';
-import { getBinSaveLocation, compileFile } from '../cph/compiler';
-import { saveProblem } from '../cph/parser';
-import { runTestCase, deleteBinary } from '../cph/executions';
-import { isResultCorrect } from '../cph/judge';
-import * as vscode from 'vscode';
-import { getIgnoreSTDERRORPref } from '../cph/preferences';
-import { judgeViewProvider } from './judgeViewProvider';
+import { Problem, RunResult } from "../cph/types";
+import { getLanguage } from "../cph/utils";
+import { getBinSaveLocation, compileFile } from "../cph/compiler";
+import { saveProblem } from "../cph/parser";
+import { runTestCase, deleteBinary } from "../cph/executions";
+import { isResultCorrect } from "../cph/judge";
+import * as vscode from "vscode";
+import { getIgnoreSTDERRORPref } from "../cph/preferences";
+import { judgeViewProvider } from "./judgeViewProvider";
 
 export const runSingleAndSave = async (
     problem: Problem,
@@ -41,7 +41,7 @@ export const runSingleAndSave = async (
         deleteBinary(language, binPath);
     }
 
-    const stderrorFailure = getIgnoreSTDERRORPref() ? false : run.stderr !== '';
+    const stderrorFailure = getIgnoreSTDERRORPref() ? false : run.stderr !== "";
 
     const didError =
         (run.code !== null && run.code !== 0) ||
@@ -54,7 +54,7 @@ export const runSingleAndSave = async (
     };
 
     judgeViewProvider.extensionToJudgeViewMessage({
-        command: 'run-single-result',
+        command: "run-single-result",
         result,
         problem,
     });

@@ -1,8 +1,8 @@
-import path from 'path';
-import fs from 'fs';
-import { Problem } from './types';
-import { getSaveLocationPref } from './preferences';
-import crypto from 'crypto';
+import path from "path";
+import fs from "fs";
+import { Problem } from "./types";
+import { getSaveLocationPref } from "./preferences";
+import crypto from "crypto";
 
 /**
  *  Get the location (file path) to save the generated problem file in. If save
@@ -16,13 +16,13 @@ export const getProbSaveLocation = (srcPath: string): string => {
     const srcFileName = path.basename(srcPath);
     const srcFolder = path.dirname(srcPath);
     const hash = crypto
-        .createHash('md5')
+        .createHash("md5")
         .update(srcPath)
-        .digest('hex')
+        .digest("hex")
         .substr(0);
     const baseProbName = `.${srcFileName}_${hash}.prob`;
-    const cphFolder = path.join(srcFolder, '.cph');
-    if (savePreference && savePreference !== '') {
+    const cphFolder = path.join(srcFolder, ".cph");
+    if (savePreference && savePreference !== "") {
         return path.join(savePreference, baseProbName);
     }
     return path.join(cphFolder, baseProbName);
@@ -43,9 +43,9 @@ export const getProblem = (srcPath: string): Problem | null => {
 /** Save the problem (metadata) */
 export const saveProblem = (srcPath: string, problem: Problem) => {
     const srcFolder = path.dirname(srcPath);
-    const cphFolder = path.join(srcFolder, '.cph');
+    const cphFolder = path.join(srcFolder, ".cph");
 
-    if (getSaveLocationPref() === '' && !fs.existsSync(cphFolder)) {
+    if (getSaveLocationPref() === "" && !fs.existsSync(cphFolder)) {
         // globalThis.logger.log('Making .cph folder');
         fs.mkdirSync(cphFolder);
     }

@@ -1,20 +1,23 @@
-import cyrillicToTranslit from 'cyrillic-to-translit-js';
-import { InputConfiguration, OutputConfiguration } from '../models/IOConfiguration';
-import { LanguageConfiguration } from '../models/LanguageConfiguration';
-import { Test } from '../models/Test';
-import { TestType } from '../models/TestType';
-import { Problem } from '../cph/types';
+import cyrillicToTranslit from "cyrillic-to-translit-js";
+import {
+    InputConfiguration,
+    OutputConfiguration,
+} from "../models/IOConfiguration";
+import { LanguageConfiguration } from "../models/LanguageConfiguration";
+import { Test } from "../models/Test";
+import { TestType } from "../models/TestType";
+import { Problem } from "../cph/types";
 
 const cyrillicToLatin = cyrillicToTranslit();
 
 export class TaskBuilder {
-    public name: string = '';
+    public name: string = "";
 
-    public judge: string = '';
-    public category: string = '';
-    public group: string = '';
+    public judge: string = "";
+    public category: string = "";
+    public group: string = "";
 
-    public url: string = '';
+    public url: string = "";
     public interactive: boolean = false;
 
     public memoryLimit: number = 1024;
@@ -23,13 +26,13 @@ export class TaskBuilder {
     public tests: Test[] = [];
     public testType: TestType = TestType.Single;
 
-    public input: InputConfiguration = { type: 'stdin' };
-    public output: OutputConfiguration = { type: 'stdout' };
+    public input: InputConfiguration = { type: "stdin" };
+    public output: OutputConfiguration = { type: "stdout" };
 
     public languages: LanguageConfiguration = {
         java: {
-            mainClass: 'Main',
-            taskClass: '',
+            mainClass: "Main",
+            taskClass: "",
         },
     };
 
@@ -68,7 +71,11 @@ export class TaskBuilder {
         return this;
     }
 
-    public addTest(input: string, output: string, normalizeWhitespace: boolean = true): TaskBuilder {
+    public addTest(
+        input: string,
+        output: string,
+        normalizeWhitespace: boolean = true,
+    ): TaskBuilder {
         this.tests.push(new Test(input, output, normalizeWhitespace));
         return this;
     }
@@ -90,9 +97,9 @@ export class TaskBuilder {
 
     public updateJavaTaskClassFromName(): TaskBuilder {
         const latin = cyrillicToLatin.transform(this.name);
-        const name = latin.replace(/[^a-zA-Z0-9_ -]/g, '');
+        const name = latin.replace(/[^a-zA-Z0-9_ -]/g, "");
 
-        let taskClass = '';
+        let taskClass = "";
         let nextCapital = true;
 
         for (const char of name) {
@@ -107,11 +114,14 @@ export class TaskBuilder {
             }
         }
 
-        return this.setJavaTaskClass(taskClass || 'Task');
+        return this.setJavaTaskClass(taskClass || "Task");
     }
 
     public updateGroupFromJudgeCategory(): TaskBuilder {
-        if (typeof this.category === 'string' && this.category.trim().length > 0) {
+        if (
+            typeof this.category === "string" &&
+            this.category.trim().length > 0
+        ) {
             this.group = `${this.judge} - ${this.category}`;
         } else {
             this.group = this.judge;
@@ -128,7 +138,7 @@ export class TaskBuilder {
             timeLimit: this.timeLimit,
             group: this.group,
             tests: this.tests,
-            srcPath: ""
+            srcPath: "",
         };
     }
 }

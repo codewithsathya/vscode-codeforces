@@ -1,7 +1,10 @@
 import * as vscode from "vscode";
 import { CodeforcesNode } from "../explorer/CodeforcesNode";
 
-export function getProblemUrl(contestId?: string | number, index?: string | number) {
+export function getProblemUrl(
+    contestId?: string | number,
+    index?: string | number,
+) {
     return `https://codeforces.com/contest/${contestId}/problem/${index}`;
 }
 
@@ -24,7 +27,10 @@ export function getNodeIdFromUrl(url: string): string {
     }
 }
 
-export function getDetailsFromProblemUrl(url: string): { contestId: string, index: string } {
+export function getDetailsFromProblemUrl(url: string): {
+    contestId: string;
+    index: string;
+} {
     const regex = /contest\/(\d+)\/problem\/([A-Z]?\d*[A-Z]?\d*)/;
     const match = url.match(regex);
     if (match) {

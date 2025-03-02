@@ -6,11 +6,10 @@ import { globalState } from "./globalState";
 import { setCodeforcesHandle } from "./commands/plugin";
 
 class CodeforcesManager {
-
     public async signIn() {
         let username: string | undefined = await vscode.window.showInputBox({
             title: "Login to Codeforces",
-            prompt: 'Enter your Codeforces handle/email',
+            prompt: "Enter your Codeforces handle/email",
             ignoreFocusOut: true,
         });
 
@@ -21,7 +20,7 @@ class CodeforcesManager {
 
         let password: string | undefined = await vscode.window.showInputBox({
             title: "Login to Codeforces",
-            prompt: 'Enter your Codeforces password',
+            prompt: "Enter your Codeforces password",
             password: true,
             ignoreFocusOut: true,
         });
@@ -33,13 +32,19 @@ class CodeforcesManager {
 
         try {
             await vscode.window.withProgress(
-                { location: vscode.ProgressLocation.Notification, title: "Logging in to Codeforces..." },
+                {
+                    location: vscode.ProgressLocation.Notification,
+                    title: "Logging in to Codeforces...",
+                },
                 async () => {
                     await this.handleSignIn(username, password);
-                }
+                },
             );
         } catch (error) {
-            promptForOpenOutputChannel(`Failed to log in. Please open the output channel for details`, DialogType.error);
+            promptForOpenOutputChannel(
+                `Failed to log in. Please open the output channel for details`,
+                DialogType.error,
+            );
         }
     }
 
@@ -49,13 +54,24 @@ class CodeforcesManager {
 
     public async handleSignIn(username: string, password: string) {
         try {
-            const { cookies, handle } = await browserClient.login(username, password);
+            const { cookies, handle } = await browserClient.login(
+                username,
+                password,
+            );
             await setCodeforcesHandle(handle);
             await globalState.saveCookies(cookies);
-            promptForOpenOutputChannel(`Login successful`, DialogType.completed);
+            promptForOpenOutputChannel(
+                `Login successful`,
+                DialogType.completed,
+            );
         } catch (error) {
-            promptForOpenOutputChannel(`Failed to login to codeforces`, DialogType.error);
-            codeforcesChannel.appendLine(`Failed to login to codeforces: ${error}`);
+            promptForOpenOutputChannel(
+                `Failed to login to codeforces`,
+                DialogType.error,
+            );
+            codeforcesChannel.appendLine(
+                `Failed to login to codeforces: ${error}`,
+            );
         }
     }
 }

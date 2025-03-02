@@ -23,13 +23,13 @@ export enum ProblemState {
 }
 
 export interface ISampleTest {
-    input: {line: string, type: "even" | "odd"}[]; 
-    output: {line: string, type: "even" | "odd"}[]; 
+    input: { line: string; type: "even" | "odd" }[];
+    output: { line: string; type: "even" | "odd" }[];
 }
 
 export interface DescLine {
-    type: "paragraph" | "ul" | "ol"
-    content: string | string[]
+    type: "paragraph" | "ul" | "ol";
+    content: string | string[];
 }
 
 export interface IDescription {
@@ -56,7 +56,6 @@ export interface IDescriptionConfiguration {
 
 export interface IWebViewMessage {
     command: string;
-    
 }
 
 export interface IProblem {
@@ -80,7 +79,7 @@ export interface ProblemsResponse {
     result: {
         problems: IProblem[];
         problemStatistics: IProblemStatistics[];
-    }
+    };
 }
 
 export interface ContestsResponse {

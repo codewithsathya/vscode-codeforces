@@ -4,14 +4,17 @@ import { explorerNodeManager } from "./explorerNodeManager";
 import { Category, ProblemState } from "../shared";
 import path from "path";
 import { formatDuration, getFormattedDate } from "../utils/dateUtils";
-export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<CodeforcesNode> {
+export class CodeforcesTreeDataProvider
+    implements vscode.TreeDataProvider<CodeforcesNode>
+{
     private context: vscode.ExtensionContext | null = null;
 
-    private onDidChangeTreeDataEvent: vscode.EventEmitter<CodeforcesNode | undefined | null> = new vscode.EventEmitter<
-        CodeforcesNode| undefined | null
-    >();    
-    
-    public readonly onDidChangeTreeData: vscode.Event<any> = this.onDidChangeTreeDataEvent.event;
+    private onDidChangeTreeDataEvent: vscode.EventEmitter<
+        CodeforcesNode | undefined | null
+    > = new vscode.EventEmitter<CodeforcesNode | undefined | null>();
+
+    public readonly onDidChangeTreeData: vscode.Event<any> =
+        this.onDidChangeTreeDataEvent.event;
 
     public initialize(context: vscode.ExtensionContext): void {
         this.context = context;
@@ -28,26 +31,30 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
         let contextValue: string;
         if (element.isProblem) {
             contextValue = "problem";
-        } else if(element.contest !== null) {
+        } else if (element.contest !== null) {
             contextValue = "contest";
         } else {
             contextValue = element.id.toLowerCase();
         }
         return {
-            label: element.isProblem ? `[${element.contestId}${element.index}] ${element.name}` : element.name,
+            label: element.isProblem
+                ? `[${element.contestId}${element.index}] ${element.name}`
+                : element.name,
             tooltip: this.parseTooltipFromProblemState(element),
-            collapsibleState: element.isProblem ? vscode.TreeItemCollapsibleState.None : vscode.TreeItemCollapsibleState.Collapsed,
+            collapsibleState: element.isProblem
+                ? vscode.TreeItemCollapsibleState.None
+                : vscode.TreeItemCollapsibleState.Collapsed,
             command: element.isProblem ? element.previewCommand : undefined,
             iconPath: this.parseIconPathFromProblemState(element),
             resourceUri: element.uri,
-            contextValue
+            contextValue,
         };
     }
 
     getChildren(
         element?: CodeforcesNode | undefined,
     ): vscode.ProviderResult<CodeforcesNode[]> {
-        if(!element) {
+        if (!element) {
             return explorerNodeManager.getRootNodes();
         } else {
             return this.getChildrenByElementId(element.id);
@@ -74,7 +81,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
 
     private parseTooltipFromProblemState(element: CodeforcesNode): string {
         if (!element.isProblem) {
-            if(element.contest !== null) {
+            if (element.contest !== null) {
                 return `Contest: ${element.contest.name}\nType: ${element.contest.type}\nStart: ${getFormattedDate(element.contest.startTimeSeconds)}\nDuration: ${formatDuration(element.contest.durationSeconds)}`;
             }
             return "";
@@ -83,7 +90,7 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
     }
 
     private parseIconPathFromProblemState(element: CodeforcesNode): string {
-        if(!this.context) {
+        if (!this.context) {
             return "";
         }
         if (!element.isProblem) {
@@ -91,16 +98,23 @@ export class CodeforcesTreeDataProvider implements vscode.TreeDataProvider<Codef
         }
         switch (element.state) {
             case ProblemState.ACCEPTED:
-                return this.context.asAbsolutePath(path.join("resources", "check.png"));
+                return this.context.asAbsolutePath(
+                    path.join("resources", "check.png"),
+                );
             case ProblemState.PARTIAL:
             case ProblemState.WRONG_ANSWER:
-                return this.context.asAbsolutePath(path.join("resources", "x.png"));
+                return this.context.asAbsolutePath(
+                    path.join("resources", "x.png"),
+                );
             case ProblemState.UNKNOWN:
-                return this.context.asAbsolutePath(path.join("resources", "blank.png"));
+                return this.context.asAbsolutePath(
+                    path.join("resources", "blank.png"),
+                );
             default:
                 return "";
         }
     }
 }
 
-export const codeforcesTreeDataProvider: CodeforcesTreeDataProvider = new CodeforcesTreeDataProvider();
+export const codeforcesTreeDataProvider: CodeforcesTreeDataProvider =
+    new CodeforcesTreeDataProvider();

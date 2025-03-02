@@ -1,4 +1,4 @@
 export enum TestType {
-    Single = 'single',
-    MultiNumber = 'multiNumber',
+    Single = "single",
+    MultiNumber = "multiNumber",
 }

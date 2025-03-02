@@ -299,7 +299,7 @@ function Judge(props: {
                     doFocus={true}
                     forceRunning={getRunningProp(value)}
                     updateCase={updateCase}
-                ></CaseView>
+                ></CaseView>,
             );
             debounceFocusLast();
         } else {
@@ -313,7 +313,7 @@ function Judge(props: {
                     remove={remove}
                     forceRunning={getRunningProp(value)}
                     updateCase={updateCase}
-                ></CaseView>
+                ></CaseView>,
             );
         }
     });
@@ -407,7 +407,11 @@ function Judge(props: {
                         </thead>
                         <tbody>
                             <tr>
-                                <td className={`verdict ${getVerdictClass(status.verdict)}`}>{status.verdict}</td>
+                                <td
+                                    className={`verdict ${getVerdictClass(status.verdict)}`}
+                                >
+                                    {status.verdict}
+                                </td>
                                 <td>{status.time}</td>
                                 <td>{status.memory}</td>
                             </tr>
@@ -534,7 +538,7 @@ function App() {
 
     const handleRunSingleResult = (data: ResultCommand) => {
         const idx = cases.findIndex(
-            (testCase) => testCase.id === data.result.id
+            (testCase) => testCase.id === data.result.id,
         );
         if (idx === -1) {
             console.error("Invalid single result", cases, cases.length, data);
