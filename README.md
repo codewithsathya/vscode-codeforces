@@ -38,9 +38,9 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 
 ![View results](resources/docs/submit.png)
 
-## 🎬 Demo
+<!-- ## 🎬 Demo -->
 
-![Demo GIF](https://your-image-url.com/demo.gif)
+<!-- ![Demo GIF](https://your-image-url.com/demo.gif) -->
 
 ## 🚀 Installation
 
@@ -68,6 +68,21 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 
 Contributions are welcome! Feel free to open issues or submit pull requests.
 
+## 🙌 Acknowledgements
+
+This extension was inspired by and includes some parts of code from:
+- [CPH (Competitive Programming Helper)](https://github.com/agrawal-d/cph)
+- [Competitive Companion](https://github.com/jmerle/competitive-companion)
+
+A huge thanks to the authors of these projects for their amazing contributions to the competitive programming community!
+
 ---
 
-Enjoy competitive programming with Codeforces directly in VS Code! 🚀
+<div align="center">
+    <a href="https://www.buymeacoffee.com/codewithsathya" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41px"></a>
+    <a href="https://paypal.me/myselfsathya"><img src="resources/paypal.svg" alt="PayPal" height="41px" width="220"></a>
+    <a href="https://donate.codewithsathya.com/">
+        <img src="resources/upi.svg" alt="UPI Pay" height="41" width="220">
+    </a> <br>
+</div>
+
