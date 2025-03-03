@@ -21,15 +21,16 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 
 ### 🌟 Problem List & Categorization
 
-![Problem List](resources/docs/categorization.png)
+<img src="resources/docs/categorization.png" alt="Problem List" width="300" height="auto">
 
 ### 🎯 Random Problem Selection
 
-![Random Problem](resources/docs/pick-problem.png)
+<img src="resources/docs/pick-problem.png" alt="Pick a problem" width="300" height="auto">
+
 
 ### 📝 Problem Preview
 
-![Problem Preview](resources/docs/preview-problem.png)
+<img src="resources/docs/preview-problem.png" alt="Preview a problem" width="300" height="auto">
 
 ### 🚀 Test, Submit and View Results Directly
 
