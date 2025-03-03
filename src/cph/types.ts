@@ -43,8 +43,6 @@ export type prefSection =
     | "general.retainWebviewContext"
     | "general.autoShowJudge"
     | "general.defaultLanguageTemplateFileLocation"
-    | "general.remoteServerAddress"
-    | "general.showLiveUserCount";
 
 export type Language = {
     name: LangNames;
@@ -211,11 +209,6 @@ export type NewProblemCommand = {
     problem: Problem | undefined;
 };
 
-export type RemoteMessageCommand = {
-    command: "remote-message";
-    message: string;
-};
-
 export type ExtLogsCommand = {
     command: "ext-logs";
     logs: string;
@@ -241,7 +234,6 @@ export type VSToWebViewMessage =
     | WaitingForSubmitCommand
     | SubmitFinishedCommand
     | NotRunningCommand
-    | RemoteMessageCommand
     | NewProblemCommand
     | ExtLogsCommand
     | TrackingVerdictCommand;

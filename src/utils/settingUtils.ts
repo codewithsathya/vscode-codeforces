@@ -13,6 +13,10 @@ export function shouldHideSolvedProblem(): boolean {
     return getWorkspaceConfiguration().get<boolean>("hideSolved", false);
 }
 
+export function isTagGroupingEnabled(): boolean {
+    return getWorkspaceConfiguration().get<boolean>("tagGroupingEnabled", true);
+}
+
 export function getDescriptionConfiguration(): IDescriptionConfiguration {
     const setting: string = getWorkspaceConfiguration().get<string>(
         "showDescription",

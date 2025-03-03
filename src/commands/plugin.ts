@@ -6,8 +6,6 @@ const SORT_ORDER: SortingStrategy[] = [
     SortingStrategy.None,
     SortingStrategy.ContestAsc,
     SortingStrategy.ContestDesc,
-    SortingStrategy.RatingAsc,
-    SortingStrategy.RatingDesc,
     SortingStrategy.SolvedCountAsc,
     SortingStrategy.SolvedCountDesc,
 ];

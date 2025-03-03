@@ -1,4 +1,5 @@
-import * as _ from "lodash";
+// eslint-disable-next-line @typescript-eslint/naming-convention
+import _ from "lodash";
 import { Disposable } from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
 import {
@@ -12,7 +13,7 @@ import {
 } from "../shared";
 import axiosClient from "axios";
 import { getCodeforcesHandle, getSortingStrategy } from "../commands/plugin";
-import { shouldHideSolvedProblem } from "../utils/settingUtils";
+import { isTagGroupingEnabled, shouldHideSolvedProblem } from "../utils/settingUtils";
 import { browserClient } from "../browserClient";
 import { codeforcesChannel } from "../codeforcesChannel";
 
@@ -169,12 +170,7 @@ class ExplorerNodeManager implements Disposable {
                 ),
             );
         }
-        res.sort((a, b) => {
-            let aRating = a.name === "UNKNOWN" ? 0 : parseInt(a.name);
-            let bRating = b.name === "UNKNOWN" ? 0 : parseInt(b.name);
-            return aRating - bRating;
-        });
-        return res;
+        return this.sortRatingNodes(res);
     }
 
     public getAllTagNodes(): CodeforcesNode[] {
@@ -266,6 +262,39 @@ class ExplorerNodeManager implements Disposable {
         const res: CodeforcesNode[] = [];
         const hideSolved = shouldHideSolvedProblem();
 
+        if (metaInfo[0] === Category.Tag && metaInfo.length === 2 && isTagGroupingEnabled()) {
+            const tag = metaInfo[1];
+            let problems = Array.from(this.explorerNodeMap.values());
+            problems = problems.filter(({ tags }) => tags.indexOf(tag) !== -1);
+            const ratingsSet = new Set<string>();
+            for (const problem of problems) {
+                ratingsSet.add(!problem.rating ? "UNKNOWN" : problem.rating.toString());
+            }
+            for (const rating of ratingsSet) {
+                res.push(
+                    new CodeforcesNode(
+                        Object.assign({}, defaultProblem, {
+                            id: `${Category.Tag}.${tag}.${rating}`,
+                            name: rating,
+                        }),
+                        false,
+                    ));
+            }
+            return this.sortRatingNodes(res);
+        }
+
+        if(metaInfo[0] === Category.Tag && metaInfo.length === 3) {
+            const tag = metaInfo[1];
+            const rating = metaInfo[2];
+            for(const problem of this.explorerNodeMap.values()) {
+                const problemRating = !problem.rating ? "UNKNOWN" : problem.rating.toString();
+                if(problem.tags.indexOf(tag) !== -1 && rating === problemRating) {
+                    res.push(problem);
+                }
+            }
+            return this.applySortingStrategy(res);
+        }
+
         for (const node of this.explorerNodeMap.values()) {
             if (hideSolved && node.state === ProblemState.ACCEPTED) {
                 continue;
@@ -355,6 +384,14 @@ class ExplorerNodeManager implements Disposable {
                 });
         }
         return nodes;
+    }
+
+    private sortRatingNodes(nodes: CodeforcesNode[]): CodeforcesNode[] {
+        return nodes.sort((a, b) => {
+            let aRating = a.name === "UNKNOWN" ? 0 : parseInt(a.name);
+            let bRating = b.name === "UNKNOWN" ? 0 : parseInt(b.name);
+            return aRating - bRating;
+        });
     }
 }
 

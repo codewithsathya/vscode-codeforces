@@ -7,11 +7,11 @@ import {
     Uri,
 } from "vscode";
 import { Category } from "../shared";
-import { isColorizingEnabled } from "../utils/settingUtils";
+import { isColorizingEnabled, isTagGroupingEnabled } from "../utils/settingUtils";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 export class CodeforcesTreeItemDecorationProvider
-    implements FileDecorationProvider
-{
+    implements FileDecorationProvider {
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
         "800": "NE",
         "900": "NE",
@@ -80,7 +80,8 @@ export class CodeforcesTreeItemDecorationProvider
         }
         if (uri.authority !== "problems") {
             if (uri.path.indexOf(Category.Rating) !== -1) {
-                const rating: string = uri.path.split(".")[1];
+                codeforcesChannel.appendLine(uri.path);
+                const rating = uri.path.split(".")[1];
                 if (rating === "UNKNOWN") {
                     return;
                 }
@@ -89,6 +90,20 @@ export class CodeforcesTreeItemDecorationProvider
                 }
                 return {
                     color: this.ITEM_COLOR[rating],
+                    badge: this.DIFFICULTY_BADGE_LABEL[rating],
+                };
+            }
+            if (uri.path.indexOf(Category.Tag) !== -1 && isTagGroupingEnabled() && uri.path.split(".").length === 3) {
+                const rating = uri.path.split(".")[2];
+                if (rating === "UNKNOWN") {
+                    return;
+                }
+                if (!isColorizingEnabled()) {
+                    return;
+                }
+                return {
+                    color: this.ITEM_COLOR[rating],
+                    badge: this.DIFFICULTY_BADGE_LABEL[rating],
                 };
             }
             return;

@@ -403,6 +403,12 @@
                     "scope": "application",
                     "description": "Hide solved problems in explorer tree."
                 },
+                "codeforces.tagGroupingEnabled": {
+                    "type": "boolean",
+                    "default": true,
+                    "scope": "application",
+                    "description": "Group problems in tags by rating"
+                },
                 "codeforces.problems.sortStrategy": {
                     "type": "string",
                     "default": "None",
@@ -488,7 +494,7 @@
                 },
                 "codeforces.language.cpp.SubmissionCompiler": {
                     "type": "string",
-                    "title": "check12344566",
+                    "title": "Codeforces CPP compiler",
                     "default": "GNU G++23 14.2 (64 bit, msys2)",
                     "enum": [
                         "GNU G++17 7.3.0",
@@ -723,16 +729,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Automatically show the judge view when opening a file that has a problem associated with it"
-                },
-                "codeforces.general.remoteServerAddress": {
-                    "type": "string",
-                    "default": "http://20.244.105.138:4546",
-                    "description": "The address of the remote server to which the extension will send requests. (Currently used for live user count)"
-                },
-                "codeforces.general.showLiveUserCount": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Whether to display the live user count. Turning it on may slightly reduce performance."
                 }
             }
         }
