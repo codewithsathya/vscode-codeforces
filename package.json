@@ -2,7 +2,7 @@
     "name": "codeforces-pro",
     "displayName": "Codeforces Pro",
     "description": "Solve codeforces problems from vscode",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "codewithsathya",
     "publisher": "codewithsathya",
     "license": "MIT",
