@@ -1,6 +1,6 @@
 # Codeforces VS Code Extension
 
-![Codeforces VS Code Extension](resources/docs/preview.png)
+![Codeforces VS Code Extension](https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/preview.png?raw=true)
 
 A powerful VS Code extension to practice and compete on Codeforces directly from VsCode editor.
 
@@ -21,22 +21,22 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 
 ### 🌟 Problem List & Categorization
 
-<img src="resources/docs/categorization.png" alt="Problem List" width="300" height="auto">
+<img src="https://raw.githubusercontent.com/codewithsathya/vscode-codeforces/refs/heads/main/resources/docs/categorization.png?raw=true" alt="Problem List" width="300" height="auto">
 
 ### 🎯 Random Problem Selection
 
-<img src="resources/docs/pick-problem.png" alt="Pick a problem" width="300" height="auto">
+<img src="https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/pick-problem.png?raw=true" alt="Pick a problem" width="300" height="auto">
 
 
 ### 📝 Problem Preview
 
-<img src="resources/docs/preview-problem.png" alt="Preview a problem" width="300" height="auto">
+<img src="https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/preview-problem.png?raw=true" alt="Preview a problem" width="300" height="auto">
 
 ### 🚀 Test, Submit and View Results Directly
 
-![Test & Submit](resources/docs/test-submit.png)
+![Test & Submit](https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/test-submit.png?raw=true)
 
-![View results](resources/docs/submit.png)
+![View results](https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/submit.png?raw=true)
 
 <!-- ## 🎬 Demo -->
 
@@ -80,9 +80,9 @@ A huge thanks to the authors of these projects for their amazing contributions t
 
 <div align="center">
     <a href="https://www.buymeacoffee.com/codewithsathya" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="41px"></a>
-    <a href="https://paypal.me/myselfsathya"><img src="resources/paypal.png" alt="PayPal" height="41px" width="220"></a>
+    <a href="https://paypal.me/myselfsathya"><img src="https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/paypal.png?raw=true" alt="PayPal" height="41px" width="220"></a>
     <a href="https://donate.codewithsathya.com/">
-        <img src="resources/upi.png" alt="UPI Pay" height="41" width="220">
+        <img src="https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/upi.png?raw=true" alt="UPI Pay" height="41" width="220">
     </a> <br>
 </div>
 
