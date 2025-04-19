@@ -3,6 +3,7 @@
 "use strict";
 
 const path = require("path");
+const webpack = require('webpack');
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -36,5 +37,16 @@ const config = {
             },
         ],
     },
+    plugins: [
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^canvas$/,
+        }),
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^bufferutil$/,
+        }),
+        new webpack.IgnorePlugin({
+            resourceRegExp: /^utf-8-validate$/,
+        }),
+    ],
 };
 module.exports = config;

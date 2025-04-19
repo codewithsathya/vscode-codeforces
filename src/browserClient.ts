@@ -15,7 +15,7 @@ class BrowserClient {
 
     public async initialize() {
         const { browser, page } = await connect({
-            headless: true,
+            headless: false,
             turnstile: true,
         });
         this.browser = browser;
