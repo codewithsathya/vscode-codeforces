@@ -24,7 +24,7 @@ import {
     editorChanged,
     editorClosed,
 } from "./webview/editorChange";
-import { handleNewProblem } from "./cph/companion";
+import { handleNewProblem, setupCompanionServer } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
 import { codeforcesManager } from "./codeforcesManager";
@@ -111,6 +111,8 @@ export function activate(context: vscode.ExtensionContext) {
                 switchSortingStrategy(),
             ),
         );
+
+        setupCompanionServer();
         checkLaunchWebview();
 
         vscode.workspace.onDidCloseTextDocument((e) => {

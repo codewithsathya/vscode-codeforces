@@ -3,20 +3,20 @@ import { connect } from "puppeteer-real-browser";
 import { codeforcesChannel } from "./codeforcesChannel";
 import { sleep } from "./utils/osUtils";
 import { globalState } from "./globalState";
-import { DialogType, promptForOpenOutputChannel } from "./utils/uiUtils";
-import { getContestUrl, getMyContestSubmissionsUrl } from "./utils/urlUtils";
-import { Status } from "./cph/types";
-import * as vscode from "vscode";
+import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
+import { shouldShowBrowser } from "./utils/settingUtils";
 
 class BrowserClient {
     private browser: Browser | null = null;
     private page: Page | null = null;
 
     public async initialize() {
+        const showBrowser = shouldShowBrowser();
         const { browser, page } = await connect({
-            headless: false,
+            headless: !showBrowser,
             turnstile: true,
+            args: ["--start-maximized"],
         });
         this.browser = browser;
         this.page = page;
@@ -25,7 +25,20 @@ class BrowserClient {
         );
         const cookies = globalState.getCookies();
         await this.browser.setCookie(...cookies);
-        await this.page.goto("https://codeforces.com/enter?back=%2F");
+        console.log("Cookies set:", cookies);
+        await this.page.goto("https://codeforces.com/enter?back=%2F", { waitUntil: "networkidle2" });
+
+        let finalizeClicked = false;
+        for (let i = 0; i < 100 && !finalizeClicked; i++) {
+            try {
+                await this.page.waitForSelector("#finalize-button", { timeout: 10000 });
+                await this.page.click("#finalize-button");
+                finalizeClicked = true;
+                console.log("Clicked finalize button");
+            } catch (err) {
+                console.log(`Attempt ${i + 1}: #finalize-button not found yet`);
+            }
+        }
     }
 
     public close() {
@@ -72,10 +85,10 @@ class BrowserClient {
         }
 
         try {
-            await this.page.goto(url, { waitUntil: "domcontentloaded" });
+            await this.page.goto(url, { waitUntil: "networkidle2" });
 
             await this.page.waitForSelector("#handleOrEmail", {
-                timeout: 10000,
+                timeout: 30000,
             });
 
             await this.page.type("#handleOrEmail", username);
@@ -193,190 +206,6 @@ class BrowserClient {
             codeforcesChannel.appendLine(
                 `Failed to get running problems: ${error}`,
             );
-        }
-    }
-
-    public async submitProblem(
-        contestId: string,
-        index: string,
-        language: number,
-        code: string,
-        callback: (verdict: Status) => void = () => {},
-    ) {
-        try {
-            await vscode.window.withProgress(
-                {
-                    location: vscode.ProgressLocation.Notification,
-                    title: "Submitting Codeforces Problem...",
-                    cancellable: false,
-                },
-                async () => {
-                    await this.page.goto(
-                        `https://codeforces.com/contest/${contestId}/submit`,
-                    );
-                    await this.page.waitForSelector("#sourceCodeTextarea", {
-                        timeout: 25000,
-                    });
-
-                    const languageSelector = 'select[name="programTypeId"]';
-                    await this.page.waitForSelector(languageSelector);
-                    await this.page.select(
-                        languageSelector,
-                        language.toString(),
-                    );
-
-                    const checkbox = await this.page.$("#toggleEditorCheckbox");
-                    const isChecked = await this.page.evaluate(
-                        (el) => (el as HTMLInputElement).checked,
-                        checkbox,
-                    );
-                    if (!isChecked) {
-                        await checkbox.click();
-                    }
-
-                    const problemSelector =
-                        'select[name="submittedProblemIndex"]';
-                    await this.page.waitForSelector(problemSelector);
-                    await this.page.select(problemSelector, index);
-
-                    await this.page.evaluate(() => {
-                        (
-                            document.querySelector(
-                                "#sourceCodeTextarea",
-                            ) as HTMLTextAreaElement
-                        ).value = "";
-                    });
-
-                    await this.page.type("#sourceCodeTextarea", code);
-
-                    const submitButtonSelector = ".submit";
-
-                    let submitSuccess = false;
-                    for (let i = 0; i < 3; i++) {
-                        await this.page.click(submitButtonSelector);
-
-                        const navigationPromise =
-                            this.waitForSuccessfulSubmission(contestId);
-                        const errorMessagePromise = this.page
-                            .waitForSelector("span.error.for__source", {
-                                timeout: 5000,
-                            })
-                            .catch(() => {});
-
-                        const result = await Promise.race([
-                            navigationPromise,
-                            errorMessagePromise,
-                        ]);
-
-                        if (result) {
-                            if (await this.page.$("span.error.for__source")) {
-                                throw new Error("duplicate-submission");
-                            }
-                            submitSuccess = true;
-                            break;
-                        }
-
-                        await sleep(2000);
-                    }
-
-                    if (!submitSuccess) {
-                        throw new Error(
-                            "Failed to submit problem after multiple attempts",
-                        );
-                    }
-
-                    promptForOpenOutputChannel(
-                        "Submitted successfully",
-                        DialogType.completed,
-                    );
-                    this.trackVerdict(callback);
-                },
-            );
-        } catch (error) {
-            const err = error as Error;
-            codeforcesChannel.appendLine(
-                `Error submitting problem using browser: ${error}`,
-            );
-
-            if (err.message === "duplicate-submission") {
-                promptForOpenOutputChannel(
-                    "You have submitted exactly the same code before",
-                    DialogType.error,
-                );
-            } else {
-                promptForOpenOutputChannel(
-                    "Submission failed",
-                    DialogType.error,
-                );
-                vscode.window.showErrorMessage(
-                    `Submission failed: ${err.message}`,
-                );
-            }
-        }
-    }
-
-    private async waitForSuccessfulSubmission(contestId: string) {
-        const mySubmissionsUrl = getMyContestSubmissionsUrl(contestId);
-        for (let i = 0; i < 5; i++) {
-            await sleep(1000);
-            if (this.page.url() === mySubmissionsUrl) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private async trackVerdict(callback: (verdict: Status) => void) {
-        if (!this.page) {
-            throw new Error("Browser page not initialized");
-        }
-
-        const verdictSelector = `.status-cell`;
-
-        await this.page.waitForSelector(verdictSelector, { timeout: 5000 });
-        while (true) {
-            try {
-                const verdict = await this.page.evaluate((selector) => {
-                    const element = document.querySelector(selector);
-                    return element ? element.textContent.trim() : null;
-                }, verdictSelector);
-                codeforcesChannel.appendLine("Collected verdict");
-
-                const timeConsumed = await this.page.evaluate((selector) => {
-                    const element = document.querySelector(selector);
-                    return element ? element.textContent.trim() : "";
-                }, ".time-consumed-cell");
-                codeforcesChannel.appendLine("Collected time consumed");
-
-                const memoryConsumed = await this.page.evaluate((selector) => {
-                    const element = document.querySelector(selector);
-                    return element ? element.textContent.trim() : "";
-                }, ".memory-consumed-cell");
-                codeforcesChannel.appendLine("Collected memory consumed");
-
-                if (verdict) {
-                    codeforcesChannel.appendLine(`Verdict: ${verdict}`);
-                    callback({
-                        verdict,
-                        time: timeConsumed,
-                        memory: memoryConsumed,
-                    });
-                }
-
-                if (
-                    verdict &&
-                    !verdict.includes("Running") &&
-                    !verdict.includes("Queue")
-                ) {
-                    break;
-                }
-                await sleep(500);
-            } catch (error) {
-                codeforcesChannel.appendLine(
-                    `Error tracking verdict: ${error}`,
-                );
-                break;
-            }
         }
     }
 }

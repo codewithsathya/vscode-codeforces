@@ -594,9 +594,9 @@
                 },
                 "codeforces.language.rust.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Rust 1.66.0 (2021)",
+                    "default": "Rust 1.75.0 (2021)",
                     "enum": [
-                        "Rust 1.66.0 (2021)"
+                        "Rust 1.75.0 (2021)"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for rust"
                 },
@@ -613,9 +613,9 @@
                 },
                 "codeforces.language.go.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Go 1.19.5",
+                    "default": "Go 1.22.2",
                     "enum": [
-                        "Go 1.19.5"
+                        "Go 1.22.2"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for go"
                 },
@@ -651,10 +651,11 @@
                 },
                 "codeforces.language.java.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Java 11.0.6",
+                    "default": "Java 21 64bit",
                     "enum": [
+                        "Java 21 64bit",
                         "Java 11.0.6",
-                        "Java 1.8.0_241"
+                        "Java 8 32bit"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for java"
                 },
@@ -673,7 +674,8 @@
                     "type": "string",
                     "default": "Node.js 15.8.0 (64bit)",
                     "enum": [
-                        "Node.js 15.8.0 (64bit)"
+                        "Node.js 15.8.0 (64bit)",
+                        "JavaScript V8 4.8.0"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for js"
                 },
@@ -729,6 +731,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Automatically show the judge view when opening a file that has a problem associated with it"
+                },
+                "codeforces.showBrowser": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show browser that is running in the background when using codeforces extension"
                 }
             }
         }
@@ -773,7 +780,6 @@
         "jsdom": "^26.1.0",
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
-        "puppeteer": "^24.6.1",
         "puppeteer-real-browser": "^1.4.2",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",

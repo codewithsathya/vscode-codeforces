@@ -14,7 +14,7 @@ import { setOnlineJudgeEnv } from "../cph/compiler";
 import { globalState } from "../globalState";
 import { codeforcesChannel } from "../codeforcesChannel";
 import { showDescription } from "./showDescription";
-import { submitProblem } from "../cph/submit";
+import { submitProblem } from "../cph/companion";
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "codeforces.judgeView";

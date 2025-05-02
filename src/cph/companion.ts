@@ -1,9 +1,12 @@
+import http from "http";
 import config from "./config";
-import { Problem } from "./types";
+import { CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
 import { saveProblem } from "./parser";
 import * as vscode from "vscode";
+import * as fs from "fs";
 import path from "path";
 import { writeFileSync, readFileSync, existsSync } from "fs";
+import { getLanguageId } from "./preferences";
 import { isCodeforcesUrl, randomId } from "./utils";
 import {
     getDefaultLangPref,
@@ -19,6 +22,9 @@ import { IDescriptionConfiguration, IProblem } from "../shared";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
 import { getDescriptionConfiguration } from "../utils/settingUtils";
 
+const emptyResponse: CphEmptyResponse = { empty: true };
+let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
+
 export const getProblemFileName = (problem: Problem, ext: string) => {
     if (isCodeforcesUrl(new URL(problem.url)) && useShortCodeForcesName()) {
         return `${getProblemName(problem.url)}.${ext}`;
@@ -32,11 +38,92 @@ export const getProblemFileName = (problem: Problem, ext: string) => {
     }
 };
 
+export const submitProblem = async (problem: Problem) => {
+    const srcPath = problem.srcPath;
+    const problemName = getProblemName(problem.url);
+    const sourceCode = fs.readFileSync(srcPath).toString();
+    const languageId = getLanguageId(problem.srcPath);
+    savedResponse = {
+        empty: false,
+        url: problem.url,
+        problemName,
+        sourceCode,
+        languageId,
+    };
+    // const details = getDetailsFromProblemUrl(problem.url);
+    // if (details === null) {
+    //     promptForOpenOutputChannel(`Failed to submit`, DialogType.error);
+    //     codeforcesChannel.appendLine(`Failed to submit: invalid url`);
+    //     return;
+    // }
+    // await browserClient.submitProblem(
+    //     details.contestId,
+    //     details.index,
+    //     languageId,
+    //     srcCode,
+    //     async (verdict: Status) => {
+    //         await judgeViewProvider.extensionToJudgeViewMessage({
+    //             command: "tracking-verdict",
+    //             message: verdict,
+    //         });
+    //     },
+    // );
+};
+
+export const setupCompanionServer = () => {
+    try {
+        const server = http.createServer((req, res) => {
+            const { headers } = req;
+            let rawProblem = '';
+
+            req.on('data', (chunk) => {
+                rawProblem += chunk;
+            });
+            req.on('close', function () {
+                try {
+                    if (rawProblem == '') {
+                        return;
+                    }
+                    const problem: Problem = JSON.parse(rawProblem);
+                    handleNewProblem(problem);
+                } catch (e) {
+                    vscode.window.showErrorMessage(
+                        `Error parsing problem from companion "${e}. Raw problem: '${rawProblem}'"`,
+                    );
+                }
+            });
+            res.write(JSON.stringify(savedResponse));
+            if (headers['cph-submit'] == 'true') {
+                if (savedResponse.empty != true) {
+                    judgeViewProvider.extensionToJudgeViewMessage({
+                        command: 'submit-finished',
+                    });
+                }
+                savedResponse = emptyResponse;
+            }
+            res.end();
+        });
+        server.listen(config.port);
+        server.on('error', (err) => {
+            vscode.window.showErrorMessage(
+                `Are multiple VSCode windows open? CPH will work on the first opened window. CPH server encountered an error: "${err.message}" , companion may not work.`,
+            );
+        });
+        globalThis.logger.log(
+            'Companion server listening on port',
+            config.port,
+        );
+        return server;
+    } catch (e) {
+        globalThis.logger.error('Companion server error :', e);
+    }
+};
+
 /** Handle the `problem` sent by Competitive Companion, such as showing the webview, opening an editor, managing layout etc. */
 export const handleNewProblem = async (
     problem: Problem,
-    node: CodeforcesNode,
-    html: string,
+    node?: CodeforcesNode,
+    html?: string,
 ): Promise<void> => {
     // If webview may be focused, close it, to prevent layout bug.
     if (vscode.window.activeTextEditor === undefined) {
@@ -110,9 +197,8 @@ export const handleNewProblem = async (
     }
 
     await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
-    const descriptionConfig: IDescriptionConfiguration =
-        getDescriptionConfiguration();
-    if (descriptionConfig.showInWebview) {
+    const descriptionConfig: IDescriptionConfiguration = getDescriptionConfiguration();
+    if (descriptionConfig.showInWebview && html && node) {
         showDescriptionView(html, node.data);
     }
     judgeViewProvider.extensionToJudgeViewMessage({
