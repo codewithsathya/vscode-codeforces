@@ -112,7 +112,6 @@ export function activate(context: vscode.ExtensionContext) {
             ),
         );
 
-        setupCompanionServer();
         checkLaunchWebview();
 
         vscode.workspace.onDidCloseTextDocument((e) => {
@@ -131,6 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
         });
+        setupCompanionServer();
     } catch (error) {
         codeforcesChannel.appendLine(`Error activating extension: ${error}`);
     }
