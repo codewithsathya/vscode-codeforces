@@ -17,6 +17,9 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 ✅ **Custom Test Cases** – Add and test with your own cases.  
 ✅ **Sign In/Sign Out** – Authenticate with Codeforces from the extension.  
 
+## Note
+Google Chrome must be installed on your system for this to work properly.
+
 ## 📸 Screenshots
 
 ### 🌟 Problem List & Categorization
