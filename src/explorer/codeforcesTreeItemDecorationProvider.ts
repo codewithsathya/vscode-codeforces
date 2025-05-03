@@ -74,55 +74,47 @@ export class CodeforcesTreeItemDecorationProvider
         "3500": new ThemeColor("codeforces.legendaryGrandmaster"),
     };
 
-    public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration> {
-        if (uri.scheme !== "codeforces") {
-            return;
+    private getDecoration(rating: string): FileDecoration | undefined {
+        if (rating === "UNKNOWN" || rating === "unknown") { return; }
+
+        const label = this.DIFFICULTY_BADGE_LABEL[rating];
+        if (!isColorizingEnabled()) {
+            return { badge: label };
         }
+
+        return {
+            badge: label,
+            color: this.ITEM_COLOR[rating],
+        };
+    };
+
+    public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration> {
+        if (uri.scheme !== "codeforces") { return; }
+
+
         if (uri.authority !== "problems") {
-            if (uri.path.indexOf(Category.Rating) !== -1) {
+            if (uri.path.includes(Category.Rating)) {
                 codeforcesChannel.appendLine(uri.path);
-                const rating = uri.path.split(".")[1];
-                if (rating === "UNKNOWN") {
-                    return;
-                }
-                if (!isColorizingEnabled()) {
-                    return;
-                }
-                return {
-                    color: this.ITEM_COLOR[rating],
-                    badge: this.DIFFICULTY_BADGE_LABEL[rating],
-                };
+                const rating = uri.path.split("#")[1];
+                return this.getDecoration(rating);
             }
-            if (uri.path.indexOf(Category.Tag) !== -1 && isTagGroupingEnabled() && uri.path.split(".").length === 3) {
-                const rating = uri.path.split(".")[2];
-                if (rating === "UNKNOWN") {
-                    return;
-                }
-                if (!isColorizingEnabled()) {
-                    return;
-                }
-                return {
-                    color: this.ITEM_COLOR[rating],
-                    badge: this.DIFFICULTY_BADGE_LABEL[rating],
-                };
+
+            if (
+                uri.path.includes(Category.Tag) &&
+                isTagGroupingEnabled() &&
+                uri.path.split("#").length === 3
+            ) {
+                const rating = uri.path.split("#")[2];
+                return this.getDecoration(rating);
             }
             return;
         }
 
-        const params: URLSearchParams = new URLSearchParams(uri.query);
-        const rating: string = params.get("rating")!.toLowerCase();
-        if (rating === "UNKNOWN") {
-            return;
-        }
-        if (!isColorizingEnabled()) {
-            return {
-                badge: this.DIFFICULTY_BADGE_LABEL[rating],
-            };
-        }
-        return {
-            badge: this.DIFFICULTY_BADGE_LABEL[rating],
-            color: this.ITEM_COLOR[rating],
-        };
+        const params = new URLSearchParams(uri.query);
+        const rating = params.get("rating")?.toLowerCase();
+        if (!rating) { return; }
+
+        return this.getDecoration(rating);
     }
 }
 

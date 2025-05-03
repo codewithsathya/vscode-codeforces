@@ -105,8 +105,13 @@ export enum Category {
     PastContests = "Past Contests",
     UpcomingContests = "Upcoming Contests",
     RunningContests = "Running Contests",
+    CSES = "CSES",
+    CP31 = "CP-31",
+    A2OJ = "A2OJ",
     User = "User",
 }
+
+export const UNKNOWN_RATING = "UNKNOWN";
 
 export enum SortingStrategy {
     None = "None",
@@ -116,4 +121,18 @@ export enum SortingStrategy {
     RatingDesc = "Rating (Descending)",
     SolvedCountAsc = "Solved Count (Ascending)",
     SolvedCountDesc = "Solved Count (Descending)",
+}
+
+export type Tags = Record<string, Record<string, string[]> | string[]>;
+
+export type CodeforcesTree = {
+    All?: string[];
+    Rating?: Record<string, string[]>;
+    Tag?: Tags;
+    "Past Contests"?: Record<string, string[]>;
+    "Running Contests"?: Record<string, string[]>;
+    "Upcoming Contests"?: Record<string, string[]>;
+    "CSES"?: Record<string, string[]>;
+    "CP-31"?: Record<string, string[]>;
+    "A2OJ"?: Record<string, string[]>;
 }

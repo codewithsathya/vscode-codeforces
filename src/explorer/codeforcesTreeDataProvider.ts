@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
 import { explorerNodeManager } from "./explorerNodeManager";
-import { Category, ProblemState } from "../shared";
+import { ProblemState } from "../shared";
 import path from "path";
 import { formatDuration, getFormattedDate } from "../utils/dateUtils";
 export class CodeforcesTreeDataProvider
@@ -62,21 +62,7 @@ export class CodeforcesTreeDataProvider
     }
 
     private getChildrenByElementId(id: string): CodeforcesNode[] {
-        if (id === Category.All) {
-            return explorerNodeManager.getAllNodes();
-        } else if (id === Category.Rating) {
-            return explorerNodeManager.getAllRatingNodes();
-        } else if (id === Category.Tag) {
-            return explorerNodeManager.getAllTagNodes();
-        } else if (id === Category.PastContests) {
-            return explorerNodeManager.getAllPastContestNodes();
-        } else if (id === Category.UpcomingContests) {
-            return explorerNodeManager.getAllUpcomingContestNodes();
-        } else if (id === Category.RunningContests) {
-            return explorerNodeManager.getAllRunningContestNodes();
-        } else {
-            return explorerNodeManager.getChildrenNodesById(id);
-        }
+        return explorerNodeManager.getChildrenNodesById(id);
     }
 
     private parseTooltipFromProblemState(element: CodeforcesNode): string {

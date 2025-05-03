@@ -1,6 +1,6 @@
 import { CodeforcesNode } from "../explorer/CodeforcesNode";
 import { explorerNodeManager } from "../explorer/explorerNodeManager";
-import { IProblem, IQuickItemEx, ProblemState } from "../shared";
+import { Category, IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
 import { setCodeforcesHandle } from "./plugin";
 import { codeforcesExecutor } from "../codeforcesExecutor";
@@ -29,8 +29,8 @@ export async function addHandle(): Promise<void> {
 }
 
 export async function pickOne(): Promise<void> {
-    const problems: CodeforcesNode[] = explorerNodeManager.getAllNodes();
-    const ratings = explorerNodeManager.getAllRatingNodes();
+    const problems: CodeforcesNode[] = explorerNodeManager.getChildrenNodesById(Category.All);
+    const ratings = explorerNodeManager.getChildrenNodesById(Category.Rating);
     const ratingPick = vscode.window.createQuickPick<IQuickItemEx<string>>();
     ratingPick.placeholder = "Pick rating";
     ratingPick.items = [
@@ -67,7 +67,7 @@ export async function pickOne(): Promise<void> {
 }
 
 export async function searchProblem(): Promise<void> {
-    const nodes = explorerNodeManager.getAllNodes();
+    const nodes = explorerNodeManager.getChildrenNodesById(Category.All);
     const allPicks = parseProblemsToPicks(nodes);
 
     const quickPick = vscode.window.createQuickPick<IQuickItemEx<IProblem>>();
