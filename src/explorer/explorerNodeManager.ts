@@ -6,6 +6,7 @@ import {
     Category,
     CodeforcesTree,
     defaultProblem,
+    IContest,
     SortingStrategy,
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
@@ -30,6 +31,8 @@ class ExplorerNodeManager implements Disposable {
 
         const contests = await listCodeforcesContests();
 
+        this.setContestNodes(contests);
+
         const csesProblems = await listCsesProblems();
         const problemMap: Record<string, string[]> = {};
         for(const topic of Object.keys(csesProblems)) {
@@ -53,6 +56,28 @@ class ExplorerNodeManager implements Disposable {
         };
 
         this.storeCodeforcesNodes();
+    }
+
+    public async setContestNodes(contests: IContest[]): Promise<void> {
+        const validPhases = new Set(["FINISHED", "PENDING_SYSTEM_TEST", "SYSTEM_TEST"]);
+        for (const contest of contests.filter((contest) => validPhases.has(contest.phase))) {
+            this.explorerNodeMap.set(`${Category.PastContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.PastContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
+        }
+        for (const contest of contests.filter((contest) => contest.phase === "CODING")) {
+            this.explorerNodeMap.set(`${Category.RunningContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.RunningContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
+        }
+        for (const contest of contests.filter((contest) => contest.phase === "BEFORE")) {
+            this.explorerNodeMap.set(`${Category.UpcomingContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.UpcomingContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
+        }
     }
 
     public getRootNodes(): CodeforcesNode[] {
@@ -188,7 +213,7 @@ class ExplorerNodeManager implements Disposable {
                     } else {
                         id = curr + "#" + key;
                     }
-                    map.set(id, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                    !map.has(id) && map.set(id, new CodeforcesNode(Object.assign({}, defaultProblem, {
                         id,
                         name: key,
                     }), false));

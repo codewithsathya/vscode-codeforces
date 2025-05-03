@@ -13,12 +13,9 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 ✅ **Sort Problems** – Order by contest, solved count (ascending/descending).  
 ✅ **Color-Coded Ratings** – Problems are colorized in the tree view based on difficulty.  
 ✅ **Preview Problem Statement** – Click on a problem to see its details inside VS Code.  
-✅ **Test & Submit Directly** – Run test cases and submit solutions without leaving VS Code.  
+✅ **Test & Submit Directly** – Run test cases and submit solutions without leaving VS Code (cph-submit chrome extension is required).
 ✅ **Custom Test Cases** – Add and test with your own cases.  
-✅ **Sign In/Sign Out** – Authenticate with Codeforces from the extension.  
 
-## Note
-Google Chrome must be installed on your system for this to work properly.
 
 ## 📸 Screenshots
 

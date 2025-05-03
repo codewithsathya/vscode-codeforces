@@ -51,7 +51,7 @@ export class CodeforcesTreeDataProvider
 
     getLabel(element?: CodeforcesNode): string {
         if(element.index === "cses") {
-            return `[${element.contestId}] ${element.name}`;
+            return element.name;
         }
         return element.isProblem
             ? `[${element.contestId}${element.index}] ${element.name}`
@@ -91,6 +91,9 @@ export class CodeforcesTreeDataProvider
             return "";
         }
         if (!element.isProblem) {
+            return "";
+        }
+        if(element.platform === "cses") {
             return "";
         }
         switch (element.state) {
