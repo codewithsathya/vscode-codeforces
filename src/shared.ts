@@ -108,9 +108,9 @@ export enum Category {
     PastContests = "Past Contests",
     UpcomingContests = "Upcoming Contests",
     RunningContests = "Running Contests",
-    CSES = "CSES",
-    CP31 = "CP-31",
-    A2OJ = "A2OJ",
+    CSES = "CSES Problemset",
+    CP31 = "CP-31 Sheet",
+    A2OJ = "A2OJ Ladders",
     User = "User",
 }
 
@@ -129,13 +129,13 @@ export enum SortingStrategy {
 export type Tags = Record<string, Record<string, string[]> | string[]>;
 
 export type CodeforcesTree = {
-    All?: string[];
-    Rating?: Record<string, string[]>;
-    Tag?: Tags;
-    "Past Contests"?: Record<string, string[]>;
-    "Running Contests"?: Record<string, string[]>;
-    "Upcoming Contests"?: Record<string, string[]>;
-    "CSES"?: Record<string, string[]>;
-    "CP-31"?: Record<string, string[]>;
-    "A2OJ"?: Record<string, string[]>;
+    [Category.All]?: string[];
+    [Category.Rating]?: Record<string, string[]>;
+    [Category.Tag]?: Tags;
+    [Category.PastContests]?: Record<string, string[]>;
+    [Category.RunningContests]?: Record<string, string[]>;
+    [Category.UpcomingContests]?: Record<string, string[]>;
+    [Category.CSES]?: Record<string, string[]>;
+    [Category.CP31]?: Record<string, string[]>;
+    [Category.A2OJ]?: Record<string, string[]>;
 }
