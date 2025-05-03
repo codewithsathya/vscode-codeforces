@@ -1,6 +1,14 @@
 import _ from "lodash";
 import { IContest, IProblem, Tags, UNKNOWN_RATING } from "../shared";
 import { isTagGroupingEnabled } from "./settingUtils";
+import fsExtra from "fs-extra";
+import path from "path";
+
+const questionCompanyTagsPath = '../../data/a2oj.json';
+
+export function getA2oJProblems() {
+    return fsExtra.readJSONSync(path.join(__dirname, questionCompanyTagsPath)) as Record<string, string[]>;
+}
 
 export function getRatings(problems: IProblem[]): Record<string, string[]> {
     const ratings: Record<string, string[]> = {};

@@ -10,7 +10,7 @@ import {
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
 import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
-import { getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import { getA2oJProblems, getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
 
 class ExplorerNodeManager implements Disposable {
@@ -49,7 +49,7 @@ class ExplorerNodeManager implements Disposable {
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
             [Category.CSES]: problemMap,
             [Category.CP31]: {},
-            [Category.A2OJ]: {},
+            [Category.A2OJ]: getA2oJProblems(),
         };
 
         this.storeCodeforcesNodes();
