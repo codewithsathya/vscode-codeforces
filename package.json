@@ -25,17 +25,6 @@
                 "icon": "$(account)"
             },
             {
-                "command": "codeforces.signin",
-                "title": "Sign In",
-                "category": "codeforces",
-                "icon": "$(sign-in)"
-            },
-            {
-                "command": "codeforces.signout",
-                "title": "Sign Out",
-                "category": "codeforces"
-            },
-            {
                 "command": "codeforces.refreshExplorer",
                 "title": "Refresh",
                 "category": "codeforces",
@@ -121,34 +110,24 @@
                     "group": "navigation@0"
                 },
                 {
-                    "command": "codeforces.signin",
+                    "command": "codeforces.searchProblem",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "codeforces.searchProblem",
+                    "command": "codeforces.refreshExplorer",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@2"
                 },
                 {
-                    "command": "codeforces.refreshExplorer",
-                    "when": "view == codeforcesExplorer",
-                    "group": "navigation@3"
-                },
-                {
-                    "command": "codeforces.signout",
+                    "command": "codeforces.pickOne",
                     "when": "view == codeforcesExplorer",
                     "group": "overflow@1"
                 },
                 {
-                    "command": "codeforces.pickOne",
-                    "when": "view == codeforcesExplorer",
-                    "group": "overflow@2"
-                },
-                {
                     "command": "codeforces.problems.sort",
                     "when": "view == codeforcesExplorer",
-                    "group": "overflow@3"
+                    "group": "overflow@2"
                 }
             ],
             "view/item/context": [
@@ -780,7 +759,7 @@
         "jsdom": "^26.1.0",
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
-        "puppeteer-real-browser": "^1.4.2",
+        "puppeteer": "^24.8.0",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-textarea-autosize": "^8.5.7"

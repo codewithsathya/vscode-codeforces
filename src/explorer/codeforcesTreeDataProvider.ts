@@ -37,9 +37,7 @@ export class CodeforcesTreeDataProvider
             contextValue = element.id.toLowerCase();
         }
         return {
-            label: element.isProblem
-                ? `[${element.contestId}${element.index}] ${element.name}`
-                : element.name,
+            label: this.getLabel(element),
             tooltip: this.parseTooltipFromProblemState(element),
             collapsibleState: element.isProblem
                 ? vscode.TreeItemCollapsibleState.None
@@ -49,6 +47,15 @@ export class CodeforcesTreeDataProvider
             resourceUri: element.uri,
             contextValue,
         };
+    }
+
+    getLabel(element?: CodeforcesNode): string {
+        if(element.index === "cses") {
+            return element.name;
+        }
+        return element.isProblem
+            ? `[${element.contestId}${element.index}] ${element.name}`
+            : element.name;
     }
 
     getChildren(

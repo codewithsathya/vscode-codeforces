@@ -4,6 +4,8 @@ import {
     ProblemsResponse,
 } from "../shared";
 import { getCodeforcesHandle } from "./plugin";
+import { shouldHideSolvedProblem } from "../utils/settingUtils";
+import { JSDOM } from "jsdom";
 
 export async function listCodeforcesProblems(): Promise<IProblem[]> {
     const { data }: { data: ProblemsResponse } = await axiosClient.get(
@@ -46,8 +48,13 @@ export async function listCodeforcesProblems(): Promise<IProblem[]> {
             }
         }
     }
-
-    return Object.values(problemsMap);
+    let problemsList= Object.values(problemsMap);
+    if(shouldHideSolvedProblem()) {
+        problemsList = problemsList.filter((problem) => {
+            return problem.state !== ProblemState.ACCEPTED;
+        });
+    }
+    return problemsList;
 }
 
 export async function listCodeforcesContests(): Promise<IContest[]> {
@@ -55,5 +62,46 @@ export async function listCodeforcesContests(): Promise<IContest[]> {
         "https://codeforces.com/api/contest.list",
     )) as { data: ContestsResponse };
     return contestsData.result;
+}
+
+export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
+    const { data: htmlPage } = await axiosClient.get("https://www.cses.fi/problemset/list/");
+    const jsdom = new JSDOM(htmlPage as string);
+    const content = jsdom.window.document.querySelectorAll(".content");
+
+    const nodes = [];
+    for(let i = 3; i < content[0].children.length - 3; i++) {
+        nodes.push(content[0].children[i]);
+    }
+    const problems: Record<string, IProblem[]> = {};
+    for(let i = 0; i < nodes.length; i += 2) {
+        const titleNode = nodes[i];
+        const title = titleNode.textContent;
+        const problemsNode = nodes[i + 1];
+        const problemNodes = problemsNode.children;
+        problems[title] = [];
+
+        for(let j = 0; j < problemNodes.length; j++) {
+            const problemNode = problemNodes[j];
+            const problemName = problemNode.querySelector("a").textContent;
+            const problemLink = problemNode.querySelector("a").getAttribute("href");
+            const solvedText = problemNode.querySelector(".detail").textContent;
+            const solvedCount = parseInt(solvedText.split("/")[0].trim());
+            const problemId = problemLink.split("/").pop();
+            const problem: IProblem = {
+                id: `${problemId}:cses`,
+                name: problemName,
+                contestId: parseInt(problemId),
+                index: "cses",
+                state: ProblemState.UNKNOWN,
+                tags: [],
+                solvedCount,
+                platform: "cses",
+            };
+
+            problems[title].push(problem);
+        }
+    }
+    return problems;
 }
 

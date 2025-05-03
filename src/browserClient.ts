@@ -1,9 +1,8 @@
-import type { Browser, Page } from "rebrowser-puppeteer-core";
-import { connect } from "puppeteer-real-browser";
 import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
 import { shouldShowBrowser } from "./utils/settingUtils";
+import puppeteer, { Browser, Page } from "puppeteer";
 
 class BrowserClient {
     private browser: Browser | null = null;
@@ -11,13 +10,12 @@ class BrowserClient {
 
     public async initialize() {
         const showBrowser = shouldShowBrowser();
-        const { browser, page } = await connect({
+
+        this.browser = await puppeteer.launch({
             headless: !showBrowser,
-            turnstile: true,
-            args: ["--start-maximized"],
         });
-        this.browser = browser;
-        this.page = page;
+        this.page = await this.browser.newPage();
+
         await this.page.setUserAgent(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
         );

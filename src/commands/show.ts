@@ -5,16 +5,39 @@ import * as vscode from "vscode";
 import { setCodeforcesHandle } from "./plugin";
 import { codeforcesExecutor } from "../codeforcesExecutor";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
+import { csesExecutor } from "../csesExecutor";
+import { Problem } from "../cph/types";
+import { codeforcesProblemParser } from "../parsers/codeforcesProblemParser";
+import { getCsesProblemUrl, getProblemUrl } from "../utils/urlUtils";
+import { csesProblemParser } from "../parsers/csesProblemParser";
+import { handleNewProblem } from "../cph/companion";
 
 export async function previewProblem(
     input: IProblem,
     isSideMode: boolean = false,
 ): Promise<void> {
-    const html: string = await codeforcesExecutor.getProblem(
-        input.contestId,
-        input.index,
-    );
+    let html: string = "";
+    if(input.platform === "cses") {
+        html = await csesExecutor.getProblem(input.contestId);
+    } else {
+        html = await codeforcesExecutor.getProblem(
+            input.contestId,
+            input.index,
+        );
+    }
     codeforcesPreviewProvider.show(html, input, isSideMode);
+}
+
+export async function showJudge(node: CodeforcesNode, html: string) {
+    let problem: Problem;
+    if (node.platform === "codeforces") {
+        problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
+    } else if(node.platform === "cses") {
+        problem = await csesProblemParser.parse(getCsesProblemUrl(node.contestId), html);
+    }
+    if (problem) {
+        handleNewProblem(problem, node, html);
+    }
 }
 
 export async function addHandle(): Promise<void> {

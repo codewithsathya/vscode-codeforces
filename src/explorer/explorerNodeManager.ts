@@ -9,7 +9,7 @@ import {
     SortingStrategy,
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
-import { listCodeforcesContests, listCodeforcesProblems } from "../commands/list";
+import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
 import { getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
 
@@ -30,6 +30,16 @@ class ExplorerNodeManager implements Disposable {
 
         const contests = await listCodeforcesContests();
 
+        const csesProblems = await listCsesProblems();
+        const problemMap: Record<string, string[]> = {};
+        for(const topic of Object.keys(csesProblems)) {
+            problemMap[topic] = [];
+            for(const problem of csesProblems[topic]) {
+                this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
+                problemMap[topic].push(problem.id);
+            }
+        }
+
         this.dataTree = {
             [Category.All]: codeforcesProblems.map(({ id })=> id),
             [Category.Rating]: getRatings(codeforcesProblems),
@@ -37,33 +47,12 @@ class ExplorerNodeManager implements Disposable {
             [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
             [Category.RunningContests]: getRunningContestsMap(contests, codeforcesProblems),
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
-            [Category.CSES]: {},
+            [Category.CSES]: problemMap,
             [Category.CP31]: {},
             [Category.A2OJ]: {},
         };
 
         this.storeCodeforcesNodes();
-
-        // const runningContests = [];
-        // for (const contest of contests) {
-        //     this.contests.set(contest.id, contest);
-        //     if (contest.phase === "CODING") {
-        //         runningContests.push(contest);
-        //     }
-        // }
-        // for (const contest of runningContests) {
-        //     codeforcesChannel.appendLine(
-        //         `Collecting running contest problems: ${contest.id}`,
-        //     );
-        //     const problems = await browserClient.getContestProblems(contest.id);
-        //     if (!problems) {
-        //         break;
-        //     }
-        //     for (const problem of problems) {
-        //         const node = new CodeforcesNode(problem, true);
-        //         this.explorerNodeMap.set(problem.id, node);
-        //     }
-        // }
     }
 
     public getRootNodes(): CodeforcesNode[] {
