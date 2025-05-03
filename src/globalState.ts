@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+const keys = ["codeforcesProblems", "codeforcesContests", "csesProblems"];
+
 class GlobalState {
     private context!: vscode.ExtensionContext;
     private _state!: vscode.Memento;
@@ -19,6 +21,24 @@ class GlobalState {
 
     public async update(key: string, value: any) {
         await this._state.update(key, value);
+    }
+
+    public async getWithBackgroundRefresh<T>(key: string, fetchFn: () => Promise<T>): Promise<any> {
+        const cached = this.get(key);
+        if (cached) {
+            fetchFn().then((fresh) => this.update(key, fresh)).catch(() => {});
+            return cached;
+        } else {
+            const fresh = await fetchFn();
+            await this.update(key, fresh);
+            return fresh;
+        }
+    }
+
+    public async clear() {
+        for (const key of keys) {
+            await this._state.update(key, undefined);
+        }
     }
 }
 
