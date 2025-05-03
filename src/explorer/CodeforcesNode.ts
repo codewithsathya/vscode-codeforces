@@ -64,6 +64,10 @@ export class CodeforcesNode {
         this.data.platform = platform;
     }
 
+    public get isFavorite(): boolean {
+        return this.data.isFavorite;
+    }
+
     public get previewCommand(): Command {
         return {
             title: "Preview Problem",

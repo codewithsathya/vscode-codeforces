@@ -23,6 +23,25 @@ class GlobalState {
         await this._state.update(key, value);
     }
 
+    public getFavorite(): Record<string, boolean> {
+        const favorite = this.get("favorite");
+        if (favorite) {
+            return favorite as Record<string, boolean>;
+        } else {
+            return {};
+        }
+    }
+
+    public async setFavorite(problemId: string, isFavorite: boolean) {
+        const currentFavorite = this.getFavorite();
+        if (isFavorite) {
+            currentFavorite[problemId] = true;
+        } else {
+            delete currentFavorite[problemId];
+        }
+        await this._state.update("favorite", currentFavorite);
+    }
+
     public async getWithBackgroundRefresh<T>(key: string, fetchFn: () => Promise<T>): Promise<any> {
         const cached = this.get(key);
         if (cached) {

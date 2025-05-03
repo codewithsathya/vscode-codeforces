@@ -30,7 +30,7 @@ export class CodeforcesTreeDataProvider
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         let contextValue: string;
         if (element.isProblem) {
-            contextValue = "problem";
+            contextValue = element.isFavorite ? "problem-favorite" : "problem";
         } else if (element.contest !== null) {
             contextValue = "contest";
         } else {

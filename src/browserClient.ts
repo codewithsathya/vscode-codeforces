@@ -88,6 +88,7 @@ class BrowserClient {
                         const solvedCount = parseInt(solvedCountText, 10);
                         const tags: string[] = [];
                         const problem = {
+                            isFavorite: false,
                             id: `${contestId}:${index}`,
                             contestId,
                             index,

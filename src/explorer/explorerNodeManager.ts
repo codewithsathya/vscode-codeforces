@@ -13,6 +13,7 @@ import { getSortingStrategy } from "../commands/plugin";
 import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
 import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
+import { globalState } from "../globalState";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<
@@ -23,9 +24,14 @@ class ExplorerNodeManager implements Disposable {
 
     public async refreshCache(): Promise<void> {
         this.dispose();
-        
+
         const codeforcesProblems = await listCodeforcesProblems();
+        const favorites = globalState.getFavorite();
+
         for (const problem of codeforcesProblems) {
+            if (favorites[problem.id]) {
+                problem.isFavorite = true;
+            }
             this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
         }
 
@@ -33,20 +39,28 @@ class ExplorerNodeManager implements Disposable {
 
         this.setContestNodes(contests);
 
-        const csesProblems = await listCsesProblems();
+        const csesProblemsData = await listCsesProblems();
         const problemMap: Record<string, string[]> = {};
-        for(const topic of Object.keys(csesProblems)) {
+        for (const topic of Object.keys(csesProblemsData)) {
             problemMap[topic] = [];
-            for(const problem of csesProblems[topic]) {
+            for (const problem of csesProblemsData[topic]) {
+                if (favorites[problem.id]) {
+                    problem.isFavorite = true;
+                }
                 this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
                 problemMap[topic].push(problem.id);
             }
         }
+        const allCsesProblems = Object.keys(csesProblemsData).reduce((acc, topic) => {
+            return acc.concat(csesProblemsData[topic]);
+        }, []);
 
         this.dataTree = {
-            [Category.All]: codeforcesProblems.map(({ id })=> id),
+            [Category.All]: codeforcesProblems.map(({ id }) => id),
             [Category.Rating]: getRatings(codeforcesProblems),
             [Category.Tag]: getTags(codeforcesProblems),
+            [Category.Favorite]: [...codeforcesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)
+                , ...allCsesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)],
             [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
             [Category.RunningContests]: getRunningContestsMap(contests, codeforcesProblems),
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
@@ -82,8 +96,8 @@ class ExplorerNodeManager implements Disposable {
 
     public getRootNodes(): CodeforcesNode[] {
         const nodes: CodeforcesNode[] = [];
-        for(const category of Object.keys(this.dataTree)) {
-            if(this.explorerNodeMap.has(category)) {
+        for (const category of Object.keys(this.dataTree)) {
+            if (this.explorerNodeMap.has(category)) {
                 const node = this.explorerNodeMap.get(category);
                 nodes.push(node);
             }
@@ -105,7 +119,7 @@ class ExplorerNodeManager implements Disposable {
         } else {
             let res: CodeforcesNode[] = [];
             for (const key of Object.keys(data)) {
-                if(this.explorerNodeMap.has(`${id}#${key}`)) {
+                if (this.explorerNodeMap.has(`${id}#${key}`)) {
                     const node = this.explorerNodeMap.get(`${id}#${key}`);
                     res.push(node);
                 } else {
@@ -120,7 +134,7 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public getParentNode(childId: string): CodeforcesNode | undefined {
-        if(!childId || childId === "") {
+        if (!childId || childId === "") {
             return undefined;
         }
         const meta = childId.split("#");
@@ -202,13 +216,13 @@ class ExplorerNodeManager implements Disposable {
 
     private storeCodeforcesNodes() {
         function dfs(data: any, curr: string, map: Map<string, CodeforcesNode>) {
-            if(!data || Array.isArray(data)) {
+            if (!data || Array.isArray(data)) {
                 return;
             }
             if (typeof data === "object") {
                 for (const key of Object.keys(data)) {
                     let id = "";
-                    if(curr === "") {
+                    if (curr === "") {
                         id = key;
                     } else {
                         id = curr + "#" + key;

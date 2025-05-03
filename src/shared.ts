@@ -60,6 +60,7 @@ export interface IWebViewMessage {
 }
 
 export interface IProblem {
+    isFavorite: boolean;
     id: string;
     state: ProblemState;
     contestId: number;
@@ -90,6 +91,7 @@ export interface ContestsResponse {
 }
 
 export const defaultProblem: IProblem = {
+    isFavorite: false,
     id: "",
     state: ProblemState.UNKNOWN,
     contestId: 0,
@@ -105,6 +107,7 @@ export enum Category {
     All = "All",
     Rating = "Rating",
     Tag = "Tag",
+    Favorite = "Favorite",
     PastContests = "Past Contests",
     UpcomingContests = "Upcoming Contests",
     RunningContests = "Running Contests",
@@ -132,6 +135,7 @@ export type CodeforcesTree = {
     [Category.All]?: string[];
     [Category.Rating]?: Record<string, string[]>;
     [Category.Tag]?: Tags;
+    [Category.Favorite]?: string[];
     [Category.PastContests]?: Record<string, string[]>;
     [Category.RunningContests]?: Record<string, string[]>;
     [Category.UpcomingContests]?: Record<string, string[]>;

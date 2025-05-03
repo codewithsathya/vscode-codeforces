@@ -108,6 +108,7 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
                     const problemId = problemLink.split("/").pop() ?? "0";
 
                     const problem: IProblem = {
+                        isFavorite: false,
                         id: `${problemId}:cses`,
                         name: problemName,
                         contestId: parseInt(problemId),

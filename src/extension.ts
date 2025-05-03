@@ -27,6 +27,7 @@ import {
 import { setupCompanionServer } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
+import { addFavorite, removeFavorite } from "./commands/star";
 
 export let codeforcesTreeView: vscode.TreeView<CodeforcesNode> | undefined;
 
@@ -88,11 +89,8 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.refreshExplorer", () =>
                 codeforcesTreeDataProvider.refresh(),
             ),
-            vscode.commands.registerCommand("codeforces.addFavorite", () => { }),
-            vscode.commands.registerCommand(
-                "codeforces.removeFavorite",
-                () => { },
-            ),
+            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => addFavorite(node)),
+            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => removeFavorite(node)),
             vscode.commands.registerCommand(
                 "codeforces.openContest",
                 (node: CodeforcesNode) => openContestUrl(node),
