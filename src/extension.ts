@@ -27,7 +27,8 @@ import {
 import { handleNewProblem, setupCompanionServer } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
-import { codeforcesManager } from "./codeforcesManager";
+
+export let codeforcesTreeView : vscode.TreeView<CodeforcesNode> | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -37,16 +38,15 @@ export function activate(context: vscode.ExtensionContext) {
 
         codeforcesTreeDataProvider.refresh();
 
+        codeforcesTreeView = vscode.window.createTreeView("codeforcesExplorer", { treeDataProvider: codeforcesTreeDataProvider, showCollapseAll: true });
+
         context.subscriptions.push(
             codeforcesChannel,
             explorerNodeManager,
             vscode.window.registerFileDecorationProvider(
                 codeforcesTreeItemDecorationProvider,
             ),
-            vscode.window.createTreeView("codeforcesExplorer", {
-                treeDataProvider: codeforcesTreeDataProvider,
-                showCollapseAll: true,
-            }),
+            codeforcesTreeView,
             vscode.window.registerWebviewViewProvider(
                 JudgeViewProvider.viewType,
                 judgeViewProvider,
@@ -59,12 +59,12 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.addhandle", () =>
                 addHandle(),
             ),
-            vscode.commands.registerCommand("codeforces.signin", () =>
-                codeforcesManager.signIn(),
-            ),
-            vscode.commands.registerCommand("codeforces.signout", () =>
-                codeforcesManager.signOut(),
-            ),
+            // vscode.commands.registerCommand("codeforces.signin", () =>
+            //     codeforcesManager.signIn(),
+            // ),
+            // vscode.commands.registerCommand("codeforces.signout", () =>
+            //     codeforcesManager.signOut(),
+            // ),
             vscode.commands.registerCommand(
                 "codeforces.previewProblem",
                 (node: CodeforcesNode) => previewProblem(node),

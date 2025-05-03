@@ -56,6 +56,7 @@ export interface IDescriptionConfiguration {
 
 export interface IWebViewMessage {
     command: string;
+    tag?: string;
 }
 
 export interface IProblem {
@@ -67,6 +68,7 @@ export interface IProblem {
     rating?: number;
     tags: string[];
     solvedCount: number;
+    platform: string;
 }
 
 export interface IProblemStatistics {
@@ -96,6 +98,7 @@ export const defaultProblem: IProblem = {
     rating: undefined,
     tags: [],
     solvedCount: 0,
+    platform: "codeforces",
 };
 
 export enum Category {

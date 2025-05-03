@@ -61,6 +61,10 @@ export class CodeforcesTreeDataProvider
         }
     }
 
+    public getParent(element: CodeforcesNode): vscode.ProviderResult<CodeforcesNode> {
+        return explorerNodeManager.getParentNode(element.id);
+    }
+
     private getChildrenByElementId(id: string): CodeforcesNode[] {
         return explorerNodeManager.getChildrenNodesById(id);
     }

@@ -6,12 +6,12 @@ import {
     Category,
     CodeforcesTree,
     defaultProblem,
-    IContest,
     SortingStrategy,
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
 import { listCodeforcesContests, listCodeforcesProblems } from "../commands/list";
 import { getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import { codeforcesTreeView } from "../extension";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<
@@ -105,6 +105,14 @@ class ExplorerNodeManager implements Disposable {
         }
     }
 
+    public getParentNode(childId: string): CodeforcesNode | undefined {
+        if(!childId || childId === "") {
+            return undefined;
+        }
+        const meta = childId.split("#");
+        return this.explorerNodeMap.get(meta.slice(0, meta.length - 1).join("#"));
+    }
+
     public getExplorerDataById(id: string) {
         let data: any = this.dataTree;
         if (!id || id === "") {
@@ -134,6 +142,13 @@ class ExplorerNodeManager implements Disposable {
     public dispose(): void {
         this.explorerNodeMap.clear();
         this.dataTree = {};
+    }
+
+    public revealNode(id: string) {
+        const node = this.explorerNodeMap.get(id);
+        if (node && codeforcesTreeView) {
+            codeforcesTreeView.reveal(node, { select: true, focus: true, expand: true });
+        }
     }
 
     private applySortingStrategy(nodes: CodeforcesNode[]): CodeforcesNode[] {

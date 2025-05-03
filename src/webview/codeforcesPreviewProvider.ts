@@ -1,6 +1,6 @@
 import { JSDOM } from "jsdom";
 import { commands, ViewColumn } from "vscode";
-import { IDescription, IProblem, IWebViewMessage } from "../shared";
+import { Category, IDescription, IProblem, IWebViewMessage } from "../shared";
 import {
     ICodeforcesWebviewOption,
     CodeforcesWebview,
@@ -10,6 +10,8 @@ import { codeforcesChannel } from "../codeforcesChannel";
 import * as vscode from "vscode";
 import * as os from "os";
 import { globalState } from "../globalState";
+import { explorerNodeManager } from "../explorer/explorerNodeManager";
+import _ from "lodash";
 
 class CodeforcesPreviewProvider extends CodeforcesWebview {
     protected readonly viewType: string = "codeforces.preview";
@@ -99,9 +101,11 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         const tags: string = [
             `<details>`,
             `<summary><strong>Tags</strong></summary>`,
-            markdownEngine.render(
-                this.description.tags.map((t: string) => `${t}`).join(", "),
-            ),
+            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+            this.description.tags.map((t: string) =>
+                `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`
+            ).join("\n"),
+            `</div>`,
             `</details>`,
         ].join("\n");
         return `
@@ -164,6 +168,9 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                             console.error('Error copying text.');
                         });
                     });
+                    function onTagClick(tag) {
+                        vscode.postMessage({ command: 'TagClick', tag });
+                    }
                 </script>
             </body>
             </html>
@@ -186,6 +193,11 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                     this.node,
                     this.problemHtml,
                 );
+                break;
+            }
+            case "TagClick": {
+                console.log("Tag clicked", message.tag);
+                explorerNodeManager.revealNode(`${Category.Tag}#${message.tag}`);
                 break;
             }
         }
