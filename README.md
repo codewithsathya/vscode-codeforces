@@ -16,6 +16,7 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 ✅ **Test & Submit Directly** – Run test cases and submit solutions without leaving VS Code (cph-submit chrome extension is required).  
 ✅ **Custom Test Cases** – Add and test with your own cases.  
 ✅ **Codeforces Sheets** - Practice problems using popular sheets such as **CP-31 Sheet** and **A2OJ ladders**.  
+✅ **Add favorite** - Add favorite codeforces and cses problems and view them in favorite folder
 
 ## 📸 Screenshots
 
