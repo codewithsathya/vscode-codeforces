@@ -17,9 +17,29 @@ class BrowserClient {
         const showBrowser = shouldShowBrowser();
 
         this.browser = await puppeteer.launch({
-            headless: !showBrowser,
+            headless: showBrowser ? false : true,
+            args: [
+                "--no-sandbox",
+                "--disable-setuid-sandbox",
+                "--disable-dev-shm-usage",
+                "--disable-accelerated-2d-canvas",
+                "--disable-gpu",
+                "--no-zygote",
+                "--single-process",
+                "--disable-features=site-per-process",
+            ],
         });
         this.page = (await this.browser.pages())[0];
+
+        await this.page.setRequestInterception(true);
+        this.page.on("request", (req) => {
+            const resourceType = req.resourceType();
+            if (["image", "stylesheet", "font", "media"].includes(resourceType)) {
+                req.abort();
+            } else {
+                req.continue();
+            }
+        });
 
         await this.page.setUserAgent(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
