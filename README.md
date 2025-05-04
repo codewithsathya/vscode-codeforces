@@ -1,6 +1,6 @@
 # Codeforces VS Code Extension
 
-![Codeforces VS Code Extension](https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/preview.png?raw=true)
+![Codeforces VS Code Extension](https://github.com/codewithsathya/vscode-codeforces/blob/main/resources/docs/preview.png)
 
 A powerful VS Code extension to practice and compete on Codeforces directly from VsCode editor.
 

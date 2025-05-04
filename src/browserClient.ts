@@ -2,7 +2,12 @@ import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
 import { shouldShowBrowser } from "./utils/settingUtils";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { Browser, Page } from "puppeteer";
+
+import puppeteer from "puppeteer-extra";
+
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
+puppeteer.use(StealthPlugin());;
 
 class BrowserClient {
     private browser: Browser | null = null;
@@ -14,7 +19,7 @@ class BrowserClient {
         this.browser = await puppeteer.launch({
             headless: !showBrowser,
         });
-        this.page = await this.browser.newPage();
+        this.page = (await this.browser.pages())[0];
 
         await this.page.setUserAgent(
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",

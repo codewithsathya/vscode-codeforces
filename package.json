@@ -762,6 +762,8 @@
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
         "puppeteer": "^24.8.0",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-textarea-autosize": "^8.5.7"
