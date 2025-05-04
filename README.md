@@ -84,4 +84,3 @@ A huge thanks to the authors of these projects for their amazing contributions t
         <img src="https://raw.githubusercontent.com/codewithsathya/vscode-codeforces/refs/heads/main/resources/upi.png" alt="UPI Pay" height="41" width="220">
     </a> <br>
 </div>
-
