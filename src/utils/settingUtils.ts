@@ -17,6 +17,10 @@ export function isTagGroupingEnabled(): boolean {
     return getWorkspaceConfiguration().get<boolean>("tagGroupingEnabled", true);
 }
 
+export function shouldShowBrowser(): boolean {
+    return getWorkspaceConfiguration().get<boolean>("showBrowser", false);
+}
+
 export function getDescriptionConfiguration(): IDescriptionConfiguration {
     const setting: string = getWorkspaceConfiguration().get<string>(
         "showDescription",

@@ -2,7 +2,7 @@
     "name": "codeforces-pro",
     "displayName": "Codeforces Pro",
     "description": "Solve codeforces problems from vscode",
-    "version": "0.0.2",
+    "version": "1.0.0",
     "author": "codewithsathya",
     "publisher": "codewithsathya",
     "license": "MIT",
@@ -13,7 +13,7 @@
     "categories": [
         "Other"
     ],
-    "preview": true,
+    "preview": false,
     "activationEvents": [],
     "main": "./dist/extension.js",
     "contributes": {
@@ -23,17 +23,6 @@
                 "title": "Add Handle",
                 "category": "codeforces",
                 "icon": "$(account)"
-            },
-            {
-                "command": "codeforces.signin",
-                "title": "Sign In",
-                "category": "codeforces",
-                "icon": "$(sign-in)"
-            },
-            {
-                "command": "codeforces.signout",
-                "title": "Sign Out",
-                "category": "codeforces"
             },
             {
                 "command": "codeforces.refreshExplorer",
@@ -121,34 +110,24 @@
                     "group": "navigation@0"
                 },
                 {
-                    "command": "codeforces.signin",
+                    "command": "codeforces.searchProblem",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@1"
                 },
                 {
-                    "command": "codeforces.searchProblem",
+                    "command": "codeforces.refreshExplorer",
                     "when": "view == codeforcesExplorer",
                     "group": "navigation@2"
                 },
                 {
-                    "command": "codeforces.refreshExplorer",
-                    "when": "view == codeforcesExplorer",
-                    "group": "navigation@3"
-                },
-                {
-                    "command": "codeforces.signout",
+                    "command": "codeforces.pickOne",
                     "when": "view == codeforcesExplorer",
                     "group": "overflow@1"
                 },
                 {
-                    "command": "codeforces.pickOne",
-                    "when": "view == codeforcesExplorer",
-                    "group": "overflow@2"
-                },
-                {
                     "command": "codeforces.problems.sort",
                     "when": "view == codeforcesExplorer",
-                    "group": "overflow@3"
+                    "group": "overflow@2"
                 }
             ],
             "view/item/context": [
@@ -594,9 +573,9 @@
                 },
                 "codeforces.language.rust.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Rust 1.66.0 (2021)",
+                    "default": "Rust 1.75.0 (2021)",
                     "enum": [
-                        "Rust 1.66.0 (2021)"
+                        "Rust 1.75.0 (2021)"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for rust"
                 },
@@ -613,9 +592,9 @@
                 },
                 "codeforces.language.go.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Go 1.19.5",
+                    "default": "Go 1.22.2",
                     "enum": [
-                        "Go 1.19.5"
+                        "Go 1.22.2"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for go"
                 },
@@ -651,10 +630,11 @@
                 },
                 "codeforces.language.java.SubmissionCompiler": {
                     "type": "string",
-                    "default": "Java 11.0.6",
+                    "default": "Java 21 64bit",
                     "enum": [
+                        "Java 21 64bit",
                         "Java 11.0.6",
-                        "Java 1.8.0_241"
+                        "Java 8 32bit"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for java"
                 },
@@ -673,7 +653,8 @@
                     "type": "string",
                     "default": "Node.js 15.8.0 (64bit)",
                     "enum": [
-                        "Node.js 15.8.0 (64bit)"
+                        "Node.js 15.8.0 (64bit)",
+                        "JavaScript V8 4.8.0"
                     ],
                     "description": "The compiler chosen in the drop down during Codeforces submission for js"
                 },
@@ -729,6 +710,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Automatically show the judge view when opening a file that has a problem associated with it"
+                },
+                "codeforces.showBrowser": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Show browser that is running in the background when using codeforces extension"
                 }
             }
         }
@@ -746,6 +732,7 @@
     },
     "devDependencies": {
         "@types/axios": "^0.9.36",
+        "@types/fs-extra": "^11.0.4",
         "@types/jsdom": "^21.1.7",
         "@types/lodash": "^4.17.15",
         "@types/markdown-it": "^14.1.2",
@@ -769,11 +756,14 @@
     "dependencies": {
         "axios": "^1.7.9",
         "cyrillic-to-translit-js": "^3.2.1",
+        "fs-extra": "^11.3.0",
         "highlight.js": "^11.11.1",
-        "jsdom": "^26.0.0",
+        "jsdom": "^26.1.0",
         "lodash": "^4.17.21",
         "markdown-it": "^14.1.0",
-        "puppeteer-real-browser": "^1.4.2",
+        "puppeteer": "^24.8.0",
+        "puppeteer-extra": "^3.3.6",
+        "puppeteer-extra-plugin-stealth": "^2.11.2",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-textarea-autosize": "^8.5.7"

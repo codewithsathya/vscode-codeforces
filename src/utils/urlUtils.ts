@@ -8,6 +8,10 @@ export function getProblemUrl(
     return `https://codeforces.com/contest/${contestId}/problem/${index}`;
 }
 
+export function getCsesProblemUrl(id: string | number) {
+    return `https://cses.fi/problemset/task/${id}`;
+}
+
 export function getContestUrl(contestId?: string | number) {
     return `https://codeforces.com/contest/${contestId}`;
 }

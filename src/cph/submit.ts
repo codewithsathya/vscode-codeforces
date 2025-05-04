@@ -1,13 +1,6 @@
 import { getProblem } from "./parser";
 import * as vscode from "vscode";
-import { getLanguageId } from "./preferences";
-import fs from "fs";
-import { getDetailsFromProblemUrl } from "../utils/urlUtils";
-import { DialogType, promptForOpenOutputChannel } from "../utils/uiUtils";
-import { codeforcesChannel } from "../codeforcesChannel";
-import { browserClient } from "../browserClient";
-import { Problem, Status } from "./types";
-import { judgeViewProvider } from "../webview/judgeViewProvider";
+import { submitProblem } from "./companion";
 
 export const submitToCodeForces = async () => {
     const srcPath = vscode.window.activeTextEditor?.document.fileName;
@@ -45,28 +38,7 @@ export const submitToCodeForces = async () => {
     await submitProblem(problem);
 };
 
-export const submitProblem = async (problem: Problem) => {
-    const languageId = getLanguageId(problem.srcPath);
-    const details = getDetailsFromProblemUrl(problem.url);
-    if (details === null) {
-        promptForOpenOutputChannel(`Failed to submit`, DialogType.error);
-        codeforcesChannel.appendLine(`Failed to submit: invalid url`);
-        return;
-    }
-    const srcCode = fs.readFileSync(problem.srcPath).toString();
-    await browserClient.submitProblem(
-        details.contestId,
-        details.index,
-        languageId,
-        srcCode,
-        async (verdict: Status) => {
-            await judgeViewProvider.extensionToJudgeViewMessage({
-                command: "tracking-verdict",
-                message: verdict,
-            });
-        },
-    );
-};
+
 
 /** Get the problem name ( like 144C ) for a given Codeforces URL string. */
 export const getProblemName = (problemUrl: string): string => {

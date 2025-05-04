@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
-import type { Cookie } from "rebrowser-puppeteer-core";
+
+const keys = ["codeforcesProblems", "codeforcesContests", "csesProblems"];
 
 class GlobalState {
     private context!: vscode.ExtensionContext;
@@ -22,16 +23,41 @@ class GlobalState {
         await this._state.update(key, value);
     }
 
-    public async saveCookies(cookies: Cookie[]) {
-        await this.update("codeforces.cookies", cookies);
+    public getFavorite(): Record<string, boolean> {
+        const favorite = this.get("favorite");
+        if (favorite) {
+            return favorite as Record<string, boolean>;
+        } else {
+            return {};
+        }
     }
 
-    public getCookies(): Cookie[] {
-        const cookies = this.get("codeforces.cookies") as undefined | Cookie[];
-        if (!cookies) {
-            return [];
+    public async setFavorite(problemId: string, isFavorite: boolean) {
+        const currentFavorite = this.getFavorite();
+        if (isFavorite) {
+            currentFavorite[problemId] = true;
+        } else {
+            delete currentFavorite[problemId];
         }
-        return cookies;
+        await this._state.update("favorite", currentFavorite);
+    }
+
+    public async getWithBackgroundRefresh<T>(key: string, fetchFn: () => Promise<T>): Promise<any> {
+        const cached = this.get(key);
+        if (cached) {
+            fetchFn().then((fresh) => this.update(key, fresh)).catch(() => {});
+            return cached;
+        } else {
+            const fresh = await fetchFn();
+            await this.update(key, fresh);
+            return fresh;
+        }
+    }
+
+    public async clear() {
+        for (const key of keys) {
+            await this._state.update(key, undefined);
+        }
     }
 }
 

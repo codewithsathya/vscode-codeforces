@@ -4,253 +4,105 @@ import { Disposable } from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
 import {
     Category,
-    ContestsResponse,
+    CodeforcesTree,
     defaultProblem,
     IContest,
-    ProblemsResponse,
-    ProblemState,
     SortingStrategy,
 } from "../shared";
-import axiosClient from "axios";
-import { getCodeforcesHandle, getSortingStrategy } from "../commands/plugin";
-import { isTagGroupingEnabled, shouldHideSolvedProblem } from "../utils/settingUtils";
-import { browserClient } from "../browserClient";
-import { codeforcesChannel } from "../codeforcesChannel";
+import { getSortingStrategy } from "../commands/plugin";
+import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
+import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import { codeforcesTreeView } from "../extension";
+import { globalState } from "../globalState";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<
         string,
         CodeforcesNode
     >();
-    private difficultySet: Set<string> = new Set<string>();
-    private tagSet: Set<string> = new Set<string>();
-    private contests: Map<number, IContest> = new Map<number, IContest>();
+    private dataTree: CodeforcesTree = {};
 
     public async refreshCache(): Promise<void> {
         this.dispose();
-        const { data } = (await axiosClient.get(
-            "https://codeforces.com/api/problemset.problems",
-        )) as { data: ProblemsResponse };
-        let problems = data.result.problems;
-        for (const problem of problems) {
-            const node = new CodeforcesNode(problem, true);
-            node.id = `${problem.contestId}:${problem.index}`;
-            node.state = ProblemState.UNKNOWN;
-            this.explorerNodeMap.set(node.id, node);
-            this.difficultySet.add(
-                problem.rating ? problem.rating.toString() : "UNKNOWN",
-            );
-            for (const tag of problem.tags) {
-                this.tagSet.add(tag);
+
+        const codeforcesProblems = await listCodeforcesProblems();
+        const favorites = globalState.getFavorite();
+
+        for (const problem of codeforcesProblems) {
+            if (favorites[problem.id]) {
+                problem.isFavorite = true;
             }
+            this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
         }
-        const problemStatistics = data.result.problemStatistics;
-        for (const statistic of problemStatistics) {
-            const node = this.explorerNodeMap.get(
-                `${statistic.contestId}:${statistic.index}`,
-            );
-            if (node) {
-                node.solvedCount = statistic.solvedCount;
-            }
-        }
-        const handle = getCodeforcesHandle();
-        if (handle && handle.length > 0) {
-            const { data } = (await axiosClient.get(
-                `https://codeforces.com/api/user.status?handle=${handle}`,
-            )) as { data: any };
-            for (const submission of data.result) {
-                const problemId = `${submission.problem.contestId}:${submission.problem.index}`;
-                const node = this.explorerNodeMap.get(problemId);
-                if (node) {
-                    if (submission.verdict === "OK") {
-                        node.state = ProblemState.ACCEPTED;
-                    } else {
-                        node.state = ProblemState.WRONG_ANSWER;
-                    }
+
+        const contests = await listCodeforcesContests();
+
+        this.setContestNodes(contests);
+
+        const csesProblemsData = await listCsesProblems();
+        const problemMap: Record<string, string[]> = {};
+        for (const topic of Object.keys(csesProblemsData)) {
+            problemMap[topic] = [];
+            for (const problem of csesProblemsData[topic]) {
+                if (favorites[problem.id]) {
+                    problem.isFavorite = true;
                 }
+                this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
+                problemMap[topic].push(problem.id);
             }
         }
-        const { data: contestsData } = (await axiosClient.get(
-            "https://codeforces.com/api/contest.list",
-        )) as { data: ContestsResponse };
-        const contests = contestsData.result;
-        const runningContests = [];
-        for (const contest of contests) {
-            this.contests.set(contest.id, contest);
-            if (contest.phase === "CODING") {
-                runningContests.push(contest);
-            }
+        const allCsesProblems = Object.keys(csesProblemsData).reduce((acc, topic) => {
+            return acc.concat(csesProblemsData[topic]);
+        }, []);
+
+        this.dataTree = {
+            [Category.All]: codeforcesProblems.map(({ id }) => id),
+            [Category.Rating]: getRatings(codeforcesProblems),
+            [Category.Tag]: getTags(codeforcesProblems),
+            [Category.Favorite]: [...codeforcesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)
+                , ...allCsesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)],
+            [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
+            [Category.RunningContests]: getRunningContestsMap(contests, codeforcesProblems),
+            [Category.UpcomingContests]: getUpcomingContestsMap(contests),
+            [Category.CSES]: problemMap,
+            [Category.CP31]: getCP31Problems(),
+            [Category.A2OJ]: getA2oJProblems(),
+        };
+
+        this.storeCodeforcesNodes();
+    }
+
+    public async setContestNodes(contests: IContest[]): Promise<void> {
+        const validPhases = new Set(["FINISHED", "PENDING_SYSTEM_TEST", "SYSTEM_TEST"]);
+        for (const contest of contests.filter((contest) => validPhases.has(contest.phase))) {
+            this.explorerNodeMap.set(`${Category.PastContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.PastContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
         }
-        for (const contest of runningContests) {
-            codeforcesChannel.appendLine(
-                `Collecting running contest problems: ${contest.id}`,
-            );
-            const problems = await browserClient.getContestProblems(contest.id);
-            if (!problems) {
-                break;
-            }
-            for (const problem of problems) {
-                const node = new CodeforcesNode(problem, true);
-                this.explorerNodeMap.set(problem.id, node);
-            }
+        for (const contest of contests.filter((contest) => contest.phase === "CODING")) {
+            this.explorerNodeMap.set(`${Category.RunningContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.RunningContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
+        }
+        for (const contest of contests.filter((contest) => contest.phase === "BEFORE")) {
+            this.explorerNodeMap.set(`${Category.UpcomingContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                id: `${Category.UpcomingContests}#${contest.name}`,
+                name: contest.name,
+            }), false, contest));
         }
     }
 
     public getRootNodes(): CodeforcesNode[] {
-        return [
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.All,
-                    name: Category.All,
-                }),
-                false,
-            ),
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.Rating,
-                    name: Category.Rating,
-                }),
-                false,
-            ),
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.Tag,
-                    name: Category.Tag,
-                }),
-                false,
-            ),
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.PastContests,
-                    name: Category.PastContests,
-                }),
-                false,
-            ),
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.RunningContests,
-                    name: Category.RunningContests,
-                }),
-                false,
-            ),
-            new CodeforcesNode(
-                Object.assign({}, defaultProblem, {
-                    id: Category.UpcomingContests,
-                    name: Category.UpcomingContests,
-                }),
-                false,
-            ),
-        ];
-    }
-
-    public getAllNodes(): CodeforcesNode[] {
-        const hideSolved = shouldHideSolvedProblem();
-        if (hideSolved) {
-            return this.applySortingStrategy(
-                Array.from(this.explorerNodeMap.values()).filter(
-                    (node) => node.state !== ProblemState.ACCEPTED,
-                ),
-            );
+        const nodes: CodeforcesNode[] = [];
+        for (const category of Object.keys(this.dataTree)) {
+            if (this.explorerNodeMap.has(category)) {
+                const node = this.explorerNodeMap.get(category);
+                nodes.push(node);
+            }
         }
-        return this.applySortingStrategy(
-            Array.from(this.explorerNodeMap.values()),
-        );
-    }
-
-    public getAllRatingNodes(): CodeforcesNode[] {
-        const res: CodeforcesNode[] = [];
-        for (const difficulty of this.difficultySet.values()) {
-            res.push(
-                new CodeforcesNode(
-                    Object.assign({}, defaultProblem, {
-                        id: `${Category.Rating}.${difficulty}`,
-                        name: difficulty,
-                    }),
-                    false,
-                ),
-            );
-        }
-        return this.sortRatingNodes(res);
-    }
-
-    public getAllTagNodes(): CodeforcesNode[] {
-        const res: CodeforcesNode[] = [];
-        for (const tag of this.tagSet.values()) {
-            res.push(
-                new CodeforcesNode(
-                    Object.assign({}, defaultProblem, {
-                        id: `${Category.Tag}.${tag}`,
-                        name: _.startCase(tag),
-                    }),
-                    false,
-                ),
-            );
-        }
-        res.sort((a, b) => {
-            return a.name.localeCompare(b.name);
-        });
-        return res;
-    }
-
-    public getContestNodes(
-        filter: string[],
-        category: Category,
-    ): CodeforcesNode[] {
-        const res: CodeforcesNode[] = [];
-        const pastContests = Array.from(this.contests.values()).filter(
-            (contest: IContest) => {
-                return filter.indexOf(contest.phase) >= 0;
-            },
-        );
-        for (const contest of pastContests) {
-            res.push(
-                new CodeforcesNode(
-                    Object.assign({}, defaultProblem, {
-                        id: `${category}.${contest.id}`,
-                        name: contest.name,
-                    }),
-                    false,
-                    contest,
-                ),
-            );
-        }
-        switch (category) {
-            case Category.PastContests:
-            case Category.RunningContests:
-                res.sort((a, b) => {
-                    const aContest = a.contest as IContest;
-                    const bContest = b.contest as IContest;
-                    return (
-                        bContest.startTimeSeconds - aContest.startTimeSeconds
-                    );
-                });
-                break;
-            case Category.UpcomingContests:
-                res.sort((a, b) => {
-                    const aContest = a.contest as IContest;
-                    const bContest = b.contest as IContest;
-                    return (
-                        aContest.startTimeSeconds - bContest.startTimeSeconds
-                    );
-                });
-                break;
-        }
-        return res;
-    }
-
-    public getAllPastContestNodes(): CodeforcesNode[] {
-        return this.getContestNodes(
-            ["FINISHED", "PENDING_SYSTEM_TEST", "SYSTEM_TEST"],
-            Category.PastContests,
-        );
-    }
-
-    public getAllRunningContestNodes(): CodeforcesNode[] {
-        return this.getContestNodes(["CODING"], Category.RunningContests);
-    }
-
-    public getAllUpcomingContestNodes(): CodeforcesNode[] {
-        return this.getContestNodes(["BEFORE"], Category.UpcomingContests);
+        return nodes;
     }
 
     public getNodeById(id: string): CodeforcesNode | undefined {
@@ -258,97 +110,73 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public getChildrenNodesById(id: string): CodeforcesNode[] {
-        const metaInfo: string[] = id.split(".");
-        const res: CodeforcesNode[] = [];
-        const hideSolved = shouldHideSolvedProblem();
-
-        if (metaInfo[0] === Category.Tag && metaInfo.length === 2 && isTagGroupingEnabled()) {
-            const tag = metaInfo[1];
-            let problems = Array.from(this.explorerNodeMap.values());
-            problems = problems.filter(({ tags }) => tags.indexOf(tag) !== -1);
-            const ratingsSet = new Set<string>();
-            for (const problem of problems) {
-                ratingsSet.add(!problem.rating ? "UNKNOWN" : problem.rating.toString());
-            }
-            for (const rating of ratingsSet) {
-                res.push(
-                    new CodeforcesNode(
-                        Object.assign({}, defaultProblem, {
-                            id: `${Category.Tag}.${tag}.${rating}`,
-                            name: rating,
-                        }),
-                        false,
-                    ));
-            }
-            return this.sortRatingNodes(res);
+        const data = this.getExplorerDataById(id);
+        if (!data) {
+            return [];
         }
-
-        if(metaInfo[0] === Category.Tag && metaInfo.length === 3) {
-            const tag = metaInfo[1];
-            const rating = metaInfo[2];
-            for(const problem of this.explorerNodeMap.values()) {
-                const problemRating = !problem.rating ? "UNKNOWN" : problem.rating.toString();
-                if(problem.tags.indexOf(tag) !== -1 && rating === problemRating) {
-                    res.push(problem);
+        if (Array.isArray(data)) {
+            return this.applySortingStrategy(this.getProblemNodesByIds(data));
+        } else {
+            let res: CodeforcesNode[] = [];
+            for (const key of Object.keys(data)) {
+                if (this.explorerNodeMap.has(`${id}#${key}`)) {
+                    const node = this.explorerNodeMap.get(`${id}#${key}`);
+                    res.push(node);
+                } else {
+                    res.push(new CodeforcesNode(Object.assign({}, defaultProblem, {
+                        id: `${id}#${key}`,
+                        name: key,
+                    }), false));
                 }
             }
-            return this.applySortingStrategy(res);
+            return res;
         }
+    }
 
-        for (const node of this.explorerNodeMap.values()) {
-            if (hideSolved && node.state === ProblemState.ACCEPTED) {
-                continue;
+    public getParentNode(childId: string): CodeforcesNode | undefined {
+        if (!childId || childId === "") {
+            return undefined;
+        }
+        const meta = childId.split("#");
+        return this.explorerNodeMap.get(meta.slice(0, meta.length - 1).join("#"));
+    }
+
+    public getExplorerDataById(id: string) {
+        let data: any = this.dataTree;
+        if (!id || id === "") {
+            return data;
+        }
+        const metaInfo: string[] = id.split("#");
+        for (const key of metaInfo) {
+            if (data[key] === undefined) {
+                return null;
             }
-            switch (metaInfo[0]) {
-                case Category.Rating:
-                    if (!node.rating && metaInfo[1] === "UNKNOWN") {
-                        res.push(node);
-                        break;
-                    }
-                    if (node.rating && node.rating.toString() === metaInfo[1]) {
-                        res.push(node);
-                        break;
-                    }
-                case Category.Tag:
-                    if (node.tags.indexOf(metaInfo[1]) >= 0) {
-                        res.push(node);
-                        break;
-                    }
-                case Category.PastContests:
-                    if (node.contestId === parseInt(metaInfo[1])) {
-                        res.push(node);
-                        break;
-                    }
-                case Category.RunningContests:
-                    if (node.contestId === parseInt(metaInfo[1])) {
-                        res.push(node);
-                        break;
-                    }
-                case Category.UpcomingContests:
-                default:
-                    break;
+            data = data[key];
+        }
+        return data;
+    }
+
+    public getProblemNodesByIds(ids: string[]): CodeforcesNode[] {
+        const res: CodeforcesNode[] = [];
+        for (const id of ids) {
+            const node = this.explorerNodeMap.get(id);
+            if (node) {
+                res.push(node);
             }
         }
-        switch (metaInfo[0]) {
-            case Category.Rating:
-                return this.applySortingStrategy(res);
-            case Category.Tag:
-                return this.applySortingStrategy(res);
-            case Category.PastContests:
-            case Category.RunningContests:
-            case Category.UpcomingContests:
-                return res.sort((a, b) => {
-                    return a.index.localeCompare(b.index);
-                });
-            default:
-                return [];
-        }
+        return this.applySortingStrategy(res);
     }
 
     public dispose(): void {
         this.explorerNodeMap.clear();
-        this.difficultySet.clear();
-        this.tagSet.clear();
+        this.dataTree = {};
+    }
+
+    public revealNode(id: string) {
+        const node = this.explorerNodeMap.get(id);
+        if (node && codeforcesTreeView) {
+            codeforcesTreeView.reveal(node, { select: true, focus: true, expand: true });
+        }
     }
 
     private applySortingStrategy(nodes: CodeforcesNode[]): CodeforcesNode[] {
@@ -386,14 +214,29 @@ class ExplorerNodeManager implements Disposable {
         return nodes;
     }
 
-    private sortRatingNodes(nodes: CodeforcesNode[]): CodeforcesNode[] {
-        return nodes.sort((a, b) => {
-            let aRating = a.name === "UNKNOWN" ? 0 : parseInt(a.name);
-            let bRating = b.name === "UNKNOWN" ? 0 : parseInt(b.name);
-            return aRating - bRating;
-        });
+    private storeCodeforcesNodes() {
+        function dfs(data: any, curr: string, map: Map<string, CodeforcesNode>) {
+            if (!data || Array.isArray(data)) {
+                return;
+            }
+            if (typeof data === "object") {
+                for (const key of Object.keys(data)) {
+                    let id = "";
+                    if (curr === "") {
+                        id = key;
+                    } else {
+                        id = curr + "#" + key;
+                    }
+                    !map.has(id) && map.set(id, new CodeforcesNode(Object.assign({}, defaultProblem, {
+                        id,
+                        name: key,
+                    }), false));
+                    dfs(data[key], id, map);
+                }
+            }
+        }
+        dfs(this.dataTree, "", this.explorerNodeMap);
     }
 }
 
-export const explorerNodeManager: ExplorerNodeManager =
-    new ExplorerNodeManager();
+export const explorerNodeManager: ExplorerNodeManager = new ExplorerNodeManager();

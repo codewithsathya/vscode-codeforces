@@ -11,23 +11,25 @@ import {
     pickOne,
     previewProblem,
     searchProblem,
+    showJudge,
 } from "./commands/show";
 import { globalState } from "./globalState";
-import { codeforcesProblemParser } from "./parsers/codeforcesProblemParser";
 import JudgeViewProvider, {
     judgeViewProvider,
 } from "./webview/judgeViewProvider";
 import { getRetainWebviewContextPref } from "./cph/preferences";
-import { getProblemUrl, openContestUrl } from "./utils/urlUtils";
+import { openContestUrl } from "./utils/urlUtils";
 import {
     checkLaunchWebview,
     editorChanged,
     editorClosed,
 } from "./webview/editorChange";
-import { handleNewProblem } from "./cph/companion";
+import { setupCompanionServer } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
-import { codeforcesManager } from "./codeforcesManager";
+import { addFavorite, removeFavorite } from "./commands/star";
+
+export let codeforcesTreeView: vscode.TreeView<CodeforcesNode> | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     try {
@@ -37,16 +39,15 @@ export function activate(context: vscode.ExtensionContext) {
 
         codeforcesTreeDataProvider.refresh();
 
+        codeforcesTreeView = vscode.window.createTreeView("codeforcesExplorer", { treeDataProvider: codeforcesTreeDataProvider, showCollapseAll: true });
+
         context.subscriptions.push(
             codeforcesChannel,
             explorerNodeManager,
             vscode.window.registerFileDecorationProvider(
                 codeforcesTreeItemDecorationProvider,
             ),
-            vscode.window.createTreeView("codeforcesExplorer", {
-                treeDataProvider: codeforcesTreeDataProvider,
-                showCollapseAll: true,
-            }),
+            codeforcesTreeView,
             vscode.window.registerWebviewViewProvider(
                 JudgeViewProvider.viewType,
                 judgeViewProvider,
@@ -59,12 +60,6 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.addhandle", () =>
                 addHandle(),
             ),
-            vscode.commands.registerCommand("codeforces.signin", () =>
-                codeforcesManager.signIn(),
-            ),
-            vscode.commands.registerCommand("codeforces.signout", () =>
-                codeforcesManager.signOut(),
-            ),
             vscode.commands.registerCommand(
                 "codeforces.previewProblem",
                 (node: CodeforcesNode) => previewProblem(node),
@@ -72,11 +67,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand(
                 "codeforces.showProblem",
                 async (node: CodeforcesNode, html: string) => {
-                    const problem = await codeforcesProblemParser.parse(
-                        getProblemUrl(node.contestId, node.index),
-                        html,
-                    );
-                    handleNewProblem(problem, node, html);
+                    await showJudge(node, html);
                 },
             ),
             vscode.commands.registerCommand("codeforces.testSolution", () =>
@@ -93,16 +84,13 @@ export function activate(context: vscode.ExtensionContext) {
             ),
             vscode.commands.registerCommand(
                 "codeforces.showSolution",
-                () => {},
+                () => { },
             ),
             vscode.commands.registerCommand("codeforces.refreshExplorer", () =>
                 codeforcesTreeDataProvider.refresh(),
             ),
-            vscode.commands.registerCommand("codeforces.addFavorite", () => {}),
-            vscode.commands.registerCommand(
-                "codeforces.removeFavorite",
-                () => {},
-            ),
+            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => addFavorite(node)),
+            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => removeFavorite(node)),
             vscode.commands.registerCommand(
                 "codeforces.openContest",
                 (node: CodeforcesNode) => openContestUrl(node),
@@ -111,6 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
                 switchSortingStrategy(),
             ),
         );
+
         checkLaunchWebview();
 
         vscode.workspace.onDidCloseTextDocument((e) => {
@@ -129,6 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
         });
+        setupCompanionServer();
     } catch (error) {
         codeforcesChannel.appendLine(`Error activating extension: ${error}`);
     }

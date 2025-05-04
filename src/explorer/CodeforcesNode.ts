@@ -56,6 +56,18 @@ export class CodeforcesNode {
         this.data.solvedCount = solvedCount;
     }
 
+    public get platform(): string {
+        return this.data.platform;
+    }
+
+    public set platform(platform: string) {
+        this.data.platform = platform;
+    }
+
+    public get isFavorite(): boolean {
+        return this.data.isFavorite;
+    }
+
     public get previewCommand(): Command {
         return {
             title: "Preview Problem",

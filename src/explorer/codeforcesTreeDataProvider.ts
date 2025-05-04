@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { CodeforcesNode } from "./CodeforcesNode";
 import { explorerNodeManager } from "./explorerNodeManager";
-import { Category, ProblemState } from "../shared";
+import { ProblemState } from "../shared";
 import path from "path";
 import { formatDuration, getFormattedDate } from "../utils/dateUtils";
 export class CodeforcesTreeDataProvider
@@ -30,16 +30,14 @@ export class CodeforcesTreeDataProvider
     ): vscode.TreeItem | Thenable<vscode.TreeItem> {
         let contextValue: string;
         if (element.isProblem) {
-            contextValue = "problem";
+            contextValue = element.isFavorite ? "problem-favorite" : "problem";
         } else if (element.contest !== null) {
             contextValue = "contest";
         } else {
             contextValue = element.id.toLowerCase();
         }
         return {
-            label: element.isProblem
-                ? `[${element.contestId}${element.index}] ${element.name}`
-                : element.name,
+            label: this.getLabel(element),
             tooltip: this.parseTooltipFromProblemState(element),
             collapsibleState: element.isProblem
                 ? vscode.TreeItemCollapsibleState.None
@@ -49,6 +47,15 @@ export class CodeforcesTreeDataProvider
             resourceUri: element.uri,
             contextValue,
         };
+    }
+
+    getLabel(element?: CodeforcesNode): string {
+        if(element.index === "cses") {
+            return element.name;
+        }
+        return element.isProblem
+            ? `[${element.contestId}${element.index}] ${element.name}`
+            : element.name;
     }
 
     getChildren(
@@ -61,22 +68,12 @@ export class CodeforcesTreeDataProvider
         }
     }
 
+    public getParent(element: CodeforcesNode): vscode.ProviderResult<CodeforcesNode> {
+        return explorerNodeManager.getParentNode(element.id);
+    }
+
     private getChildrenByElementId(id: string): CodeforcesNode[] {
-        if (id === Category.All) {
-            return explorerNodeManager.getAllNodes();
-        } else if (id === Category.Rating) {
-            return explorerNodeManager.getAllRatingNodes();
-        } else if (id === Category.Tag) {
-            return explorerNodeManager.getAllTagNodes();
-        } else if (id === Category.PastContests) {
-            return explorerNodeManager.getAllPastContestNodes();
-        } else if (id === Category.UpcomingContests) {
-            return explorerNodeManager.getAllUpcomingContestNodes();
-        } else if (id === Category.RunningContests) {
-            return explorerNodeManager.getAllRunningContestNodes();
-        } else {
-            return explorerNodeManager.getChildrenNodesById(id);
-        }
+        return explorerNodeManager.getChildrenNodesById(id);
     }
 
     private parseTooltipFromProblemState(element: CodeforcesNode): string {
@@ -94,6 +91,9 @@ export class CodeforcesTreeDataProvider
             return "";
         }
         if (!element.isProblem) {
+            return "";
+        }
+        if(element.platform === "cses") {
             return "";
         }
         switch (element.state) {

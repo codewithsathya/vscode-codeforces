@@ -56,9 +56,11 @@ export interface IDescriptionConfiguration {
 
 export interface IWebViewMessage {
     command: string;
+    tag?: string;
 }
 
 export interface IProblem {
+    isFavorite: boolean;
     id: string;
     state: ProblemState;
     contestId: number;
@@ -67,6 +69,7 @@ export interface IProblem {
     rating?: number;
     tags: string[];
     solvedCount: number;
+    platform: string;
 }
 
 export interface IProblemStatistics {
@@ -88,6 +91,7 @@ export interface ContestsResponse {
 }
 
 export const defaultProblem: IProblem = {
+    isFavorite: false,
     id: "",
     state: ProblemState.UNKNOWN,
     contestId: 0,
@@ -96,17 +100,24 @@ export const defaultProblem: IProblem = {
     rating: undefined,
     tags: [],
     solvedCount: 0,
+    platform: "codeforces",
 };
 
 export enum Category {
     All = "All",
     Rating = "Rating",
     Tag = "Tag",
+    Favorite = "Favorite",
     PastContests = "Past Contests",
     UpcomingContests = "Upcoming Contests",
     RunningContests = "Running Contests",
+    CSES = "CSES Problemset",
+    CP31 = "CP-31 Sheet",
+    A2OJ = "A2OJ Ladders",
     User = "User",
 }
+
+export const UNKNOWN_RATING = "UNKNOWN";
 
 export enum SortingStrategy {
     None = "None",
@@ -116,4 +127,19 @@ export enum SortingStrategy {
     RatingDesc = "Rating (Descending)",
     SolvedCountAsc = "Solved Count (Ascending)",
     SolvedCountDesc = "Solved Count (Descending)",
+}
+
+export type Tags = Record<string, Record<string, string[]> | string[]>;
+
+export type CodeforcesTree = {
+    [Category.All]?: string[];
+    [Category.Rating]?: Record<string, string[]>;
+    [Category.Tag]?: Tags;
+    [Category.Favorite]?: string[];
+    [Category.PastContests]?: Record<string, string[]>;
+    [Category.RunningContests]?: Record<string, string[]>;
+    [Category.UpcomingContests]?: Record<string, string[]>;
+    [Category.CSES]?: Record<string, string[]>;
+    [Category.CP31]?: Record<string, string[]>;
+    [Category.A2OJ]?: Record<string, string[]>;
 }

@@ -1,6 +1,5 @@
-import { JSDOM } from "jsdom";
 import { commands, ViewColumn } from "vscode";
-import { IDescription, IProblem, IWebViewMessage } from "../shared";
+import { Category, IDescription, IProblem, IWebViewMessage } from "../shared";
 import {
     ICodeforcesWebviewOption,
     CodeforcesWebview,
@@ -10,6 +9,9 @@ import { codeforcesChannel } from "../codeforcesChannel";
 import * as vscode from "vscode";
 import * as os from "os";
 import { globalState } from "../globalState";
+import { explorerNodeManager } from "../explorer/explorerNodeManager";
+import _ from "lodash";
+import { parseCodeforcesDescription, parseCsesDescription } from "../parsers/htmlParser";
 
 class CodeforcesPreviewProvider extends CodeforcesWebview {
     protected readonly viewType: string = "codeforces.preview";
@@ -96,14 +98,16 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         const memory: string = markdownEngine.render(
             `**Memory limit per test**: ${memoryLimit}`,
         );
-        const tags: string = [
+        const tags: string = this.description.tags.length > 0 ? [
             `<details>`,
             `<summary><strong>Tags</strong></summary>`,
-            markdownEngine.render(
-                this.description.tags.map((t: string) => `${t}`).join(", "),
-            ),
+            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+            this.description.tags.map((t: string) =>
+                `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`
+            ).join("\n"),
+            `</div>`,
             `</details>`,
-        ].join("\n");
+        ].join("\n") : "";
         return `
             <!DOCTYPE html>
             <html>
@@ -122,16 +126,27 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             </head>
             <body>
                 ${head}
-                ${info}
+                ${rating.length > 0 ? info : ""}
                 ${timeLimit === "" ? "" : time}
                 ${memoryLimit === "" ? "" : memory}
                 ${tags}
+                <div class="section-title">Description</div>
                 ${body}
                 ${!this.sideMode ? button.element : ""}
                 <script>
                     const vscode = acquireVsCodeApi();
                     ${!this.sideMode ? button.script : ""}
                     document.addEventListener("DOMContentLoaded", function () {
+                        const mathElements = document.getElementsByClassName("math");
+                        const macros = {};
+                        for (let element of mathElements) {
+                            katex.render(element.textContent, element, {
+                                displayMode: element.classList.contains("math-display"),
+                                throwOnError: false,
+                                globalGroup: true,
+                                macros,
+                            });
+                        }
                         if (window.renderMathInElement) {
                             renderMathInElement(document.body, {
                                 delimiters: [
@@ -164,6 +179,9 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                             console.error('Error copying text.');
                         });
                     });
+                    function onTagClick(tag) {
+                        vscode.postMessage({ command: 'TagClick', tag });
+                    }
                 </script>
             </body>
             </html>
@@ -186,6 +204,11 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                     this.node,
                     this.problemHtml,
                 );
+                break;
+            }
+            case "TagClick": {
+                console.log("Tag clicked", message.tag);
+                explorerNodeManager.revealNode(`${Category.Tag}#${message.tag}`);
                 break;
             }
         }
@@ -257,47 +280,10 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
     // }
 
     private parseDescription(html: string, problem: IProblem): IDescription {
-        const dom = new JSDOM(html);
-        const document = dom.window.document;
-
-        let problemStatement = document.querySelector(".problem-statement");
-        let body: string = "";
-        if (problemStatement) {
-            body = problemStatement.innerHTML.trim();
-            body = body.replace(
-                /<pre>[\r\n]*([^]+?)[\r\n]*<\/pre>/g,
-                "<pre><code>$1</code></pre>",
-            );
-        } else {
-            console.log("No problem-statement div found.");
+        if(problem.platform === "cses") {
+            return parseCsesDescription(html, problem);
         }
-        document.querySelector(".time-limit ");
-        let timeLimitDiv = document.querySelector(".time-limit");
-        let memoryLimitDiv = document.querySelector(".memory-limit");
-        let timeLimit: string = "";
-        let memoryLimit: string = "";
-        if (timeLimitDiv) {
-            const lastChild = timeLimitDiv.lastChild;
-            if (lastChild) {
-                timeLimit = lastChild.textContent.trim();
-            }
-        }
-        if (memoryLimitDiv) {
-            const lastChild = memoryLimitDiv.lastChild;
-            if (lastChild) {
-                memoryLimit = lastChild.textContent.trim();
-            }
-        }
-
-        return {
-            title: `${problem.index}. ${problem.name}`,
-            url: `https://codeforces.com/contest/${problem.contestId}/problem/${problem.index}`,
-            rating: problem.rating ? `${problem.rating}` : "UNKNOWN",
-            tags: problem.tags,
-            timeLimit,
-            memoryLimit,
-            body,
-        };
+        return parseCodeforcesDescription(html, problem);
     }
 }
 
