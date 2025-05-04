@@ -13,7 +13,7 @@
     "categories": [
         "Other"
     ],
-    "preview": true,
+    "preview": false,
     "activationEvents": [],
     "main": "./dist/extension.js",
     "contributes": {
