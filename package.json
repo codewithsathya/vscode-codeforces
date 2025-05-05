@@ -697,11 +697,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Automatically show the judge view when opening a file that has a problem associated with it"
-                },
-                "codeforces.showBrowser": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show browser that is running in the background when using codeforces extension"
                 }
             }
         }

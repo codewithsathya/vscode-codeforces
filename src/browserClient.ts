@@ -1,7 +1,6 @@
 import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
-import { shouldShowBrowser } from "./utils/settingUtils";
 import { Browser, Page } from "puppeteer";
 
 import puppeteer from "puppeteer-extra";
@@ -14,10 +13,8 @@ class BrowserClient {
     private page: Page | null = null;
 
     public async initialize() {
-        const showBrowser = shouldShowBrowser();
-
         this.browser = await puppeteer.launch({
-            headless: showBrowser ? false : true,
+            headless: true,
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
