@@ -67,7 +67,6 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand(
                 "codeforces.showProblem",
                 async (node: CodeforcesNode, html: string) => {
-                    console.log("node: ", node);
                     await showJudge(node, html);
                 },
             ),

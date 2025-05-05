@@ -207,7 +207,6 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 break;
             }
             case "TagClick": {
-                console.log("Tag clicked", message.tag);
                 explorerNodeManager.revealNode(`${Category.Tag}#${message.tag}`);
                 break;
             }
