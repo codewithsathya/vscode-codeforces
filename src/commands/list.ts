@@ -44,13 +44,13 @@ export async function listCodeforcesProblems(): Promise<IProblem[]> {
                 ) as { data: any };
 
                 for (const submission of data.result) {
-                    const id = `${submission.problem.contestId}:${submission.problem.index}`;
+                    const { contestId, index } = submission.problem as { contestId: number, index: string };
+                    const id = `${contestId}:${index}`;
+                    const status = submission.verdict === "OK" ? ProblemState.ACCEPTED : ProblemState.WRONG_ANSWER;
                     const problem = problemsMap[id];
-                    if (problem) {
-                        problem.state =
-                            submission.verdict === "OK"
-                                ? ProblemState.ACCEPTED
-                                : ProblemState.WRONG_ANSWER;
+
+                    if(problem && problem.state !== ProblemState.ACCEPTED) {
+                        problem.state = status;
                     }
                 }
             }
