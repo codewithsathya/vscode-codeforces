@@ -21,6 +21,7 @@ import { CodeforcesNode } from "../explorer/CodeforcesNode";
 import { IDescriptionConfiguration, IProblem } from "../shared";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
 import { getDescriptionConfiguration } from "../utils/settingUtils";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 const emptyResponse: CphEmptyResponse = { empty: true };
 let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
@@ -50,24 +51,6 @@ export const submitProblem = async (problem: Problem) => {
         sourceCode,
         languageId,
     };
-    // const details = getDetailsFromProblemUrl(problem.url);
-    // if (details === null) {
-    //     promptForOpenOutputChannel(`Failed to submit`, DialogType.error);
-    //     codeforcesChannel.appendLine(`Failed to submit: invalid url`);
-    //     return;
-    // }
-    // await browserClient.submitProblem(
-    //     details.contestId,
-    //     details.index,
-    //     languageId,
-    //     srcCode,
-    //     async (verdict: Status) => {
-    //         await judgeViewProvider.extensionToJudgeViewMessage({
-    //             command: "tracking-verdict",
-    //             message: verdict,
-    //         });
-    //     },
-    // );
 };
 
 export const setupCompanionServer = () => {
@@ -109,13 +92,9 @@ export const setupCompanionServer = () => {
                 `Are multiple VSCode windows open? CPH will work on the first opened window. CPH server encountered an error: "${err.message}" , companion may not work.`,
             );
         });
-        globalThis.logger.log(
-            'Companion server listening on port',
-            config.port,
-        );
         return server;
     } catch (e) {
-        globalThis.logger.error('Companion server error :', e);
+        codeforcesChannel.appendLine(`Companion server error: ${e}`);
     }
 };
 

@@ -1,7 +1,6 @@
 import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
-import { shouldShowBrowser } from "./utils/settingUtils";
 import { Browser, Page } from "puppeteer";
 
 import puppeteer from "puppeteer-extra";
@@ -14,10 +13,8 @@ class BrowserClient {
     private page: Page | null = null;
 
     public async initialize() {
-        const showBrowser = shouldShowBrowser();
-
         this.browser = await puppeteer.launch({
-            headless: showBrowser ? false : true,
+            headless: true,
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -57,31 +54,41 @@ class BrowserClient {
         }
     }
 
-    public async getData(url: string) {
+    public async getData(url: string, retries = 1): Promise<string> {
         if (!this.page) {
             throw new Error("not-initialized");
         }
 
-        const rawHtmlPromise = new Promise<string>((resolve) => {
-            this.page.on("response", async (response) => {
-                if (
-                    response.url() === url &&
-                    response.request().resourceType() === "document"
-                ) {
-                    resolve(await response.text());
-                }
+        try {
+            const rawHtmlPromise = new Promise<string>((resolve) => {
+                this.page.on("response", async (response) => {
+                    if (
+                        response.url() === url &&
+                        response.request().resourceType() === "document"
+                    ) {
+                        resolve(await response.text());
+                    }
+                });
             });
-        });
 
-        await this.page.goto(url, { waitUntil: "domcontentloaded" });
+            await this.page.goto(url, { waitUntil: "domcontentloaded" });
 
-        const rawHtml = await rawHtmlPromise;
+            const rawHtml = await rawHtmlPromise;
+            return rawHtml;
+        } catch (error) {
+            codeforcesChannel.appendLine(`Error fetching HTML from ${url}: ${error}`);
 
-        codeforcesChannel.appendLine(rawHtml);
-        return rawHtml;
+            if (retries > 0) {
+                codeforcesChannel.appendLine(`Retrying... (${retries} retries left)`);
+                await this.initialize();
+                return this.getData(url, retries - 1);
+            } else {
+                throw error;
+            }
+        }
     }
 
-    public async getContestProblems(contestId: number): Promise<IProblem[]> {
+    public async getContestProblems(contestId: number, retries = 1): Promise<IProblem[]> {
         try {
             if (!this.page) {
                 throw new Error("not-initialized");
@@ -135,8 +142,16 @@ class BrowserClient {
             return problems;
         } catch (error) {
             codeforcesChannel.appendLine(
-                `Failed to get running problems: ${error}`,
+                `Error fetching problems for contest ${contestId}: ${error}`
             );
+
+            if(retries > 0) {
+                codeforcesChannel.appendLine(`Retrying... (${retries} retries left)`);
+                await this.initialize();
+                return await this.getContestProblems(contestId, retries - 1);
+            } else {
+                throw error;
+            }
         }
     }
 }

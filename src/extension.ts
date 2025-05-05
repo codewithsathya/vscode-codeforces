@@ -82,10 +82,10 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.searchProblem", () =>
                 searchProblem(),
             ),
-            vscode.commands.registerCommand(
-                "codeforces.showSolution",
-                () => { },
-            ),
+            vscode.commands.registerCommand("codeforces.clearCache", async () => {
+                await globalState.clear();
+                await codeforcesTreeDataProvider.refresh();
+            }),
             vscode.commands.registerCommand("codeforces.refreshExplorer", () =>
                 codeforcesTreeDataProvider.refresh(),
             ),

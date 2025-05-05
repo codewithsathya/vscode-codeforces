@@ -2,7 +2,7 @@
     "name": "codeforces-pro",
     "displayName": "Codeforces Pro",
     "description": "Solve codeforces problems from vscode",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": "codewithsathya",
     "publisher": "codewithsathya",
     "license": "MIT",
@@ -52,11 +52,6 @@
                 "icon": "$(search)"
             },
             {
-                "command": "codeforces.showSolution",
-                "title": "Show Top Voted Solution",
-                "category": "codeforces"
-            },
-            {
                 "command": "codeforces.testSolution",
                 "title": "Test",
                 "category": "codeforces"
@@ -100,6 +95,11 @@
                 "title": "Sort Problems",
                 "category": "codeforces",
                 "icon": "$(sort-precedence)"
+            },
+            {
+                "command": "codeforces.clearCache",
+                "title": "Delete Cache",
+                "category": "codeforces"
             }
         ],
         "menus": {
@@ -142,11 +142,6 @@
                     "group": "codeforces@2"
                 },
                 {
-                    "command": "codeforces.showSolution",
-                    "when": "view == codeforcesExplorer && viewItem =~ /problem*/",
-                    "group": "codeforces@3"
-                },
-                {
                     "command": "codeforces.addFavorite",
                     "when": "view == codeforcesExplorer && viewItem == problem",
                     "group": "inline"
@@ -165,10 +160,6 @@
             "commandPalette": [
                 {
                     "command": "codeforces.showProblem",
-                    "when": "never"
-                },
-                {
-                    "command": "codeforces.showSolution",
                     "when": "never"
                 },
                 {
@@ -211,12 +202,8 @@
                     "group": "codeforces@2"
                 },
                 {
-                    "command": "codeforces.showSolution",
-                    "group": "codeforces@3"
-                },
-                {
                     "command": "codeforces.previewProblem",
-                    "group": "codeforces@4"
+                    "group": "codeforces@3"
                 }
             ]
         },
@@ -710,11 +697,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Automatically show the judge view when opening a file that has a problem associated with it"
-                },
-                "codeforces.showBrowser": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Show browser that is running in the background when using codeforces extension"
                 }
             }
         }
