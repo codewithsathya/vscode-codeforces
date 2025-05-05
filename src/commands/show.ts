@@ -25,15 +25,17 @@ export async function previewProblem(
             input.index,
         );
     }
-    codeforcesPreviewProvider.show(html, input, isSideMode);
+    if(html !== "") {
+        codeforcesPreviewProvider.show(html, input, isSideMode);
+    }
 }
 
 export async function showJudge(node: CodeforcesNode, html: string) {
     let problem: Problem;
-    if (node.platform === "codeforces") {
-        problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
-    } else if(node.platform === "cses") {
+    if (node.platform === "cses") {
         problem = await csesProblemParser.parse(getCsesProblemUrl(node.contestId), html);
+    } else {
+        problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
     }
     if (problem) {
         handleNewProblem(problem, node, html);
