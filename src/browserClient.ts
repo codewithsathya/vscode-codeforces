@@ -36,7 +36,8 @@ class BrowserClient {
                     browser = await install({
                         cacheDir,
                         browser: BrowserOptions.CHROME,
-                        buildId
+                        buildId,
+                        platform,
                     });
             
                     progress.report({ message: "Download complete." });
