@@ -2,7 +2,7 @@ import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
 import { Browser, Page } from "puppeteer";
-import { install, Browser as BrowserOptions, getInstalledBrowsers, InstalledBrowser, resolveBuildId, detectBrowserPlatform, BrowserTag } from "@puppeteer/browsers";
+import { install, Browser as BrowserOptions, getInstalledBrowsers, InstalledBrowser, resolveBuildId, detectBrowserPlatform, BrowserTag, BrowserPlatform } from "@puppeteer/browsers";
 import path from "path";
 import * as vscode from "vscode";
 
@@ -16,40 +16,50 @@ class BrowserClient {
     private browser: Browser | null = null;
     private page: Page | null = null;
     private browserExecutablePath: string | null = null;
+    private cacheDir: string;
 
-    private async downloadChromiumIfNeeded() {
-        const cacheDir = path.join(globalState.getGlobalStoragePath(), "browsers");
-        const browsers = await getInstalledBrowsers({
-            cacheDir,
-        })
-        let browser: InstalledBrowser;
-        if(!browsers || browsers.length === 0) {
-            await vscode.window.withProgress({
-                location: vscode.ProgressLocation.Notification,
-                title: "Setting up browser",
-                cancellable: false,
-            }, async (progress) => {
-                    progress.report({ message: "Downloading browser..." });
-                    const platform = detectBrowserPlatform();
-                    const buildId = await resolveBuildId(BrowserOptions.CHROME, platform, BrowserTag.STABLE);
-            
-                    browser = await install({
-                        cacheDir,
-                        browser: BrowserOptions.CHROME,
-                        buildId,
-                        platform,
-                    });
-            
-                    progress.report({ message: "Download complete." });
+    private async downloadBrowser(): Promise<InstalledBrowser> {
+        const browser = BrowserOptions.CHROMIUM
+        const platform = detectBrowserPlatform();
+        const buildId = await resolveBuildId(browser, platform, BrowserTag.LATEST);
+        let installedBrowser: InstalledBrowser;
+        await vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: "Setting up browser",
+            cancellable: false,
+        }, async (progress) => {
+            let prev = 0;
+            progress.report({ message: "Downloading browser..." });
+            installedBrowser = await install({
+                cacheDir: this.cacheDir,
+                browser,
+                buildId,
+                platform,
+                downloadProgressCallback: (downloaded: number, total: number) => {
+                    progress.report({ increment: 100 * (downloaded / total) - prev })
+                    prev = (downloaded / total) * 100;
+                }
             });
+        });
+        return installedBrowser;
+    }
+
+    private async downloadBrowserIfNeeded() {
+        const browsers = await getInstalledBrowsers({
+            cacheDir: this.cacheDir,
+        })
+        let installedBrowser: InstalledBrowser;
+        if (!browsers || browsers.length === 0) {
+            installedBrowser = await this.downloadBrowser();
         } else {
-            browser = browsers[0];
+            installedBrowser = browsers[0];
         }
-        this.browserExecutablePath = browser.executablePath;
+        this.browserExecutablePath = installedBrowser.executablePath;
     }
 
     public async initialize() {
-        await this.downloadChromiumIfNeeded();
+        this.cacheDir = path.join(globalState.getGlobalStoragePath(), "browsers");
+        await this.downloadBrowserIfNeeded();
         this.browser = await puppeteer.launch({
             executablePath: this.browserExecutablePath,
             enableExtensions: false,
@@ -184,7 +194,7 @@ class BrowserClient {
                 `Error fetching problems for contest ${contestId}: ${error}`
             );
 
-            if(retries > 0) {
+            if (retries > 0) {
                 codeforcesChannel.appendLine(`Retrying... (${retries} retries left)`);
                 await this.initialize();
                 return await this.getContestProblems(contestId, retries - 1);
