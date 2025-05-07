@@ -15,6 +15,10 @@ class GlobalState {
         return this.context.extensionUri;
     }
 
+    public getGlobalStoragePath(): string {
+        return this.context.globalStorageUri.fsPath;
+    }
+
     public get(key: string) {
         return this._state.get(key);
     }

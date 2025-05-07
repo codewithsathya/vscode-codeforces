@@ -2,18 +2,56 @@ import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
 import { Browser, Page } from "puppeteer";
+import { install, Browser as BrowserOptions, getInstalledBrowsers, InstalledBrowser, resolveBuildId, BrowserPlatform, detectBrowserPlatform, BrowserTag } from "@puppeteer/browsers";
+import path from "path";
+import * as vscode from "vscode";
 
 import puppeteer from "puppeteer-extra";
 
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
+import { globalState } from "./globalState";
 puppeteer.use(StealthPlugin());;
 
 class BrowserClient {
     private browser: Browser | null = null;
     private page: Page | null = null;
+    private browserExecutablePath: string | null = null;
+
+    private async downloadChromiumIfNeeded() {
+        const cacheDir = path.join(globalState.getGlobalStoragePath(), "browsers");
+        const browsers = await getInstalledBrowsers({
+            cacheDir,
+        })
+        let browser: InstalledBrowser;
+        if(!browsers || browsers.length === 0) {
+            await vscode.window.withProgress({
+                location: vscode.ProgressLocation.Notification,
+                title: "Setting up browser",
+                cancellable: false,
+            }, async (progress) => {
+                    progress.report({ message: "Downloading Chromium..." });
+                    const platform = detectBrowserPlatform();
+                    const buildId = await resolveBuildId(BrowserOptions.CHROMIUM, platform, BrowserTag.LATEST);
+            
+                    browser = await install({
+                        cacheDir,
+                        browser: BrowserOptions.CHROMIUM,
+                        buildId
+                    });
+            
+                    progress.report({ message: "Download complete." });
+            });
+        } else {
+            browser = browsers[0];
+        }
+        this.browserExecutablePath = browser.executablePath;
+    }
 
     public async initialize() {
+        await this.downloadChromiumIfNeeded();
         this.browser = await puppeteer.launch({
+            executablePath: this.browserExecutablePath,
+            enableExtensions: false,
             headless: true,
             args: [
                 "--no-sandbox",
