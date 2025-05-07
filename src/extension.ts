@@ -33,9 +33,10 @@ export let codeforcesTreeView: vscode.TreeView<CodeforcesNode> | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     try {
+        globalState.initialize(context);
+        
         browserClient.initialize();
         codeforcesTreeDataProvider.initialize(context);
-        globalState.initialize(context);
 
         codeforcesTreeDataProvider.refresh();
 

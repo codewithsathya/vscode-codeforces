@@ -2,7 +2,7 @@
     "name": "codeforces-pro",
     "displayName": "Codeforces Pro",
     "description": "Solve codeforces problems from vscode",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "author": "codewithsathya",
     "publisher": "codewithsathya",
     "license": "MIT",
@@ -736,6 +736,7 @@
         "webpack-cli": "^6.0.1"
     },
     "dependencies": {
+        "@puppeteer/browsers": "^2.10.3",
         "axios": "^1.7.9",
         "cyrillic-to-translit-js": "^3.2.1",
         "fs-extra": "^11.3.0",
