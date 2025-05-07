@@ -29,13 +29,13 @@ class BrowserClient {
                 title: "Setting up browser",
                 cancellable: false,
             }, async (progress) => {
-                    progress.report({ message: "Downloading Chromium..." });
+                    progress.report({ message: "Downloading browser..." });
                     const platform = detectBrowserPlatform();
-                    const buildId = await resolveBuildId(BrowserOptions.CHROMIUM, platform, BrowserTag.LATEST);
+                    const buildId = await resolveBuildId(BrowserOptions.CHROME, platform, BrowserTag.STABLE);
             
                     browser = await install({
                         cacheDir,
-                        browser: BrowserOptions.CHROMIUM,
+                        browser: BrowserOptions.CHROME,
                         buildId
                     });
             
