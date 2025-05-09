@@ -2,7 +2,7 @@ import { codeforcesChannel } from "./codeforcesChannel";
 import { getContestUrl } from "./utils/urlUtils";
 import { IProblem, ProblemState } from "./shared";
 import { Browser, Page } from "puppeteer";
-import { install, Browser as BrowserOptions, getInstalledBrowsers, InstalledBrowser, resolveBuildId, detectBrowserPlatform, BrowserTag } from "@puppeteer/browsers";
+import { install, Browser as BrowserOptions, getInstalledBrowsers, InstalledBrowser, resolveBuildId, detectBrowserPlatform, BrowserTag, BrowserPlatform } from "@puppeteer/browsers";
 import path from "path";
 import * as vscode from "vscode";
 
@@ -45,6 +45,11 @@ class BrowserClient {
     }
 
     private async downloadBrowserIfNeeded() {
+        const platform = detectBrowserPlatform();
+        if(platform === BrowserPlatform.LINUX_ARM) {
+            this.browserExecutablePath = "/usr/bin/chromium-browser"
+            return;
+        }
         const browsers = await getInstalledBrowsers({
             cacheDir: this.cacheDir,
         })
