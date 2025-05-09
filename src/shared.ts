@@ -143,3 +143,11 @@ export type CodeforcesTree = {
     [Category.CP31]?: Record<string, string[]>;
     [Category.A2OJ]?: Record<string, string[]>;
 }
+
+export type CodeforcesSolution = {
+    username: string,
+    contestId: number,
+    index: string,
+    submissionId: number,
+    timeSubmitted: number,
+}

@@ -1,6 +1,6 @@
 import { CodeforcesNode } from "../explorer/CodeforcesNode";
 import { explorerNodeManager } from "../explorer/explorerNodeManager";
-import { Category, IProblem, IQuickItemEx, ProblemState } from "../shared";
+import { Category, CodeforcesSolution, IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
 import { setCodeforcesHandle } from "./plugin";
 import { codeforcesExecutor } from "../codeforcesExecutor";
@@ -11,6 +11,10 @@ import { codeforcesProblemParser } from "../parsers/codeforcesProblemParser";
 import { getCsesProblemUrl, getProblemUrl } from "../utils/urlUtils";
 import { csesProblemParser } from "../parsers/csesProblemParser";
 import { handleNewProblem } from "../cph/companion";
+import { getSolutions } from "./solutions";
+import { showSolutionLinks } from "../utils/settingUtils";
+import { globalState } from "../globalState";
+import { codeforcesChannel } from "../codeforcesChannel";
 
 export async function previewProblem(
     input: IProblem,
@@ -18,15 +22,33 @@ export async function previewProblem(
 ): Promise<void> {
     let html: string = "";
     if(input.platform === "cses") {
-        html = await csesExecutor.getProblem(input.contestId);
+        const id = `cses:${input.contestId}`;
+        html = globalState.getProblemHtml(id);
+        if(html === null) {
+            html = await csesExecutor.getProblem(input.contestId);
+            globalState.setProblemHtml(id, html);
+            codeforcesChannel.appendLine(`${input.name} CSES problem retrieved from browser`);
+        }
     } else {
-        html = await codeforcesExecutor.getProblem(
-            input.contestId,
-            input.index,
-        );
+        const id = `${input.contestId}:${input.index}`;
+        html = globalState.getProblemHtml(id);
+        if(html === null) {
+            html = await codeforcesExecutor.getProblem(
+                input.contestId,
+                input.index,
+            );
+            globalState.setProblemHtml(id, html);
+            codeforcesChannel.appendLine(`${input.name} codeforces problem retrieved from browser`);
+        }
     }
     if(html !== "") {
-        codeforcesPreviewProvider.show(html, input, isSideMode);
+        let solutions: CodeforcesSolution[] = [];
+        if(showSolutionLinks()) {
+            solutions = getSolutions(input.id);
+        }
+        codeforcesPreviewProvider.show(html, input, isSideMode, solutions);
+    } else {
+        codeforcesChannel.appendLine("Received empty html from browser");
     }
 }
 
