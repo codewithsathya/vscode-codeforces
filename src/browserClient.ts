@@ -36,7 +36,7 @@ class BrowserClient {
                 buildId,
                 platform,
                 downloadProgressCallback: (downloaded: number, total: number) => {
-                    progress.report({ message: `Downloading browser ${(100 * (downloaded / total)).toPrecision(1)} %`, increment: 100 * (downloaded / total) - prev })
+                    progress.report({ message: `Downloading browser ${Math.floor(100 * (downloaded / total))} %`, increment: 100 * (downloaded / total) - prev })
                     prev = (downloaded / total) * 100;
                 }
             });
