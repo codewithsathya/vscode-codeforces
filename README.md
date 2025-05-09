@@ -48,6 +48,8 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 4. Click **Install**.
 5. Start solving problems directly in VS Code!
 
+Note: On Linux ARM systems, the Chromium browser must be installed for this extension to function properly.
+
 ## 🛠️ Usage
 
 - **Browse problems** from the sidebar.
