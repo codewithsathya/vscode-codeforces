@@ -70,6 +70,7 @@ export interface IProblem {
     tags: string[];
     solvedCount: number;
     platform: string;
+    contestName?: string;
 }
 
 export interface IProblemStatistics {

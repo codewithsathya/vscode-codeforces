@@ -396,7 +396,7 @@
                 },
                 "codeforces.solutionHandles": {
                     "type": "array",
-                    "default": ["jiangly", "tourist", "benq"],
+                    "default": ["jiangly", "tourist", "benq", "ecnerwala", "Dominater069", "evenvalue", "Queue"],
                     "description": "Handles of users for solution link to codeforces problems"
                 },
                 "codeforces.showDescription": {

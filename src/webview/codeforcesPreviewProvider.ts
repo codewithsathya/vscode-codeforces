@@ -94,6 +94,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         const { title, url, rating, body, timeLimit, memoryLimit } =
             this.description;
         const head: string = markdownEngine.render(`# [${title}](${url})`);
+        const contest: string = markdownEngine.render(`**Contest**: [${this.node.contestName}](https://codeforces.com/contest/${this.node.contestId})`);
         const info: string = markdownEngine.render(`**Rating**: ${rating}`);
         const time: string = markdownEngine.render(
             `**Time limit per test**: ${timeLimit}`,
@@ -140,6 +141,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             </head>
             <body>
                 ${head}
+                ${this.node.contestName ? contest : ""}
                 ${rating.length > 0 ? info : ""}
                 ${timeLimit === "" ? "" : time}
                 ${memoryLimit === "" ? "" : memory}

@@ -68,6 +68,14 @@ export class CodeforcesNode {
         return this.data.isFavorite;
     }
 
+    public set contestName(name: string) {
+        this.data.contestName = name;
+    }
+
+    public get contestName(): string {
+        return this.data.contestName;
+    }
+
     public get previewCommand(): Command {
         return {
             title: "Preview Problem",

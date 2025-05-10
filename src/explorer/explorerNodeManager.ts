@@ -26,16 +26,21 @@ class ExplorerNodeManager implements Disposable {
         this.dispose();
 
         const codeforcesProblems = await listCodeforcesProblems();
+        const contests = await listCodeforcesContests();
+
         const favorites = globalState.getFavorite();
 
+        const contestNameMap: Record<string, string> = {};
+        for(const contest of contests) {
+            contestNameMap[contest.id] = contest.name;
+        }
         for (const problem of codeforcesProblems) {
             if (favorites[problem.id]) {
                 problem.isFavorite = true;
             }
+            problem.contestName = contestNameMap[problem.contestId];
             this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
         }
-
-        const contests = await listCodeforcesContests();
 
         this.setContestNodes(contests);
 
