@@ -18,10 +18,11 @@ import { getProblemName } from "./submit";
 import { words_in_text } from "./utilsPure";
 import { judgeViewProvider } from "../webview/judgeViewProvider";
 import { CodeforcesNode } from "../explorer/CodeforcesNode";
-import { IDescriptionConfiguration, IProblem } from "../shared";
+import { CodeforcesSolution, IDescriptionConfiguration, IProblem } from "../shared";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
-import { getDescriptionConfiguration } from "../utils/settingUtils";
+import { getDescriptionConfiguration, showSolutionLinks } from "../utils/settingUtils";
 import { codeforcesChannel } from "../codeforcesChannel";
+import { getSolutions } from "../commands/solutions";
 
 const emptyResponse: CphEmptyResponse = { empty: true };
 let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
@@ -190,5 +191,9 @@ async function showDescriptionView(
     html: string,
     problem: IProblem,
 ): Promise<void> {
+    let solutions: CodeforcesSolution[] = [];
+    if (showSolutionLinks()) {
+        solutions = getSolutions(problem.id);
+    }
     codeforcesPreviewProvider.show(html, problem, true);
 }
