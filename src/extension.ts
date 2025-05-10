@@ -10,6 +10,7 @@ import {
     addHandle,
     pickOne,
     previewProblem,
+    searchContest,
     searchProblem,
     showJudge,
 } from "./commands/show";
@@ -28,13 +29,14 @@ import { setupCompanionServer } from "./cph/companion";
 import runTestCases from "./cph/runTestCases";
 import { submitToCodeForces } from "./cph/submit";
 import { addFavorite, removeFavorite } from "./commands/star";
+import { saveSolutionDetails } from "./commands/solutions";
 
 export let codeforcesTreeView: vscode.TreeView<CodeforcesNode> | undefined;
 
 export function activate(context: vscode.ExtensionContext) {
     try {
         globalState.initialize(context);
-        
+
         browserClient.initialize();
         codeforcesTreeDataProvider.initialize(context);
 
@@ -70,6 +72,10 @@ export function activate(context: vscode.ExtensionContext) {
                 async (node: CodeforcesNode, html: string) => {
                     await showJudge(node, html);
                 },
+            ),
+            vscode.commands.registerCommand(
+                "codeforces.searchContest",
+                () => searchContest()
             ),
             vscode.commands.registerCommand("codeforces.testSolution", () =>
                 runTestCases(),
@@ -120,6 +126,8 @@ export function activate(context: vscode.ExtensionContext) {
             }
         });
         setupCompanionServer();
+
+        saveSolutionDetails();
     } catch (error) {
         codeforcesChannel.appendLine(`Error activating extension: ${error}`);
     }

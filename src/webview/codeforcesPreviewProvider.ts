@@ -1,5 +1,5 @@
 import { commands, ViewColumn } from "vscode";
-import { Category, IDescription, IProblem, IWebViewMessage } from "../shared";
+import { Category, CodeforcesSolution, IDescription, IProblem, IWebViewMessage } from "../shared";
 import {
     ICodeforcesWebviewOption,
     CodeforcesWebview,
@@ -19,6 +19,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
     private problemHtml!: string;
     private description!: IDescription;
     private sideMode: boolean = false;
+    private solutions: CodeforcesSolution[] = [];
 
     public isSideMode(): boolean {
         return this.sideMode;
@@ -28,11 +29,13 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         descString: string,
         node: IProblem,
         isSideMode: boolean = false,
+        solutions: CodeforcesSolution[] = [],
     ): void {
         this.problemHtml = descString;
         this.description = this.parseDescription(descString, node);
         this.node = node;
         this.sideMode = isSideMode;
+        this.solutions = solutions;
         this.showWebviewInternal();
     }
 
@@ -91,6 +94,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         const { title, url, rating, body, timeLimit, memoryLimit } =
             this.description;
         const head: string = markdownEngine.render(`# [${title}](${url})`);
+        const contest: string = markdownEngine.render(`**Contest**: [${this.node.contestName}](https://codeforces.com/contest/${this.node.contestId})`);
         const info: string = markdownEngine.render(`**Rating**: ${rating}`);
         const time: string = markdownEngine.render(
             `**Time limit per test**: ${timeLimit}`,
@@ -104,6 +108,17 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
             this.description.tags.map((t: string) =>
                 `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`
+            ).join("\n"),
+            `</div>`,
+            `</details>`,
+        ].join("\n") : "";
+
+        const solutions: string = this.solutions.length > 0 ? [
+            `<details>`,
+            `<summary><strong>Solutions</strong></summary>`,
+            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+            this.solutions.map((t: CodeforcesSolution) =>
+                `<span style="cursor: pointer"><a href="https://codeforces.com/contest/${t.contestId}/submission/${t.submissionId}"><code>${t.username}'s solution</code></a></span>`
             ).join("\n"),
             `</div>`,
             `</details>`,
@@ -126,10 +141,12 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             </head>
             <body>
                 ${head}
+                ${this.node.contestName ? contest : ""}
                 ${rating.length > 0 ? info : ""}
                 ${timeLimit === "" ? "" : time}
                 ${memoryLimit === "" ? "" : memory}
                 ${tags}
+                ${solutions}
                 <div class="section-title">Description</div>
                 ${body}
                 ${!this.sideMode ? button.element : ""}

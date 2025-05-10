@@ -52,3 +52,11 @@ export function getDescriptionConfiguration(): IDescriptionConfiguration {
 
     return config;
 }
+
+export function getSolutionHandles(): string[] {
+    return getWorkspaceConfiguration().get<Array<string>>("solutionHandles", []);
+}
+
+export function showSolutionLinks(): boolean {
+    return getWorkspaceConfiguration().get<boolean>("showSolutionLinks", true);
+}

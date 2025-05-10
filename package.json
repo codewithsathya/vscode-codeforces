@@ -2,7 +2,7 @@
     "name": "codeforces-pro",
     "displayName": "Codeforces Pro",
     "description": "Solve codeforces problems from vscode",
-    "version": "1.0.4",
+    "version": "1.1.0",
     "author": "codewithsathya",
     "publisher": "codewithsathya",
     "license": "MIT",
@@ -100,6 +100,12 @@
                 "command": "codeforces.clearCache",
                 "title": "Delete Cache",
                 "category": "codeforces"
+            },
+            {
+                "command": "codeforces.searchContest",
+                "title": "Search Contest",
+                "category": "codeforces",
+                "icon": "$(search)"
             }
         ],
         "menus": {
@@ -154,6 +160,11 @@
                 {
                     "command": "codeforces.openContest",
                     "when": "view == codeforcesExplorer && viewItem == contest",
+                    "group": "inline"
+                },
+                {
+                    "command": "codeforces.searchContest",
+                    "when": "view == codeforcesExplorer && viewItem =~ /past contests*/",
                     "group": "inline"
                 }
             ],
@@ -387,6 +398,17 @@
                         "Solved Count (Descending)"
                     ],
                     "description": "Sort strategy for problems"
+                },
+                "codeforces.showSolutionLinks": {
+                    "type": "boolean",
+                    "default": true,
+                    "scope": "application",
+                    "description": "Show solution links in problem preview"
+                },
+                "codeforces.solutionHandles": {
+                    "type": "array",
+                    "default": ["jiangly", "tourist", "benq", "ecnerwala", "Dominater069", "evenvalue", "Queue"],
+                    "description": "Handles of users for solution link to codeforces problems"
                 },
                 "codeforces.showDescription": {
                     "type": "string",

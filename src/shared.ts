@@ -70,6 +70,7 @@ export interface IProblem {
     tags: string[];
     solvedCount: number;
     platform: string;
+    contestName?: string;
 }
 
 export interface IProblemStatistics {
@@ -142,4 +143,12 @@ export type CodeforcesTree = {
     [Category.CSES]?: Record<string, string[]>;
     [Category.CP31]?: Record<string, string[]>;
     [Category.A2OJ]?: Record<string, string[]>;
+}
+
+export type CodeforcesSolution = {
+    username: string,
+    contestId: number,
+    index: string,
+    submissionId: number,
+    timeSubmitted: number,
 }

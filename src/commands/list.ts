@@ -113,7 +113,9 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
                         const anchor = problemNode.querySelector("a");
                         const detail = problemNode.querySelector(".detail");
 
-                        if (!anchor || !detail) continue;
+                        if (!anchor || !detail) {
+                            continue;
+                        }
 
                         const problemName = anchor.textContent?.trim() ?? "Unknown";
                         const problemLink = anchor.getAttribute("href") ?? "";
@@ -146,4 +148,3 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
         return {};
     }
 }
-

@@ -11,7 +11,7 @@ import {
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
 import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
-import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
 import { globalState } from "../globalState";
 
@@ -26,16 +26,21 @@ class ExplorerNodeManager implements Disposable {
         this.dispose();
 
         const codeforcesProblems = await listCodeforcesProblems();
+        const contests = await listCodeforcesContests();
+
         const favorites = globalState.getFavorite();
 
+        const contestNameMap: Record<string, string> = {};
+        for(const contest of contests) {
+            contestNameMap[contest.id] = contest.name;
+        }
         for (const problem of codeforcesProblems) {
             if (favorites[problem.id]) {
                 problem.isFavorite = true;
             }
+            problem.contestName = contestNameMap[problem.contestId];
             this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
         }
-
-        const contests = await listCodeforcesContests();
 
         this.setContestNodes(contests);
 
@@ -62,7 +67,6 @@ class ExplorerNodeManager implements Disposable {
             [Category.Favorite]: [...codeforcesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)
                 , ...allCsesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)],
             [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
-            [Category.RunningContests]: getRunningContestsMap(contests, codeforcesProblems),
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
             [Category.CSES]: problemMap,
             [Category.CP31]: getCP31Problems(),
