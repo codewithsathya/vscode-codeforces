@@ -11,7 +11,7 @@ import {
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
 import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
-import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getRunningContestsMap, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
 import { globalState } from "../globalState";
 
@@ -67,7 +67,6 @@ class ExplorerNodeManager implements Disposable {
             [Category.Favorite]: [...codeforcesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)
                 , ...allCsesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)],
             [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
-            [Category.RunningContests]: getRunningContestsMap(contests, codeforcesProblems),
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
             [Category.CSES]: problemMap,
             [Category.CP31]: getCP31Problems(),

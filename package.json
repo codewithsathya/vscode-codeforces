@@ -100,6 +100,12 @@
                 "command": "codeforces.clearCache",
                 "title": "Delete Cache",
                 "category": "codeforces"
+            },
+            {
+                "command": "codeforces.searchContest",
+                "title": "Search Contest",
+                "category": "codeforces",
+                "icon": "$(search)"
             }
         ],
         "menus": {
@@ -154,6 +160,11 @@
                 {
                     "command": "codeforces.openContest",
                     "when": "view == codeforcesExplorer && viewItem == contest",
+                    "group": "inline"
+                },
+                {
+                    "command": "codeforces.searchContest",
+                    "when": "view == codeforcesExplorer && viewItem =~ /past contests*/",
                     "group": "inline"
                 }
             ],
