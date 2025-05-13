@@ -15,7 +15,6 @@ export async function deleteBrowsersFolderIfExists() {
 
         await fs.rm(folderPath, { recursive: true, force: true });
 
-        console.log(`Deleted folder: ${folderPath}`);
         codeforcesChannel.appendLine(`Delete old browsers: ${folderPath}`);
     } catch (err) {}
 }
