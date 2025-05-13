@@ -1,11 +1,13 @@
+import * as vscode from "vscode";
+
 import { Problem, RunResult } from "../cph/types";
 import { getLanguage } from "../cph/utils";
 import { getBinSaveLocation, compileFile } from "../cph/compiler";
 import { saveProblem } from "../cph/parser";
 import { runTestCase, deleteBinary } from "../cph/executions";
 import { isResultCorrect } from "../cph/judge";
-import * as vscode from "vscode";
 import { getIgnoreSTDERRORPref } from "../cph/preferences";
+
 import { judgeViewProvider } from "./judgeViewProvider";
 
 export const runSingleAndSave = async (

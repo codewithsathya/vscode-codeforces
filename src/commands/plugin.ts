@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+
 import { IQuickItemEx, SortingStrategy } from "../shared";
 import { codeforcesTreeDataProvider } from "../explorer/codeforcesTreeDataProvider";
 

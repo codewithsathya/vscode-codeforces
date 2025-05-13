@@ -1,16 +1,19 @@
-import { getLanguage, ocHide, ocShow, ocWrite } from "./utils";
-import { Language } from "./types";
 import { spawn, SpawnOptionsWithoutStdio } from "child_process";
 import { platform } from "os";
 import path from "path";
+
+import * as vscode from "vscode";
+
+import { judgeViewProvider } from "../webview/judgeViewProvider";
+
 import {
     getCOutputArgPref,
     getCppOutputArgPref,
     getSaveLocationPref,
     getHideStderrorWhenCompiledOK,
 } from "./preferences";
-import * as vscode from "vscode";
-import { judgeViewProvider } from "../webview/judgeViewProvider";
+import { Language } from "./types";
+import { getLanguage, ocHide, ocShow, ocWrite } from "./utils";
 export let onlineJudgeEnv = false;
 
 export const setOnlineJudgeEnv = (value: boolean) => {

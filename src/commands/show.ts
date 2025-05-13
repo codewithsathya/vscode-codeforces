@@ -1,8 +1,14 @@
-import { CodeforcesNode } from "../explorer/CodeforcesNode";
-import { explorerNodeManager } from "../explorer/explorerNodeManager";
-import { Category, CodeforcesSolution, IProblem, IQuickItemEx, ProblemState } from "../shared";
 import * as vscode from "vscode";
-import { setCodeforcesHandle } from "./plugin";
+
+import {
+    Category,
+    CodeforcesSolution,
+    IProblem,
+    IQuickItemEx,
+    ProblemState,
+} from "../shared";
+import { explorerNodeManager } from "../explorer/explorerNodeManager";
+import { CodeforcesNode } from "../explorer/CodeforcesNode";
 import { codeforcesExecutor } from "../codeforcesExecutor";
 import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
 import { csesExecutor } from "../csesExecutor";
@@ -11,10 +17,12 @@ import { codeforcesProblemParser } from "../parsers/codeforcesProblemParser";
 import { getCsesProblemUrl, getProblemUrl } from "../utils/urlUtils";
 import { csesProblemParser } from "../parsers/csesProblemParser";
 import { handleNewProblem } from "../cph/companion";
-import { getSolutions } from "./solutions";
 import { showSolutionLinks } from "../utils/settingUtils";
 import { globalState } from "../globalState";
 import { codeforcesChannel } from "../codeforcesChannel";
+
+import { setCodeforcesHandle } from "./plugin";
+import { getSolutions } from "./solutions";
 
 export async function previewProblem(
     input: IProblem,
@@ -27,7 +35,9 @@ export async function previewProblem(
         if (html === null) {
             html = await csesExecutor.getProblem(input.contestId);
             globalState.setProblemHtml(id, html);
-            codeforcesChannel.appendLine(`${input.name} CSES problem retrieved`);
+            codeforcesChannel.appendLine(
+                `${input.name} CSES problem retrieved`,
+            );
         }
     } else {
         const id = `${input.contestId}:${input.index}`;
@@ -38,7 +48,9 @@ export async function previewProblem(
                 input.index,
             );
             globalState.setProblemHtml(id, html);
-            codeforcesChannel.appendLine(`${input.name} codeforces problem retrieved`);
+            codeforcesChannel.appendLine(
+                `${input.name} codeforces problem retrieved`,
+            );
         }
     }
     if (html !== "") {
@@ -48,7 +60,11 @@ export async function previewProblem(
         }
         codeforcesPreviewProvider.show(html, input, isSideMode, solutions);
     } else {
-        vscode.env.openExternal(vscode.Uri.parse(`https://codeforces.com/contest/${input.contestId}/problem/${input.index}`));
+        vscode.env.openExternal(
+            vscode.Uri.parse(
+                `https://codeforces.com/contest/${input.contestId}/problem/${input.index}`,
+            ),
+        );
         codeforcesChannel.appendLine("Received empty html from browser");
     }
 }
@@ -56,9 +72,15 @@ export async function previewProblem(
 export async function showJudge(node: CodeforcesNode, html: string) {
     let problem: Problem;
     if (node.platform === "cses") {
-        problem = await csesProblemParser.parse(getCsesProblemUrl(node.contestId), html);
+        problem = await csesProblemParser.parse(
+            getCsesProblemUrl(node.contestId),
+            html,
+        );
     } else {
-        problem = await codeforcesProblemParser.parse(getProblemUrl(node.contestId, node.index), html);
+        problem = await codeforcesProblemParser.parse(
+            getProblemUrl(node.contestId, node.index),
+            html,
+        );
     }
     if (problem) {
         handleNewProblem(problem, node, html);
@@ -77,7 +99,9 @@ export async function addHandle(): Promise<void> {
 }
 
 export async function pickOne(): Promise<void> {
-    const problems: CodeforcesNode[] = explorerNodeManager.getChildrenNodesById(Category.All);
+    const problems: CodeforcesNode[] = explorerNodeManager.getChildrenNodesById(
+        Category.All,
+    );
     const ratings = explorerNodeManager.getChildrenNodesById(Category.Rating);
     const ratingPick = vscode.window.createQuickPick<IQuickItemEx<string>>();
     ratingPick.placeholder = "Pick rating";
@@ -104,7 +128,7 @@ export async function pickOne(): Promise<void> {
                 );
                 const randomProblem: IProblem =
                     filteredProblems[
-                    Math.floor(Math.random() * filteredProblems.length)
+                        Math.floor(Math.random() * filteredProblems.length)
                     ];
                 previewProblem(randomProblem);
             }
@@ -145,11 +169,14 @@ export async function searchProblem(): Promise<void> {
 }
 
 export async function searchContest(): Promise<void> {
-    const contestNodes = explorerNodeManager.getChildrenNodesById(Category.PastContests);
-    const choice: IQuickItemEx<string> | undefined = await vscode.window.showQuickPick(parseContestsToPicks(contestNodes), {
-        matchOnDetail: true,
-        placeHolder: "Search for a contest",
-    });
+    const contestNodes = explorerNodeManager.getChildrenNodesById(
+        Category.PastContests,
+    );
+    const choice: IQuickItemEx<string> | undefined =
+        await vscode.window.showQuickPick(parseContestsToPicks(contestNodes), {
+            matchOnDetail: true,
+            placeHolder: "Search for a contest",
+        });
     if (!choice) {
         return;
     }
@@ -177,12 +204,13 @@ function parseContestsToPicks(contests: CodeforcesNode[]) {
     console.log(contests);
     const picks: Array<IQuickItemEx<string>> = contests.map((contest) => {
         const name = contest.id.split("#")[1];
-        return Object.assign({},
+        return Object.assign(
+            {},
             {
                 label: name,
                 description: "",
                 value: name,
-            }
+            },
         );
     });
     return picks;

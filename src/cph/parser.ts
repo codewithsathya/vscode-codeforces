@@ -1,8 +1,9 @@
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
+
 import { Problem } from "./types";
 import { getSaveLocationPref } from "./preferences";
-import crypto from "crypto";
 
 /**
  *  Get the location (file path) to save the generated problem file in. If save

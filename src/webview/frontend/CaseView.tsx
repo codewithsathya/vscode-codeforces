@@ -1,7 +1,8 @@
-import { Case, VSToWebViewMessage } from "../../cph/types";
 import { useState, createRef, useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import React from "react";
+
+import { Case, VSToWebViewMessage } from "../../cph/types";
 
 export default function CaseView(props: {
     num: number;
@@ -216,7 +217,7 @@ export default function CaseView(props: {
                             value={output}
                         />
                     </div>
-                    {props.case.result != null && (
+                    {props.case.result !== null && (
                         <div className="textarea-container">
                             Received Output:
                             <div

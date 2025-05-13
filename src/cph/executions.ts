@@ -1,12 +1,15 @@
-import { Language, Run } from "./types";
 import { spawn, ChildProcessWithoutNullStreams } from "child_process";
 import { platform } from "os";
+import path from "path";
+
+import * as vscode from "vscode";
+
+import { codeforcesChannel } from "../codeforcesChannel";
+
+import { Language, Run } from "./types";
 import config from "./config";
 import { getTimeOutPref } from "./preferences";
-import * as vscode from "vscode";
-import path from "path";
 import { onlineJudgeEnv } from "./compiler";
-import { codeforcesChannel } from "../codeforcesChannel";
 
 const runningBinaries: ChildProcessWithoutNullStreams[] = [];
 

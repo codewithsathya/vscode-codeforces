@@ -1,40 +1,40 @@
 import { Problem } from "../cph/types";
 import { htmlToElement } from "../utils/domUtils";
+
 import { TaskBuilder } from "./taskBuilder";
 
 export class CSESProblemParser {
     public async parse(url: string, html: string): Promise<Problem> {
-        const elem = htmlToElement(html);
-        const task = new TaskBuilder('CSES').setUrl(url);
+        const $ = htmlToElement(html);
+        const task = new TaskBuilder("CSES").setUrl(url);
 
-        task.setName(elem.querySelector('.title-block > h1').textContent);
-        task.setCategory(elem.querySelector('.title-block > h3 > a').textContent);
+        task.setName($(".title-block > h1").text().trim());
+        task.setCategory($(".title-block > h3 > a").text().trim());
 
-        const limitsStr = elem.querySelector('.task-constraints').textContent;
-        task.setTimeLimit(parseFloat(/([0-9.]+) s/.exec(limitsStr)[1]) * 1000);
-        task.setMemoryLimit(parseInt(/(\d+) MB/.exec(limitsStr)[1], 10));
+        const limitsStr = $(".task-constraints").text();
+        const timeMatch = /([0-9.]+) s/.exec(limitsStr);
+        const memoryMatch = /(\d+) MB/.exec(limitsStr);
 
-        // Grabs the first two code blocks after each "example" header, to avoid
-        // matching code blocks in the problem statement or explanations.
-        const find = function (nodes: Element[]): Element[] {
-            let count = 0;
-            const result: Element[] = [];
-            for (let i = 0; i < nodes.length; i++) {
-                if (nodes[i].id.startsWith('example')) {
-                    count = 2;
-                    continue;
-                }
-                if (count > 0) {
-                    result.push(nodes[i]);
-                    count--;
-                }
+        if (timeMatch) {
+            task.setTimeLimit(parseFloat(timeMatch[1]) * 1000);
+        }
+        if (memoryMatch) {
+            task.setMemoryLimit(parseInt(memoryMatch[1], 10));
+        }
+
+        // Find test cases
+        const codeBlocks: string[] = [];
+        $("[id^=example], .content pre").each((_, el) => {
+            const id = $(el).attr("id");
+            if (id?.startsWith("example")) {
+                // Skip headers like <h3 id="example1">Example 1</h3>
+                return;
             }
-            return result;
-        };
+            codeBlocks.push($(el).text().trim());
+        });
 
-        const codeBlocks = find([...elem.querySelectorAll('[id^=example], .content pre')]);
         for (let i = 0; i < codeBlocks.length - 1; i += 2) {
-            task.addTest(codeBlocks[i].textContent, codeBlocks[i + 1].textContent);
+            task.addTest(codeBlocks[i], codeBlocks[i + 1]);
         }
 
         return task.build();

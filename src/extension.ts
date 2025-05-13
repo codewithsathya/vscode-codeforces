@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+
 import { codeforcesChannel } from "./codeforcesChannel";
 import { codeforcesTreeDataProvider } from "./explorer/codeforcesTreeDataProvider";
 import { explorerNodeManager } from "./explorer/explorerNodeManager";
@@ -41,7 +42,13 @@ export function activate(context: vscode.ExtensionContext) {
 
         codeforcesTreeDataProvider.refresh();
 
-        codeforcesTreeView = vscode.window.createTreeView("codeforcesExplorer", { treeDataProvider: codeforcesTreeDataProvider, showCollapseAll: true });
+        codeforcesTreeView = vscode.window.createTreeView(
+            "codeforcesExplorer",
+            {
+                treeDataProvider: codeforcesTreeDataProvider,
+                showCollapseAll: true,
+            },
+        );
 
         context.subscriptions.push(
             codeforcesChannel,
@@ -72,9 +79,8 @@ export function activate(context: vscode.ExtensionContext) {
                     await showJudge(node, html);
                 },
             ),
-            vscode.commands.registerCommand(
-                "codeforces.searchContest",
-                () => searchContest()
+            vscode.commands.registerCommand("codeforces.searchContest", () =>
+                searchContest(),
             ),
             vscode.commands.registerCommand("codeforces.testSolution", () =>
                 runTestCases(),
@@ -88,15 +94,24 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.commands.registerCommand("codeforces.searchProblem", () =>
                 searchProblem(),
             ),
-            vscode.commands.registerCommand("codeforces.clearCache", async () => {
-                await globalState.clear();
-                await codeforcesTreeDataProvider.refresh();
-            }),
+            vscode.commands.registerCommand(
+                "codeforces.clearCache",
+                async () => {
+                    await globalState.clear();
+                    await codeforcesTreeDataProvider.refresh();
+                },
+            ),
             vscode.commands.registerCommand("codeforces.refreshExplorer", () =>
                 codeforcesTreeDataProvider.refresh(),
             ),
-            vscode.commands.registerCommand("codeforces.addFavorite", (node: CodeforcesNode) => addFavorite(node)),
-            vscode.commands.registerCommand("codeforces.removeFavorite", (node: CodeforcesNode) => removeFavorite(node)),
+            vscode.commands.registerCommand(
+                "codeforces.addFavorite",
+                (node: CodeforcesNode) => addFavorite(node),
+            ),
+            vscode.commands.registerCommand(
+                "codeforces.removeFavorite",
+                (node: CodeforcesNode) => removeFavorite(node),
+            ),
             vscode.commands.registerCommand(
                 "codeforces.openContest",
                 (node: CodeforcesNode) => openContestUrl(node),
@@ -134,5 +149,4 @@ export function activate(context: vscode.ExtensionContext) {
     }
 }
 
-export function deactivate() {
-}
+export function deactivate() {}

@@ -1,8 +1,7 @@
-import { JSDOM } from "jsdom";
+import * as cheerio from "cheerio";
 
-export function htmlToElement(html: string): Document {
-    const jsdom = new JSDOM(html);
-    return jsdom.window.document;
+export function htmlToElement(html: string): cheerio.CheerioAPI {
+    return cheerio.load(html);
 }
 
 export function decodeHtml(html: string): string {

@@ -1,10 +1,13 @@
-import * as vscode from "vscode";
-import { getProbSaveLocation } from "../cph/parser";
 import { existsSync, readFileSync } from "fs";
+
+import * as vscode from "vscode";
+
+import { getProbSaveLocation } from "../cph/parser";
 import { Problem } from "../cph/types";
 import { getProblemForDocument } from "../cph/utils";
 import { getAutoShowJudgePref } from "../cph/preferences";
 import { setOnlineJudgeEnv } from "../cph/compiler";
+
 import { judgeViewProvider } from "./judgeViewProvider";
 
 /**

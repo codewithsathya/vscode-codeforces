@@ -1,17 +1,29 @@
+import * as os from "os";
+
 import { commands, ViewColumn } from "vscode";
-import { Category, CodeforcesSolution, IDescription, IProblem, IWebViewMessage } from "../shared";
+import * as vscode from "vscode";
+import _ from "lodash";
+
+import {
+    Category,
+    CodeforcesSolution,
+    IDescription,
+    IProblem,
+    IWebViewMessage,
+} from "../shared";
+import { codeforcesChannel } from "../codeforcesChannel";
+import { globalState } from "../globalState";
+import { explorerNodeManager } from "../explorer/explorerNodeManager";
+import {
+    parseCodeforcesDescription,
+    parseCsesDescription,
+} from "../parsers/htmlParser";
+
+import { markdownEngine } from "./markdownEngine";
 import {
     ICodeforcesWebviewOption,
     CodeforcesWebview,
 } from "./codeforcesWebview";
-import { markdownEngine } from "./markdownEngine";
-import { codeforcesChannel } from "../codeforcesChannel";
-import * as vscode from "vscode";
-import * as os from "os";
-import { globalState } from "../globalState";
-import { explorerNodeManager } from "../explorer/explorerNodeManager";
-import _ from "lodash";
-import { parseCodeforcesDescription, parseCsesDescription } from "../parsers/htmlParser";
 
 class CodeforcesPreviewProvider extends CodeforcesWebview {
     protected readonly viewType: string = "codeforces.preview";
@@ -120,27 +132,39 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
             <p><strong>Memory limit per test:</strong> ${memoryLimit}</p>
         `;
 
-        const tags: string = this.description.tags.length > 0 ? [
-            `<details>`,
-            `<summary><strong>Tags</strong></summary>`,
-            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
-            this.description.tags.map((t: string) =>
-                `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`
-            ).join("\n"),
-            `</div>`,
-            `</details>`,
-        ].join("\n") : "";
+        const tags: string =
+            this.description.tags.length > 0
+                ? [
+                      `<details>`,
+                      `<summary><strong>Tags</strong></summary>`,
+                      `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+                      this.description.tags
+                          .map(
+                              (t: string) =>
+                                  `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`,
+                          )
+                          .join("\n"),
+                      `</div>`,
+                      `</details>`,
+                  ].join("\n")
+                : "";
 
-        const solutions: string = this.solutions.length > 0 ? [
-            `<details>`,
-            `<summary><strong>Solutions</strong></summary>`,
-            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
-            this.solutions.map((t: CodeforcesSolution) =>
-                `<span style="cursor: pointer"><a href="https://codeforces.com/contest/${t.contestId}/submission/${t.submissionId}"><code>${t.username}'s solution</code></a></span>`
-            ).join("\n"),
-            `</div>`,
-            `</details>`,
-        ].join("\n") : "";
+        const solutions: string =
+            this.solutions.length > 0
+                ? [
+                      `<details>`,
+                      `<summary><strong>Solutions</strong></summary>`,
+                      `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+                      this.solutions
+                          .map(
+                              (t: CodeforcesSolution) =>
+                                  `<span style="cursor: pointer"><a href="https://codeforces.com/contest/${t.contestId}/submission/${t.submissionId}"><code>${t.username}'s solution</code></a></span>`,
+                          )
+                          .join("\n"),
+                      `</div>`,
+                      `</details>`,
+                  ].join("\n")
+                : "";
         return `
             <!DOCTYPE html>
             <html>
@@ -242,7 +266,9 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 break;
             }
             case "TagClick": {
-                explorerNodeManager.revealNode(`${Category.Tag}#${message.tag}`);
+                explorerNodeManager.revealNode(
+                    `${Category.Tag}#${message.tag}`,
+                );
                 break;
             }
         }

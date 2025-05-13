@@ -1,4 +1,5 @@
 import cyrillicToTranslit from "cyrillic-to-translit-js";
+
 import {
     InputConfiguration,
     OutputConfiguration,

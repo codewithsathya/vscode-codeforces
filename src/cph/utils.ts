@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { platform } from "os";
 import path from "path";
+
 import * as vscode from "vscode";
 
 import config from "./config";

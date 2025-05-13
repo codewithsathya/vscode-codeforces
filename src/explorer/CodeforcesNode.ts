@@ -1,4 +1,5 @@
 import { Command, Uri } from "vscode";
+
 import { IContest, IProblem, ProblemState } from "../shared";
 
 export class CodeforcesNode {

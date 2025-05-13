@@ -8,7 +8,10 @@ export async function addFavorite(node: CodeforcesNode): Promise<void> {
         await globalState.setFavorite(node.id, true);
         await codeforcesTreeDataProvider.refresh();
     } catch (error) {
-        await promptForOpenOutputChannel("Failed to add the problem to favorite. Please open the output channel for details.", DialogType.error);
+        await promptForOpenOutputChannel(
+            "Failed to add the problem to favorite. Please open the output channel for details.",
+            DialogType.error,
+        );
     }
 }
 
@@ -17,6 +20,9 @@ export async function removeFavorite(node: CodeforcesNode): Promise<void> {
         await globalState.setFavorite(node.id, false);
         await codeforcesTreeDataProvider.refresh();
     } catch (error) {
-        await promptForOpenOutputChannel("Failed to remove the problem from favorite. Please open the output channel for details.", DialogType.error);
+        await promptForOpenOutputChannel(
+            "Failed to remove the problem from favorite. Please open the output channel for details.",
+            DialogType.error,
+        );
     }
 }

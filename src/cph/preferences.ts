@@ -1,9 +1,11 @@
-import { workspace } from "vscode";
-import type { prefSection } from "./types";
-import config from "./config";
 import path from "path";
 import fs from "fs";
+
+import { workspace } from "vscode";
 import * as vscode from "vscode";
+
+import type { prefSection } from "./types";
+import config from "./config";
 
 const getPreference = (section: prefSection): any => {
     const ret = workspace.getConfiguration("codeforces").get(section);

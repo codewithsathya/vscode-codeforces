@@ -1,28 +1,38 @@
 import http from "http";
-import config from "./config";
-import { CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
-import { saveProblem } from "./parser";
-import * as vscode from "vscode";
 import * as fs from "fs";
 import path from "path";
 import { writeFileSync, readFileSync, existsSync } from "fs";
-import { getLanguageId } from "./preferences";
-import { isCodeforcesUrl, randomId } from "./utils";
+
+import * as vscode from "vscode";
+
+import { judgeViewProvider } from "../webview/judgeViewProvider";
+import { CodeforcesNode } from "../explorer/CodeforcesNode";
+import {
+    CodeforcesSolution,
+    IDescriptionConfiguration,
+    IProblem,
+} from "../shared";
+import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
+import {
+    getDescriptionConfiguration,
+    showSolutionLinks,
+} from "../utils/settingUtils";
+import { codeforcesChannel } from "../codeforcesChannel";
+import { getSolutions } from "../commands/solutions";
+
+import { words_in_text } from "./utilsPure";
+import { getProblemName } from "./submit";
 import {
     getDefaultLangPref,
     useShortCodeForcesName,
     getMenuChoices,
     getDefaultLanguageTemplateFileLocation,
 } from "./preferences";
-import { getProblemName } from "./submit";
-import { words_in_text } from "./utilsPure";
-import { judgeViewProvider } from "../webview/judgeViewProvider";
-import { CodeforcesNode } from "../explorer/CodeforcesNode";
-import { CodeforcesSolution, IDescriptionConfiguration, IProblem } from "../shared";
-import { codeforcesPreviewProvider } from "../webview/codeforcesPreviewProvider";
-import { getDescriptionConfiguration, showSolutionLinks } from "../utils/settingUtils";
-import { codeforcesChannel } from "../codeforcesChannel";
-import { getSolutions } from "../commands/solutions";
+import { getLanguageId } from "./preferences";
+import { isCodeforcesUrl, randomId } from "./utils";
+import { saveProblem } from "./parser";
+import { CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
+import config from "./config";
 
 const emptyResponse: CphEmptyResponse = { empty: true };
 let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
@@ -58,14 +68,14 @@ export const setupCompanionServer = () => {
     try {
         const server = http.createServer((req, res) => {
             const { headers } = req;
-            let rawProblem = '';
+            let rawProblem = "";
 
-            req.on('data', (chunk) => {
+            req.on("data", (chunk) => {
                 rawProblem += chunk;
             });
-            req.on('close', function () {
+            req.on("close", function () {
                 try {
-                    if (rawProblem === '') {
+                    if (rawProblem === "") {
                         return;
                     }
                     const problem: Problem = JSON.parse(rawProblem);
@@ -77,10 +87,10 @@ export const setupCompanionServer = () => {
                 }
             });
             res.write(JSON.stringify(savedResponse));
-            if (headers['cph-submit'] === 'true') {
+            if (headers["cph-submit"] === "true") {
                 if (savedResponse.empty !== true) {
                     judgeViewProvider.extensionToJudgeViewMessage({
-                        command: 'submit-finished',
+                        command: "submit-finished",
                     });
                 }
                 savedResponse = emptyResponse;
@@ -88,7 +98,7 @@ export const setupCompanionServer = () => {
             res.end();
         });
         server.listen(config.port);
-        server.on('error', (err) => {
+        server.on("error", (err) => {
             vscode.window.showErrorMessage(
                 `Are multiple VSCode windows open? CPH will work on the first opened window. CPH server encountered an error: "${err.message}" , companion may not work.`,
             );
@@ -177,7 +187,8 @@ export const handleNewProblem = async (
     }
 
     await vscode.window.showTextDocument(doc, vscode.ViewColumn.One);
-    const descriptionConfig: IDescriptionConfiguration = getDescriptionConfiguration();
+    const descriptionConfig: IDescriptionConfiguration =
+        getDescriptionConfiguration();
     if (descriptionConfig.showInWebview && html && node) {
         showDescriptionView(html, node.data);
     }

@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/naming-convention
 import _ from "lodash";
 import { Disposable } from "vscode";
-import { CodeforcesNode } from "./CodeforcesNode";
+
 import {
     Category,
     CodeforcesTree,
@@ -10,10 +10,23 @@ import {
     SortingStrategy,
 } from "../shared";
 import { getSortingStrategy } from "../commands/plugin";
-import { listCodeforcesContests, listCodeforcesProblems, listCsesProblems } from "../commands/list";
-import { getA2oJProblems, getCP31Problems, getPastContestsMap, getRatings, getTags, getUpcomingContestsMap } from "../utils/dataUtils";
+import {
+    listCodeforcesContests,
+    listCodeforcesProblems,
+    listCsesProblems,
+} from "../commands/list";
+import {
+    getA2oJProblems,
+    getCP31Problems,
+    getPastContestsMap,
+    getRatings,
+    getTags,
+    getUpcomingContestsMap,
+} from "../utils/dataUtils";
 import { codeforcesTreeView } from "../extension";
 import { globalState } from "../globalState";
+
+import { CodeforcesNode } from "./CodeforcesNode";
 
 class ExplorerNodeManager implements Disposable {
     private explorerNodeMap: Map<string, CodeforcesNode> = new Map<
@@ -31,7 +44,7 @@ class ExplorerNodeManager implements Disposable {
         const favorites = globalState.getFavorite();
 
         const contestNameMap: Record<string, string> = {};
-        for(const contest of contests) {
+        for (const contest of contests) {
             contestNameMap[contest.id] = contest.name;
         }
         for (const problem of codeforcesProblems) {
@@ -52,21 +65,36 @@ class ExplorerNodeManager implements Disposable {
                 if (favorites[problem.id]) {
                     problem.isFavorite = true;
                 }
-                this.explorerNodeMap.set(problem.id, new CodeforcesNode(problem));
+                this.explorerNodeMap.set(
+                    problem.id,
+                    new CodeforcesNode(problem),
+                );
                 problemMap[topic].push(problem.id);
             }
         }
-        const allCsesProblems = Object.keys(csesProblemsData).reduce((acc, topic) => {
-            return acc.concat(csesProblemsData[topic]);
-        }, []);
+        const allCsesProblems = Object.keys(csesProblemsData).reduce(
+            (acc, topic) => {
+                return acc.concat(csesProblemsData[topic]);
+            },
+            [],
+        );
 
         this.dataTree = {
             [Category.All]: codeforcesProblems.map(({ id }) => id),
             [Category.Rating]: getRatings(codeforcesProblems),
             [Category.Tag]: getTags(codeforcesProblems),
-            [Category.Favorite]: [...codeforcesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)
-                , ...allCsesProblems.filter((problem) => problem.isFavorite).map(({ id }) => id)],
-            [Category.PastContests]: getPastContestsMap(contests, codeforcesProblems),
+            [Category.Favorite]: [
+                ...codeforcesProblems
+                    .filter((problem) => problem.isFavorite)
+                    .map(({ id }) => id),
+                ...allCsesProblems
+                    .filter((problem) => problem.isFavorite)
+                    .map(({ id }) => id),
+            ],
+            [Category.PastContests]: getPastContestsMap(
+                contests,
+                codeforcesProblems,
+            ),
             [Category.UpcomingContests]: getUpcomingContestsMap(contests),
             [Category.CSES]: problemMap,
             [Category.CP31]: getCP31Problems(),
@@ -77,24 +105,55 @@ class ExplorerNodeManager implements Disposable {
     }
 
     public async setContestNodes(contests: IContest[]): Promise<void> {
-        const validPhases = new Set(["FINISHED", "PENDING_SYSTEM_TEST", "SYSTEM_TEST"]);
-        for (const contest of contests.filter((contest) => validPhases.has(contest.phase))) {
-            this.explorerNodeMap.set(`${Category.PastContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
-                id: `${Category.PastContests}#${contest.name}`,
-                name: contest.name,
-            }), false, contest));
+        const validPhases = new Set([
+            "FINISHED",
+            "PENDING_SYSTEM_TEST",
+            "SYSTEM_TEST",
+        ]);
+        for (const contest of contests.filter((contest) =>
+            validPhases.has(contest.phase),
+        )) {
+            this.explorerNodeMap.set(
+                `${Category.PastContests}#${contest.name}`,
+                new CodeforcesNode(
+                    Object.assign({}, defaultProblem, {
+                        id: `${Category.PastContests}#${contest.name}`,
+                        name: contest.name,
+                    }),
+                    false,
+                    contest,
+                ),
+            );
         }
-        for (const contest of contests.filter((contest) => contest.phase === "CODING")) {
-            this.explorerNodeMap.set(`${Category.RunningContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
-                id: `${Category.RunningContests}#${contest.name}`,
-                name: contest.name,
-            }), false, contest));
+        for (const contest of contests.filter(
+            (contest) => contest.phase === "CODING",
+        )) {
+            this.explorerNodeMap.set(
+                `${Category.RunningContests}#${contest.name}`,
+                new CodeforcesNode(
+                    Object.assign({}, defaultProblem, {
+                        id: `${Category.RunningContests}#${contest.name}`,
+                        name: contest.name,
+                    }),
+                    false,
+                    contest,
+                ),
+            );
         }
-        for (const contest of contests.filter((contest) => contest.phase === "BEFORE")) {
-            this.explorerNodeMap.set(`${Category.UpcomingContests}#${contest.name}`, new CodeforcesNode(Object.assign({}, defaultProblem, {
-                id: `${Category.UpcomingContests}#${contest.name}`,
-                name: contest.name,
-            }), false, contest));
+        for (const contest of contests.filter(
+            (contest) => contest.phase === "BEFORE",
+        )) {
+            this.explorerNodeMap.set(
+                `${Category.UpcomingContests}#${contest.name}`,
+                new CodeforcesNode(
+                    Object.assign({}, defaultProblem, {
+                        id: `${Category.UpcomingContests}#${contest.name}`,
+                        name: contest.name,
+                    }),
+                    false,
+                    contest,
+                ),
+            );
         }
     }
 
@@ -127,10 +186,15 @@ class ExplorerNodeManager implements Disposable {
                     const node = this.explorerNodeMap.get(`${id}#${key}`);
                     res.push(node);
                 } else {
-                    res.push(new CodeforcesNode(Object.assign({}, defaultProblem, {
-                        id: `${id}#${key}`,
-                        name: key,
-                    }), false));
+                    res.push(
+                        new CodeforcesNode(
+                            Object.assign({}, defaultProblem, {
+                                id: `${id}#${key}`,
+                                name: key,
+                            }),
+                            false,
+                        ),
+                    );
                 }
             }
             return res;
@@ -142,7 +206,9 @@ class ExplorerNodeManager implements Disposable {
             return undefined;
         }
         const meta = childId.split("#");
-        return this.explorerNodeMap.get(meta.slice(0, meta.length - 1).join("#"));
+        return this.explorerNodeMap.get(
+            meta.slice(0, meta.length - 1).join("#"),
+        );
     }
 
     public getExplorerDataById(id: string) {
@@ -179,7 +245,11 @@ class ExplorerNodeManager implements Disposable {
     public revealNode(id: string) {
         const node = this.explorerNodeMap.get(id);
         if (node && codeforcesTreeView) {
-            codeforcesTreeView.reveal(node, { select: true, focus: true, expand: true });
+            codeforcesTreeView.reveal(node, {
+                select: true,
+                focus: true,
+                expand: true,
+            });
         }
     }
 
@@ -219,7 +289,11 @@ class ExplorerNodeManager implements Disposable {
     }
 
     private storeCodeforcesNodes() {
-        function dfs(data: any, curr: string, map: Map<string, CodeforcesNode>) {
+        function dfs(
+            data: any,
+            curr: string,
+            map: Map<string, CodeforcesNode>,
+        ) {
             if (!data || Array.isArray(data)) {
                 return;
             }
@@ -231,10 +305,17 @@ class ExplorerNodeManager implements Disposable {
                     } else {
                         id = curr + "#" + key;
                     }
-                    !map.has(id) && map.set(id, new CodeforcesNode(Object.assign({}, defaultProblem, {
-                        id,
-                        name: key,
-                    }), false));
+                    !map.has(id) &&
+                        map.set(
+                            id,
+                            new CodeforcesNode(
+                                Object.assign({}, defaultProblem, {
+                                    id,
+                                    name: key,
+                                }),
+                                false,
+                            ),
+                        );
                     dfs(data[key], id, map);
                 }
             }
@@ -243,4 +324,5 @@ class ExplorerNodeManager implements Disposable {
     }
 }
 
-export const explorerNodeManager: ExplorerNodeManager = new ExplorerNodeManager();
+export const explorerNodeManager: ExplorerNodeManager =
+    new ExplorerNodeManager();

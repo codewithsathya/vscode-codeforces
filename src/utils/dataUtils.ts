@@ -1,17 +1,30 @@
-import _ from "lodash";
-import { IContest, IProblem, Tags, UNKNOWN_RATING } from "../shared";
-import { isTagGroupingEnabled } from "./settingUtils";
-import fsExtra from "fs-extra";
 import path from "path";
+
+import _ from "lodash";
+import fsExtra from "fs-extra";
 import * as vscode from "vscode";
 
+import { IContest, IProblem, Tags, UNKNOWN_RATING } from "../shared";
+
+import { isTagGroupingEnabled } from "./settingUtils";
+
 export function getA2oJProblems() {
-    const jsonPath = path.join(vscode.extensions.getExtension('codewithsathya.codeforces-pro')!.extensionPath, 'data', 'a2oj.json');
+    const jsonPath = path.join(
+        vscode.extensions.getExtension("codewithsathya.codeforces-pro")!
+            .extensionPath,
+        "data",
+        "a2oj.json",
+    );
     return fsExtra.readJSONSync(jsonPath) as Record<string, string[]>;
 }
 
 export function getCP31Problems() {
-    const jsonPath = path.join(vscode.extensions.getExtension('codewithsathya.codeforces-pro')!.extensionPath, 'data', 'cp31.json');
+    const jsonPath = path.join(
+        vscode.extensions.getExtension("codewithsathya.codeforces-pro")!
+            .extensionPath,
+        "data",
+        "cp31.json",
+    );
     return fsExtra.readJSONSync(jsonPath) as Record<string, string[]>;
 }
 
@@ -24,7 +37,9 @@ export function getRatings(problems: IProblem[]): Record<string, string[]> {
             allRatingsSet.add(problem.rating.toString());
         }
     }
-    const allRatings = Array.from(allRatingsSet).sort((a, b) => parseInt(a) - parseInt(b));
+    const allRatings = Array.from(allRatingsSet).sort(
+        (a, b) => parseInt(a) - parseInt(b),
+    );
     for (const rating of allRatings) {
         ratings[rating] = [];
     }
@@ -92,43 +107,62 @@ export function getTags(problems: IProblem[]): Tags {
     return tags;
 }
 
-export function getPastContestsMap(contests: IContest[], problems: IProblem[]): Record<string, string[]> {
-    const validPhases = new Set(["FINISHED", "PENDING_SYSTEM_TEST", "SYSTEM_TEST"]);
+export function getPastContestsMap(
+    contests: IContest[],
+    problems: IProblem[],
+): Record<string, string[]> {
+    const validPhases = new Set([
+        "FINISHED",
+        "PENDING_SYSTEM_TEST",
+        "SYSTEM_TEST",
+    ]);
 
     const filteredContests = contests
-        .filter(contest => validPhases.has(contest.phase))
+        .filter((contest) => validPhases.has(contest.phase))
         .sort((a, b) => b.startTimeSeconds - a.startTimeSeconds);
 
-    const contestProblemsMap = problems.reduce<Record<number, string[]>>((map, problem) => {
-        const { contestId, id } = problem;
-        if (!map[contestId]) {
-            map[contestId] = [];
-        }
-        map[contestId].push(id);
-        return map;
-    }, {});
+    const contestProblemsMap = problems.reduce<Record<number, string[]>>(
+        (map, problem) => {
+            const { contestId, id } = problem;
+            if (!map[contestId]) {
+                map[contestId] = [];
+            }
+            map[contestId].push(id);
+            return map;
+        },
+        {},
+    );
 
     return filteredContests.reduce<Record<string, string[]>>((map, contest) => {
-        if (contestProblemsMap[contest.id] && contestProblemsMap[contest.id].length !== 0) {
+        if (
+            contestProblemsMap[contest.id] &&
+            contestProblemsMap[contest.id].length !== 0
+        ) {
             map[contest.name] = contestProblemsMap[contest.id].reverse() || [];
         }
         return map;
     }, {});
 }
 
-export function getRunningContestsMap(contests: IContest[], problems: IProblem[]): Record<string, string[]> {
+export function getRunningContestsMap(
+    contests: IContest[],
+    problems: IProblem[],
+): Record<string, string[]> {
     const filteredContests = contests
-        .filter(contest => contest.phase === "CODING")
+        .filter((contest) => contest.phase === "CODING")
         .sort((a, b) => a.startTimeSeconds - b.startTimeSeconds);
 
-    const contestProblemsMap = problems.reduce<Record<number, string[]>>((map, problem) => {
-        const { contestId, id } = problem;
-        if (!map[contestId]) {
-            map[contestId] = [];
-        }
-        map[contestId].push(id);
-        return map;
-    }, {});
+    const contestProblemsMap = problems.reduce<Record<number, string[]>>(
+        (map, problem) => {
+            const { contestId, id } = problem;
+            if (!map[contestId]) {
+                map[contestId] = [];
+            }
+            map[contestId].push(id);
+            return map;
+        },
+        {},
+    );
 
     return filteredContests.reduce<Record<string, string[]>>((map, contest) => {
         map[contest.name] = contestProblemsMap[contest.id] || [];
@@ -136,9 +170,11 @@ export function getRunningContestsMap(contests: IContest[], problems: IProblem[]
     }, {});
 }
 
-export function getUpcomingContestsMap(contests: IContest[]): Record<string, string[]> {
+export function getUpcomingContestsMap(
+    contests: IContest[],
+): Record<string, string[]> {
     const filteredContests = contests
-        .filter(contest => contest.phase === "BEFORE")
+        .filter((contest) => contest.phase === "BEFORE")
         .sort((a, b) => a.startTimeSeconds - b.startTimeSeconds);
 
     return filteredContests.reduce<Record<string, string[]>>((map, contest) => {

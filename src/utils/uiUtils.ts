@@ -1,5 +1,6 @@
-import { codeforcesChannel } from "../codeforcesChannel";
 import * as vscode from "vscode";
+
+import { codeforcesChannel } from "../codeforcesChannel";
 
 export namespace DialogOptions {
     export const open: vscode.MessageItem = { title: "Open" };

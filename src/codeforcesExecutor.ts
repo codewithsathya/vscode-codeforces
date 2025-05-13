@@ -1,5 +1,6 @@
-import { codeforcesChannel } from "./codeforcesChannel";
 import axios from "axios";
+
+import { codeforcesChannel } from "./codeforcesChannel";
 
 class CodeforcesExecutor {
     async getProblem(contestId: number, index: string): Promise<string> {
@@ -12,7 +13,9 @@ class CodeforcesExecutor {
             }
             return html as string;
         } catch (error) {
-            codeforcesChannel.appendLine(`Failed to get codeforces problem details: ${error}`);
+            codeforcesChannel.appendLine(
+                `Failed to get codeforces problem details: ${error}`,
+            );
             return "";
         }
     }

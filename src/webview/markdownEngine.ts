@@ -1,9 +1,13 @@
-import hljs from "highlight.js";
-import MarkdownIt from "markdown-it";
 import * as os from "os";
 import * as path from "path";
+
+import hljs from "highlight.js";
+import MarkdownIt from "markdown-it";
 import * as vscode from "vscode";
+import * as fs from "fs-extra";
+
 import { codeforcesChannel } from "../codeforcesChannel";
+
 import { MarkdownConfiguration } from "./markdownConfiguration";
 
 class MarkdownEngine implements vscode.Disposable {
@@ -53,17 +57,28 @@ class MarkdownEngine implements vscode.Disposable {
     }
 
     private getBuiltinStyles(webview: vscode.Webview): string {
-        if (!this.config) {
+        const mdExt = vscode.extensions.getExtension(
+            "vscode.markdown-language-features",
+        );
+        if (!mdExt) {
+            codeforcesChannel.appendLine(
+                "[Error] markdown-language-features extension not found.",
+            );
             return "";
         }
-        const extRoot = this.config.extRoot;
+
+        const extRoot = mdExt.extensionPath;
         let styles: vscode.Uri[] = [];
+
         try {
-            const stylePaths: string[] = require(
+            const packageJson = fs.readJSONSync(
                 path.join(extRoot, "package.json"),
-            )["contributes"]["markdown.previewStyles"];
-            styles = stylePaths.map((p: string) => {
-                const styleUri = vscode.Uri.file(path.join(extRoot, p));
+            );
+            const stylePaths: string[] =
+                packageJson?.contributes?.["markdown.previewStyles"] ?? [];
+
+            styles = stylePaths.map((relPath: string) => {
+                const styleUri = vscode.Uri.file(path.join(extRoot, relPath));
                 return webview.asWebviewUri(styleUri);
             });
         } catch (error) {
@@ -71,6 +86,7 @@ class MarkdownEngine implements vscode.Disposable {
                 `[Error] Fail to load built-in markdown style file: ${error}`,
             );
         }
+
         return styles
             .map(
                 (style: vscode.Uri) =>

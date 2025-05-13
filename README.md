@@ -72,6 +72,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 ## 🙌 Acknowledgements
 
 This extension was inspired by and includes some parts of code from:
+
 - [CPH (Competitive Programming Helper)](https://github.com/agrawal-d/cph)
 - [Competitive Companion](https://github.com/jmerle/competitive-companion)
 - [Leetcode Vscode](https://github.com/LeetCode-OpenSource/vscode-leetcode)
