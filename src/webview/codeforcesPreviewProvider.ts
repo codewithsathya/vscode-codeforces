@@ -93,15 +93,33 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         };
         const { title, url, rating, body, timeLimit, memoryLimit } =
             this.description;
-        const head: string = markdownEngine.render(`# [${title}](${url})`);
-        const contest: string = markdownEngine.render(`**Contest**: [${this.node.contestName}](https://codeforces.com/contest/${this.node.contestId})`);
-        const info: string = markdownEngine.render(`**Rating**: ${rating}`);
-        const time: string = markdownEngine.render(
-            `**Time limit per test**: ${timeLimit}`,
-        );
-        const memory: string = markdownEngine.render(
-            `**Memory limit per test**: ${memoryLimit}`,
-        );
+
+        const head: string = `
+            <h1 class="problem-title">
+                <a href="${url}" target="_blank">${title}</a>
+            </h1>
+        `;
+
+        const contest: string = `
+            <p><strong>Contest:</strong> 
+                <a href="https://codeforces.com/contest/${this.node.contestId}" target="_blank">
+                    ${this.node.contestName}
+                </a>
+            </p>
+        `;
+
+        const info: string = `
+            <p><strong>Rating:</strong> ${rating}</p>
+        `;
+
+        const time: string = `
+            <p><strong>Time limit per test:</strong> ${timeLimit}</p>
+        `;
+
+        const memory: string = `
+            <p><strong>Memory limit per test:</strong> ${memoryLimit}</p>
+        `;
+
         const tags: string = this.description.tags.length > 0 ? [
             `<details>`,
             `<summary><strong>Tags</strong></summary>`,
@@ -296,7 +314,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
     // }
 
     private parseDescription(html: string, problem: IProblem): IDescription {
-        if(problem.platform === "cses") {
+        if (problem.platform === "cses") {
             return parseCsesDescription(html, problem);
         }
         return parseCodeforcesDescription(html, problem);

@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
-import { codeforcesChannel } from "@/codeforcesChannel";
-import { codeforcesTreeDataProvider } from "@/explorer/codeforcesTreeDataProvider";
-import { explorerNodeManager } from "@/explorer/explorerNodeManager";
-import { codeforcesTreeItemDecorationProvider } from "@/explorer/codeforcesTreeItemDecorationProvider";
-import { CodeforcesNode } from "@/explorer/CodeforcesNode";
-import { switchSortingStrategy } from "@/commands/plugin";
+import { codeforcesChannel } from "./codeforcesChannel";
+import { codeforcesTreeDataProvider } from "./explorer/codeforcesTreeDataProvider";
+import { explorerNodeManager } from "./explorer/explorerNodeManager";
+import { codeforcesTreeItemDecorationProvider } from "./explorer/codeforcesTreeItemDecorationProvider";
+import { CodeforcesNode } from "./explorer/CodeforcesNode";
+import { switchSortingStrategy } from "./commands/plugin";
 import {
     addHandle,
     pickOne,
@@ -12,24 +12,24 @@ import {
     searchContest,
     searchProblem,
     showJudge,
-} from "@/commands/show";
-import { globalState } from "@/globalState";
+} from "./commands/show";
+import { globalState } from "./globalState";
 import JudgeViewProvider, {
     judgeViewProvider,
-} from "@/webview/judgeViewProvider";
-import { getRetainWebviewContextPref } from "@/cph/preferences";
-import { openContestUrl } from "@/utils/urlUtils";
+} from "./webview/judgeViewProvider";
+import { getRetainWebviewContextPref } from "./cph/preferences";
+import { openContestUrl } from "./utils/urlUtils";
 import {
     checkLaunchWebview,
     editorChanged,
     editorClosed,
-} from "@/webview/editorChange";
-import { setupCompanionServer } from "@/cph/companion";
-import runTestCases from "@/cph/runTestCases";
-import { submitToCodeForces } from "@/cph/submit";
-import { addFavorite, removeFavorite } from "@/commands/star";
-import { saveSolutionDetails } from "@/commands/solutions";
-import { deleteBrowsersFolderIfExists } from "@/utils/fileUtils";
+} from "./webview/editorChange";
+import { setupCompanionServer } from "./cph/companion";
+import runTestCases from "./cph/runTestCases";
+import { submitToCodeForces } from "./cph/submit";
+import { addFavorite, removeFavorite } from "./commands/star";
+import { saveSolutionDetails } from "./commands/solutions";
+import { deleteBrowsersFolderIfExists } from "./utils/fileUtils";
 
 export let codeforcesTreeView: vscode.TreeView<CodeforcesNode> | undefined;
 
