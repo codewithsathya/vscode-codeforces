@@ -65,7 +65,7 @@ export async function previewProblem(
                 `https://codeforces.com/contest/${input.contestId}/problem/${input.index}`,
             ),
         );
-        codeforcesChannel.appendLine("Received empty html from browser");
+        codeforcesChannel.appendLine("Received empty html");
     }
 }
 
