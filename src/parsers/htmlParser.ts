@@ -1,14 +1,18 @@
-import { JSDOM } from "jsdom";
+import * as cheerio from "cheerio";
+
 import { IDescription, IProblem } from "../shared";
 
-export function parseCodeforcesDescription(html: string, problem: IProblem): IDescription {
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+export function parseCodeforcesDescription(
+    html: string,
+    problem: IProblem,
+): IDescription {
+    const $ = cheerio.load(html);
 
-    let problemStatement = document.querySelector(".problem-statement");
-    let body: string = "";
-    if (problemStatement) {
-        body = problemStatement.innerHTML.trim();
+    let body = "";
+    const problemStatement = $(".problem-statement").first();
+
+    if (problemStatement.length) {
+        body = problemStatement.html()?.trim() ?? "";
         body = body.replace(
             /<pre>[\r\n]*([^]+?)[\r\n]*<\/pre>/g,
             "<pre><code>$1</code></pre>",
@@ -16,22 +20,14 @@ export function parseCodeforcesDescription(html: string, problem: IProblem): IDe
     } else {
         console.log("No problem-statement div found.");
     }
-    let timeLimitDiv = document.querySelector(".time-limit");
-    let memoryLimitDiv = document.querySelector(".memory-limit");
-    let timeLimit: string = "";
-    let memoryLimit: string = "";
-    if (timeLimitDiv) {
-        const lastChild = timeLimitDiv.lastChild;
-        if (lastChild) {
-            timeLimit = lastChild.textContent.trim();
-        }
-    }
-    if (memoryLimitDiv) {
-        const lastChild = memoryLimitDiv.lastChild;
-        if (lastChild) {
-            memoryLimit = lastChild.textContent.trim();
-        }
-    }
+
+    const timeLimit = $(".time-limit").first().contents().last().text().trim();
+    const memoryLimit = $(".memory-limit")
+        .first()
+        .contents()
+        .last()
+        .text()
+        .trim();
 
     return {
         title: `${problem.index}. ${problem.name}`,
@@ -44,27 +40,34 @@ export function parseCodeforcesDescription(html: string, problem: IProblem): IDe
     };
 }
 
-export function parseCsesDescription(html: string, problem: IProblem): IDescription {
-    const dom = new JSDOM(html);
-    const document = dom.window.document;
+export function parseCsesDescription(
+    html: string,
+    problem: IProblem,
+): IDescription {
+    const $ = cheerio.load(html);
 
-    let problemStatement = document.querySelector(".md");
-    const constraintNode = document.querySelector(".task-constraints");
-    let timeLimit: string = "";
-    let memoryLimit: string = "";
-    if (constraintNode) {
-        timeLimit = constraintNode.children[0].textContent.split(":")[1].trim();
-        memoryLimit = constraintNode.children[1].textContent.split(":")[1].trim();
+    const problemStatement = $(".md").first();
+    const constraintNode = $(".task-constraints").first();
+
+    let timeLimit = "";
+    let memoryLimit = "";
+
+    if (constraintNode.length) {
+        const children = constraintNode.children();
+        timeLimit = children.eq(0).text().split(":")[1]?.trim() || "";
+        memoryLimit = children.eq(1).text().split(":")[1]?.trim() || "";
     }
-    let body: string = "";
-    if (problemStatement) {
-        body = problemStatement.innerHTML.trim();
-        body = body.replace(/<code>/g, '<span class="monospace">')
-            .replace(/<\/code>/g, '</span>')
+
+    let body = "";
+    if (problemStatement.length) {
+        body = problemStatement.html()?.trim() ?? "";
+        body = body
+            .replace(/<code>/g, '<span class="monospace">')
+            .replace(/<\/code>/g, "</span>")
             .replace(/<h1([^>]*)>/g, '<div class="section-title"$1>')
-            .replace(/<\/h1>/g, '</div>');
+            .replace(/<\/h1>/g, "</div>");
     } else {
-        console.log("No problem-statement div found.");
+        console.log("No .md element found.");
     }
 
     return {

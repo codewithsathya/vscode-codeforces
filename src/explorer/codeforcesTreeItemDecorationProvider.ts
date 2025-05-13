@@ -1,4 +1,5 @@
 import { URLSearchParams } from "url";
+
 import {
     FileDecoration,
     FileDecorationProvider,
@@ -6,12 +7,16 @@ import {
     ThemeColor,
     Uri,
 } from "vscode";
+
 import { Category } from "../shared";
-import { isColorizingEnabled, isTagGroupingEnabled } from "../utils/settingUtils";
-import { codeforcesChannel } from "../codeforcesChannel";
+import {
+    isColorizingEnabled,
+    isTagGroupingEnabled,
+} from "../utils/settingUtils";
 
 export class CodeforcesTreeItemDecorationProvider
-    implements FileDecorationProvider {
+    implements FileDecorationProvider
+{
     private readonly DIFFICULTY_BADGE_LABEL: { [key: string]: string } = {
         "800": "NE",
         "900": "NE",
@@ -75,7 +80,9 @@ export class CodeforcesTreeItemDecorationProvider
     };
 
     private getDecoration(rating: string): FileDecoration | undefined {
-        if (rating === "UNKNOWN" || rating === "unknown") { return; }
+        if (rating === "UNKNOWN" || rating === "unknown") {
+            return;
+        }
 
         const label = this.DIFFICULTY_BADGE_LABEL[rating];
         if (!isColorizingEnabled()) {
@@ -86,15 +93,18 @@ export class CodeforcesTreeItemDecorationProvider
             badge: label,
             color: this.ITEM_COLOR[rating],
         };
-    };
+    }
 
     public provideFileDecoration(uri: Uri): ProviderResult<FileDecoration> {
-        if (uri.scheme !== "codeforces") { return; }
-
+        if (uri.scheme !== "codeforces") {
+            return;
+        }
 
         if (uri.authority !== "problems") {
-            if (uri.path.includes(Category.Rating) || uri.path.includes(Category.CP31)) {
-                codeforcesChannel.appendLine(uri.path);
+            if (
+                uri.path.includes(Category.Rating) ||
+                uri.path.includes(Category.CP31)
+            ) {
                 const rating = uri.path.split("#")[1];
                 return this.getDecoration(rating);
             }
@@ -112,7 +122,9 @@ export class CodeforcesTreeItemDecorationProvider
 
         const params = new URLSearchParams(uri.query);
         const rating = params.get("rating")?.toLowerCase();
-        if (!rating) { return; }
+        if (!rating) {
+            return;
+        }
 
         return this.getDecoration(rating);
     }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, JSX } from "react";
 import { createRoot } from "react-dom/client";
+
 import {
     Problem,
     WebviewToVSEvent,
@@ -11,6 +12,7 @@ import {
     WebViewpersistenceState,
     Status,
 } from "../../cph/types";
+
 import CaseView from "./CaseView";
 
 let notificationTimeout: NodeJS.Timeout | undefined = undefined;
@@ -27,10 +29,14 @@ interface CustomWindow extends Window {
 declare const window: CustomWindow;
 
 const getVerdictClass = (verdict: string) => {
-    if (!verdict) return "";
+    if (!verdict) {
+        return "";
+    }
     const lowerVerdict = verdict.toLowerCase();
 
-    if (lowerVerdict.includes("accepted")) return "verdict-accepted";
+    if (lowerVerdict.includes("accepted")) {
+        return "verdict-accepted";
+    }
     if (
         lowerVerdict.includes("time limit exceeded") ||
         lowerVerdict.includes("memory limit exceeded") ||
@@ -38,9 +44,12 @@ const getVerdictClass = (verdict: string) => {
         lowerVerdict.includes("runtime error") ||
         lowerVerdict.includes("compilation error") ||
         lowerVerdict.includes("idleness limit exceeded")
-    )
+    ) {
         return "verdict-failed";
-    if (lowerVerdict.includes("running")) return "verdict-running";
+    }
+    if (lowerVerdict.includes("running")) {
+        return "verdict-running";
+    }
 
     return "";
 };

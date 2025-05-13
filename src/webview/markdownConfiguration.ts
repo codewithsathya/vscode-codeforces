@@ -1,5 +1,7 @@
-import * as vscode from "vscode";
 import path from "path";
+
+import * as vscode from "vscode";
+
 import { isWindows } from "../utils/osUtils";
 
 export class MarkdownConfiguration {

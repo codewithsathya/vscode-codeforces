@@ -1,8 +1,9 @@
 import { Problem } from "../cph/types";
-import { runSingleAndSave } from "./processRunSingle";
 import { compileFile, getBinSaveLocation } from "../cph/compiler";
 import { deleteBinary } from "../cph/executions";
 import { getLanguage } from "../cph/utils";
+
+import { runSingleAndSave } from "./processRunSingle";
 import { judgeViewProvider } from "./judgeViewProvider";
 
 /**

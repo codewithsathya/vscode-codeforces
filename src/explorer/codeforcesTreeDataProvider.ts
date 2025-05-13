@@ -1,9 +1,12 @@
+import path from "path";
+
 import * as vscode from "vscode";
+
+import { ProblemState } from "../shared";
+import { formatDuration, getFormattedDate } from "../utils/dateUtils";
+
 import { CodeforcesNode } from "./CodeforcesNode";
 import { explorerNodeManager } from "./explorerNodeManager";
-import { ProblemState } from "../shared";
-import path from "path";
-import { formatDuration, getFormattedDate } from "../utils/dateUtils";
 export class CodeforcesTreeDataProvider
     implements vscode.TreeDataProvider<CodeforcesNode>
 {
@@ -50,7 +53,7 @@ export class CodeforcesTreeDataProvider
     }
 
     getLabel(element?: CodeforcesNode): string {
-        if(element.index === "cses") {
+        if (element.index === "cses") {
             return element.name;
         }
         return element.isProblem
@@ -68,7 +71,9 @@ export class CodeforcesTreeDataProvider
         }
     }
 
-    public getParent(element: CodeforcesNode): vscode.ProviderResult<CodeforcesNode> {
+    public getParent(
+        element: CodeforcesNode,
+    ): vscode.ProviderResult<CodeforcesNode> {
         return explorerNodeManager.getParentNode(element.id);
     }
 
@@ -93,7 +98,7 @@ export class CodeforcesTreeDataProvider
         if (!element.isProblem) {
             return "";
         }
-        if(element.platform === "cses") {
+        if (element.platform === "cses") {
             return "";
         }
         switch (element.state) {

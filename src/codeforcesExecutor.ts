@@ -1,20 +1,21 @@
-import { browserClient } from "./browserClient";
+import axios from "axios";
+
 import { codeforcesChannel } from "./codeforcesChannel";
-import { DialogType, promptForOpenOutputChannel } from "./utils/uiUtils";
 
 class CodeforcesExecutor {
     async getProblem(contestId: number, index: string): Promise<string> {
         try {
-            const html = await browserClient.getData(
-                `https://codeforces.com/contest/${contestId}/problem/${index}`,
+            const { data: html } = await axios.get(
+                `https://codewithsathya.github.io/codeforces-problems/content/${contestId}:${index}.html`,
             );
             if (!html || html === "") {
                 throw new Error("Failed to get problem");
             }
-            return html;
+            return html as string;
         } catch (error) {
-            codeforcesChannel.appendLine(`Failed to get codeforces problem details: ${error}`);
-            promptForOpenOutputChannel(`Failed to get problem details`, DialogType.error);
+            codeforcesChannel.appendLine(
+                `Failed to get codeforces problem details: ${error}`,
+            );
             return "";
         }
     }

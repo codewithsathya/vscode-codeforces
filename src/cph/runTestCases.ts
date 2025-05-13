@@ -1,11 +1,14 @@
+import path from "path";
+
 import * as vscode from "vscode";
+
+import runAllAndSave from "../webview/processRunAll";
+import { judgeViewProvider } from "../webview/judgeViewProvider";
+
 import { checkUnsupported, randomId } from "./utils";
 import { Problem } from "./types";
 import { getProblem, saveProblem } from "./parser";
 import { compileFile } from "./compiler";
-import runAllAndSave from "../webview/processRunAll";
-import path from "path";
-import { judgeViewProvider } from "../webview/judgeViewProvider";
 
 /**
  * Execution for the run testcases command. Runs all testcases for the active

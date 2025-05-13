@@ -10,9 +10,11 @@ import {
     window,
     workspace,
 } from "vscode";
-import { markdownEngine } from "./markdownEngine";
 import * as vscode from "vscode";
+
 import { globalState } from "../globalState";
+
+import { markdownEngine } from "./markdownEngine";
 
 export abstract class CodeforcesWebview implements Disposable {
     protected readonly viewType: string = "codeforces.webview";

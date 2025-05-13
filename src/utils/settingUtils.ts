@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+
 import { DescriptionConfiguration, IDescriptionConfiguration } from "../shared";
 
 export function getWorkspaceConfiguration(): vscode.WorkspaceConfiguration {
@@ -54,7 +55,10 @@ export function getDescriptionConfiguration(): IDescriptionConfiguration {
 }
 
 export function getSolutionHandles(): string[] {
-    return getWorkspaceConfiguration().get<Array<string>>("solutionHandles", []);
+    return getWorkspaceConfiguration().get<Array<string>>(
+        "solutionHandles",
+        [],
+    );
 }
 
 export function showSolutionLinks(): boolean {

@@ -1,10 +1,9 @@
 import * as vscode from "vscode";
+
 import { killRunning } from "../cph/executions";
 import { saveProblem } from "../cph/parser";
 import { VSToWebViewMessage, WebviewToVSEvent } from "../cph/types";
 import { deleteProblemFile, getProblemForDocument } from "../cph/utils";
-import { runSingleAndSave } from "./processRunSingle";
-import runAllAndSave from "./processRunAll";
 import runTestCases from "../cph/runTestCases";
 import {
     getAutoShowJudgePref,
@@ -13,8 +12,11 @@ import {
 import { setOnlineJudgeEnv } from "../cph/compiler";
 import { globalState } from "../globalState";
 import { codeforcesChannel } from "../codeforcesChannel";
-import { showDescription } from "./showDescription";
 import { submitProblem } from "../cph/companion";
+
+import { showDescription } from "./showDescription";
+import runAllAndSave from "./processRunAll";
+import { runSingleAndSave } from "./processRunSingle";
 
 class JudgeViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = "codeforces.judgeView";

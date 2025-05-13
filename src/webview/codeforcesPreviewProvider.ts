@@ -1,17 +1,29 @@
+import * as os from "os";
+
 import { commands, ViewColumn } from "vscode";
-import { Category, CodeforcesSolution, IDescription, IProblem, IWebViewMessage } from "../shared";
+import * as vscode from "vscode";
+import _ from "lodash";
+
+import {
+    Category,
+    CodeforcesSolution,
+    IDescription,
+    IProblem,
+    IWebViewMessage,
+} from "../shared";
+import { codeforcesChannel } from "../codeforcesChannel";
+import { globalState } from "../globalState";
+import { explorerNodeManager } from "../explorer/explorerNodeManager";
+import {
+    parseCodeforcesDescription,
+    parseCsesDescription,
+} from "../parsers/htmlParser";
+
+import { markdownEngine } from "./markdownEngine";
 import {
     ICodeforcesWebviewOption,
     CodeforcesWebview,
 } from "./codeforcesWebview";
-import { markdownEngine } from "./markdownEngine";
-import { codeforcesChannel } from "../codeforcesChannel";
-import * as vscode from "vscode";
-import * as os from "os";
-import { globalState } from "../globalState";
-import { explorerNodeManager } from "../explorer/explorerNodeManager";
-import _ from "lodash";
-import { parseCodeforcesDescription, parseCsesDescription } from "../parsers/htmlParser";
 
 class CodeforcesPreviewProvider extends CodeforcesWebview {
     protected readonly viewType: string = "codeforces.preview";
@@ -93,36 +105,66 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
         };
         const { title, url, rating, body, timeLimit, memoryLimit } =
             this.description;
-        const head: string = markdownEngine.render(`# [${title}](${url})`);
-        const contest: string = markdownEngine.render(`**Contest**: [${this.node.contestName}](https://codeforces.com/contest/${this.node.contestId})`);
-        const info: string = markdownEngine.render(`**Rating**: ${rating}`);
-        const time: string = markdownEngine.render(
-            `**Time limit per test**: ${timeLimit}`,
-        );
-        const memory: string = markdownEngine.render(
-            `**Memory limit per test**: ${memoryLimit}`,
-        );
-        const tags: string = this.description.tags.length > 0 ? [
-            `<details>`,
-            `<summary><strong>Tags</strong></summary>`,
-            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
-            this.description.tags.map((t: string) =>
-                `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`
-            ).join("\n"),
-            `</div>`,
-            `</details>`,
-        ].join("\n") : "";
 
-        const solutions: string = this.solutions.length > 0 ? [
-            `<details>`,
-            `<summary><strong>Solutions</strong></summary>`,
-            `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
-            this.solutions.map((t: CodeforcesSolution) =>
-                `<span style="cursor: pointer"><a href="https://codeforces.com/contest/${t.contestId}/submission/${t.submissionId}"><code>${t.username}'s solution</code></a></span>`
-            ).join("\n"),
-            `</div>`,
-            `</details>`,
-        ].join("\n") : "";
+        const head: string = `
+            <h1 class="problem-title">
+                <a href="${url}" target="_blank">${title}</a>
+            </h1>
+        `;
+
+        const contest: string = `
+            <p><strong>Contest:</strong> 
+                <a href="https://codeforces.com/contest/${this.node.contestId}" target="_blank">
+                    ${this.node.contestName}
+                </a>
+            </p>
+        `;
+
+        const info: string = `
+            <p><strong>Rating:</strong> ${rating}</p>
+        `;
+
+        const time: string = `
+            <p><strong>Time limit per test:</strong> ${timeLimit}</p>
+        `;
+
+        const memory: string = `
+            <p><strong>Memory limit per test:</strong> ${memoryLimit}</p>
+        `;
+
+        const tags: string =
+            this.description.tags.length > 0
+                ? [
+                      `<details>`,
+                      `<summary><strong>Tags</strong></summary>`,
+                      `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+                      this.description.tags
+                          .map(
+                              (t: string) =>
+                                  `<span style="cursor: pointer"><a onclick="onTagClick('${_.startCase(t)}')"><code>${_.startCase(t)}</code></a></span>`,
+                          )
+                          .join("\n"),
+                      `</div>`,
+                      `</details>`,
+                  ].join("\n")
+                : "";
+
+        const solutions: string =
+            this.solutions.length > 0
+                ? [
+                      `<details>`,
+                      `<summary><strong>Solutions</strong></summary>`,
+                      `<div style="display: flex; flex-wrap: wrap; gap: 0.5em; margin-top: 0.5em;">`,
+                      this.solutions
+                          .map(
+                              (t: CodeforcesSolution) =>
+                                  `<span style="cursor: pointer"><a href="https://codeforces.com/contest/${t.contestId}/submission/${t.submissionId}"><code>${t.username}'s solution</code></a></span>`,
+                          )
+                          .join("\n"),
+                      `</div>`,
+                      `</details>`,
+                  ].join("\n")
+                : "";
         return `
             <!DOCTYPE html>
             <html>
@@ -224,7 +266,9 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
                 break;
             }
             case "TagClick": {
-                explorerNodeManager.revealNode(`${Category.Tag}#${message.tag}`);
+                explorerNodeManager.revealNode(
+                    `${Category.Tag}#${message.tag}`,
+                );
                 break;
             }
         }
@@ -296,7 +340,7 @@ class CodeforcesPreviewProvider extends CodeforcesWebview {
     // }
 
     private parseDescription(html: string, problem: IProblem): IDescription {
-        if(problem.platform === "cses") {
+        if (problem.platform === "cses") {
             return parseCsesDescription(html, problem);
         }
         return parseCodeforcesDescription(html, problem);

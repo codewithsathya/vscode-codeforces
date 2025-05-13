@@ -42,7 +42,7 @@ export type prefSection =
     | "language.haskell.Command"
     | "general.retainWebviewContext"
     | "general.autoShowJudge"
-    | "general.defaultLanguageTemplateFileLocation"
+    | "general.defaultLanguageTemplateFileLocation";
 
 export type Language = {
     name: LangNames;

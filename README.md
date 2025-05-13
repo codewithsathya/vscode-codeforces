@@ -49,8 +49,6 @@ A powerful VS Code extension to practice and compete on Codeforces directly from
 4. Click **Install**.
 5. Start solving problems directly in VS Code!
 
-Note: On Linux ARM systems, the Chromium browser must be installed for this extension to function properly.
-
 ## 🛠️ Usage
 
 - **Browse problems** from the sidebar.
@@ -72,6 +70,7 @@ Contributions are welcome! Feel free to open issues or submit pull requests.
 ## 🙌 Acknowledgements
 
 This extension was inspired by and includes some parts of code from:
+
 - [CPH (Competitive Programming Helper)](https://github.com/agrawal-d/cph)
 - [Competitive Companion](https://github.com/jmerle/competitive-companion)
 - [Leetcode Vscode](https://github.com/LeetCode-OpenSource/vscode-leetcode)

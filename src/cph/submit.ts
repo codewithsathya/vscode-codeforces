@@ -1,5 +1,6 @@
-import { getProblem } from "./parser";
 import * as vscode from "vscode";
+
+import { getProblem } from "./parser";
 import { submitProblem } from "./companion";
 
 export const submitToCodeForces = async () => {
@@ -37,8 +38,6 @@ export const submitToCodeForces = async () => {
     }
     await submitProblem(problem);
 };
-
-
 
 /** Get the problem name ( like 144C ) for a given Codeforces URL string. */
 export const getProblemName = (problemUrl: string): string => {
