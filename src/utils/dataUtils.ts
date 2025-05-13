@@ -3,16 +3,16 @@ import { IContest, IProblem, Tags, UNKNOWN_RATING } from "../shared";
 import { isTagGroupingEnabled } from "./settingUtils";
 import fsExtra from "fs-extra";
 import path from "path";
-
-const a2ojPath = '../../data/a2oj.json';
-const cp31Path = '../../data/cp31.json';
+import * as vscode from "vscode";
 
 export function getA2oJProblems() {
-    return fsExtra.readJSONSync(path.join(__dirname, a2ojPath)) as Record<string, string[]>;
+    const jsonPath = path.join(vscode.extensions.getExtension('codewithsathya.codeforces-pro')!.extensionPath, 'data', 'a2oj.json');
+    return fsExtra.readJSONSync(jsonPath) as Record<string, string[]>;
 }
 
 export function getCP31Problems() {
-    return fsExtra.readJSONSync(path.join(__dirname, cp31Path)) as Record<string, string[]>;
+    const jsonPath = path.join(vscode.extensions.getExtension('codewithsathya.codeforces-pro')!.extensionPath, 'data', 'cp31.json');
+    return fsExtra.readJSONSync(jsonPath) as Record<string, string[]>;
 }
 
 export function getRatings(problems: IProblem[]): Record<string, string[]> {

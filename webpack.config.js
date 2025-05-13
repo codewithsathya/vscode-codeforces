@@ -19,10 +19,13 @@ const config = {
     devtool: false,
     externals: {
         vscode: "commonjs vscode",
-        "puppeteer-real-browser": "commonjs puppeteer-real-browser",
+        'markdown-language-features': 'commonjs markdown-language-features',
     },
     resolve: {
         extensions: [".ts", ".js"],
+        alias: {
+            '@': path.resolve(__dirname, 'src')
+        }
     },
     module: {
         rules: [

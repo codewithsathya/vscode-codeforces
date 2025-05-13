@@ -27,7 +27,7 @@ export async function previewProblem(
         if (html === null) {
             html = await csesExecutor.getProblem(input.contestId);
             globalState.setProblemHtml(id, html);
-            codeforcesChannel.appendLine(`${input.name} CSES problem retrieved from browser`);
+            codeforcesChannel.appendLine(`${input.name} CSES problem retrieved`);
         }
     } else {
         const id = `${input.contestId}:${input.index}`;
@@ -38,7 +38,7 @@ export async function previewProblem(
                 input.index,
             );
             globalState.setProblemHtml(id, html);
-            codeforcesChannel.appendLine(`${input.name} codeforces problem retrieved from browser`);
+            codeforcesChannel.appendLine(`${input.name} codeforces problem retrieved`);
         }
     }
     if (html !== "") {
@@ -48,6 +48,7 @@ export async function previewProblem(
         }
         codeforcesPreviewProvider.show(html, input, isSideMode, solutions);
     } else {
+        vscode.env.openExternal(vscode.Uri.parse(`https://codeforces.com/contest/${input.contestId}/problem/${input.index}`));
         codeforcesChannel.appendLine("Received empty html from browser");
     }
 }

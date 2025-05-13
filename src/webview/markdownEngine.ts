@@ -57,9 +57,6 @@ class MarkdownEngine implements vscode.Disposable {
             return "";
         }
         const extRoot = this.config.extRoot;
-        codeforcesChannel.appendLine(
-            `[Info] Load built-in markdown style file from ${extRoot}.`,
-        );
         let styles: vscode.Uri[] = [];
         try {
             const stylePaths: string[] = require(

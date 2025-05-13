@@ -8,7 +8,6 @@ import {
 } from "vscode";
 import { Category } from "../shared";
 import { isColorizingEnabled, isTagGroupingEnabled } from "../utils/settingUtils";
-import { codeforcesChannel } from "../codeforcesChannel";
 
 export class CodeforcesTreeItemDecorationProvider
     implements FileDecorationProvider {
@@ -94,7 +93,6 @@ export class CodeforcesTreeItemDecorationProvider
 
         if (uri.authority !== "problems") {
             if (uri.path.includes(Category.Rating) || uri.path.includes(Category.CP31)) {
-                codeforcesChannel.appendLine(uri.path);
                 const rating = uri.path.split("#")[1];
                 return this.getDecoration(rating);
             }

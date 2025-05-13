@@ -19,6 +19,10 @@
         "skipLibCheck": true /* Skips checking .d.ts files to speed up build */,
         "noUnusedLocals": true /* Removes unused variables */,
         "noUnusedParameters": true /* Removes unused function parameters */,
-        "moduleResolution": "node"
+        "moduleResolution": "node",
+        "baseUrl": "src",
+        "paths": {
+            "@/*": ["*"]
+        }
     }
 }
