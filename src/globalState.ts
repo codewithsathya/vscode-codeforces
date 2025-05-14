@@ -4,17 +4,20 @@ import { CodeforcesSolution } from "./shared";
 
 const CODEFORCES_SOLUTIONS_KEY = "codeforcesSolutions";
 const CODEFORCES_PROBLEMS_CACHE_KEY = "codeforcesProblemsCache";
+const CSES_STATUS_KEY = "csesStatus";
 const keys = [
     "codeforcesProblems",
     "codeforcesContests",
     "csesProblems",
     CODEFORCES_SOLUTIONS_KEY,
     CODEFORCES_PROBLEMS_CACHE_KEY,
+    CSES_STATUS_KEY,
 ];
 
 class GlobalState {
     private context!: vscode.ExtensionContext;
     private _state!: vscode.Memento;
+    private _csesStatus: Record<string, boolean> | null = null;
 
     public initialize(context: vscode.ExtensionContext): void {
         this.context = context;
@@ -109,6 +112,25 @@ class GlobalState {
         }
         cache[id] = html;
         await this._state.update(CODEFORCES_PROBLEMS_CACHE_KEY, cache);
+    }
+
+    public getCsesStatus(): Record<string, boolean> {
+        if(this._csesStatus === null) {
+            const data = this._state.get(CSES_STATUS_KEY);
+            if(!data) {
+                return {};
+            }
+        }
+        return this._csesStatus;
+    }
+
+    public setCsesStatus(csesStatus: Record<string, boolean>): boolean {
+        if(JSON.stringify(csesStatus) === JSON.stringify(this.getCsesStatus())) {
+            return false;
+        }
+        this._csesStatus = csesStatus;
+        this._state.update(CSES_STATUS_KEY, csesStatus);
+        return true;
     }
 
     public async clear() {
