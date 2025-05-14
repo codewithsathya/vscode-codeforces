@@ -200,3 +200,53 @@ export const getLanguageId = (srcPath: string): number => {
     // globalThis.logger.error("Couldn't find id for compiler " + compiler);
     return -1;
 };
+
+export const getCsesLanguageId = (srcPath: string): string => {
+    const extension = path.extname(srcPath);
+    switch (extension) {
+        case ".cpp": {
+            return "C++";
+        }
+
+        case ".java": {
+            return "Java";
+        }
+
+        case ".js": {
+            return "Node.js";
+        }
+
+        case ".c": {
+            return "C";
+        }
+
+        case ".rs": {
+            return "Rust";
+        }
+
+        case ".py": {
+            return "Python3";
+        }
+
+        case ".rb": {
+            return "Ruby";
+        }
+
+        case ".hs": {
+            return "Haskell";
+        }
+
+        case ".asm": {
+            return "Assembly";
+        }
+
+        case ".pas": {
+            return "Pascal";
+        }
+
+        case ".scala": {
+            return "Scala";
+        }
+    }
+    return "";
+};

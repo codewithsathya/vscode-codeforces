@@ -237,6 +237,13 @@ function Judge(props: {
         // setWaitingForSubmit(true);
     };
 
+    const submitCses = () => {
+        sendMessageToVSCode({
+            command: "submitCses",
+            problem,
+        });
+    };
+
     const debounceFocusLast = () => {
         setTimeout(() => {
             setFocusLast(false);
@@ -339,13 +346,27 @@ function Judge(props: {
             console.error(err, problem);
             return null;
         }
-        if (url.hostname !== "codeforces.com") {
+
+        console.log("url: ", url.hostname);
+
+        if (url.hostname !== "codeforces.com" && url.hostname !== "cses.fi") {
             return null;
         }
 
         if (url.hostname === "codeforces.com") {
             return (
                 <button className="btn" onClick={submitCf}>
+                    <span className="icon">
+                        <i className="codicon codicon-cloud-upload"></i>
+                    </span>{" "}
+                    Submit
+                </button>
+            );
+        }
+
+        if (url.hostname === "cses.fi") {
+            return (
+                <button className="btn" onClick={submitCses}>
                     <span className="icon">
                         <i className="codicon codicon-cloud-upload"></i>
                     </span>{" "}

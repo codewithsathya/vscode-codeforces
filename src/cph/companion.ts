@@ -27,15 +27,16 @@ import {
     useShortCodeForcesName,
     getMenuChoices,
     getDefaultLanguageTemplateFileLocation,
+    getCsesLanguageId,
 } from "./preferences";
 import { getLanguageId } from "./preferences";
 import { isCodeforcesUrl, randomId } from "./utils";
 import { saveProblem } from "./parser";
-import { CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
+import { CphCsesSubmitResponse, CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
 import config from "./config";
 
 const emptyResponse: CphEmptyResponse = { empty: true };
-let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
+let savedResponse: CphEmptyResponse | CphSubmitResponse | CphCsesSubmitResponse = emptyResponse;
 
 export const getProblemFileName = (problem: Problem, ext: string) => {
     if (isCodeforcesUrl(new URL(problem.url)) && useShortCodeForcesName()) {
@@ -61,6 +62,19 @@ export const submitProblem = async (problem: Problem) => {
         problemName,
         sourceCode,
         languageId,
+    };
+};
+
+export const submitCsesProblem = async (problem: Problem) => {
+    const srcPath = problem.srcPath;
+    const languageId = getCsesLanguageId(srcPath);
+    const sourceCode = fs.readFileSync(srcPath).toString();
+    savedResponse = {
+        empty: false,
+        url: problem.url,
+        languageId,
+        sourceCode,
+        fileName: path.basename(srcPath)
     };
 };
 
