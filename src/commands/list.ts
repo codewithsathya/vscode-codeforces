@@ -134,6 +134,7 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
             const nodes = contentChildren.slice(3, contentChildren.length - 3);
 
             const problems: Record<string, IProblem[]> = {};
+            const csesStatus = globalState.getCsesStatus();
             for (let i = 0; i < nodes.length; i += 2) {
                 const titleNode = $(nodes[i]);
                 const title = titleNode.text().trim() || "Untitled";
@@ -159,14 +160,19 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
                         solvedText.split("/")[0].trim(),
                     );
                     const problemId = problemLink.split("/").pop() ?? "0";
-
+                    let state: ProblemState = ProblemState.UNKNOWN;
+                    if(csesStatus[problemId] === true) {
+                        state = ProblemState.ACCEPTED;
+                    } else if (csesStatus[problemId] === false) {
+                        state = ProblemState.WRONG_ANSWER;
+                    }
                     const problem: IProblem = {
                         isFavorite: false,
                         id: `${problemId}:cses`,
                         name: problemName,
                         contestId: parseInt(problemId),
                         index: "cses",
-                        state: ProblemState.UNKNOWN,
+                        state,
                         tags: [],
                         solvedCount,
                         platform: "cses",

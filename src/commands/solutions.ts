@@ -42,7 +42,6 @@ async function getHandleSolutions(username: string) {
 
 export async function saveSolutionDetails() {
     const handles = getSolutionHandles();
-    console.log(handles);
     const solutionDetails: Record<string, CodeforcesSolution[]> = {};
     try {
         for (const handle of handles) {

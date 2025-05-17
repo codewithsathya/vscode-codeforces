@@ -20,9 +20,5 @@
         "noUnusedLocals": true /* Removes unused variables */,
         "noUnusedParameters": true /* Removes unused function parameters */,
         "moduleResolution": "node",
-        "baseUrl": "src",
-        "paths": {
-            "@/*": ["*"]
-        }
     }
 }

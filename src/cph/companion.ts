@@ -19,6 +19,7 @@ import {
 } from "../utils/settingUtils";
 import { codeforcesChannel } from "../codeforcesChannel";
 import { getSolutions } from "../commands/solutions";
+import { globalState } from "../globalState";
 
 import { words_in_text } from "./utilsPure";
 import { getProblemName } from "./submit";
@@ -27,15 +28,18 @@ import {
     useShortCodeForcesName,
     getMenuChoices,
     getDefaultLanguageTemplateFileLocation,
+    getCsesLanguageId,
 } from "./preferences";
 import { getLanguageId } from "./preferences";
 import { isCodeforcesUrl, randomId } from "./utils";
 import { saveProblem } from "./parser";
-import { CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
+import { CphCsesSubmitResponse, CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
 import config from "./config";
+import { codeforcesTreeDataProvider } from "../explorer/codeforcesTreeDataProvider";
+
 
 const emptyResponse: CphEmptyResponse = { empty: true };
-let savedResponse: CphEmptyResponse | CphSubmitResponse = emptyResponse;
+let savedResponse: CphEmptyResponse | CphSubmitResponse | CphCsesSubmitResponse = emptyResponse;
 
 export const getProblemFileName = (problem: Problem, ext: string) => {
     if (isCodeforcesUrl(new URL(problem.url)) && useShortCodeForcesName()) {
@@ -64,38 +68,73 @@ export const submitProblem = async (problem: Problem) => {
     };
 };
 
+export const submitCsesProblem = async (problem: Problem) => {
+    const srcPath = problem.srcPath;
+    const languageId = getCsesLanguageId(srcPath);
+    const sourceCode = fs.readFileSync(srcPath).toString();
+    savedResponse = {
+        empty: false,
+        url: problem.url,
+        languageId,
+        sourceCode,
+        fileName: path.basename(srcPath)
+    };
+};
+
 export const setupCompanionServer = () => {
     try {
         const server = http.createServer((req, res) => {
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            res.setHeader("Access-Control-Allow-Headers", "Content-Type, cph-submit");
+
+            if (req.method === "OPTIONS") {
+                res.writeHead(204);
+                res.end();
+                return;
+            }
+
             const { headers } = req;
             let rawProblem = "";
+            let csesData = "";
 
             req.on("data", (chunk) => {
-                rawProblem += chunk;
+                if(!headers["cph-submit"]) {
+                    rawProblem += chunk;
+                } else if(headers["cph-submit"] === "true") {
+                    csesData += chunk;
+                }
             });
-            req.on("close", function () {
+
+            req.on("end", () => {
                 try {
-                    if (rawProblem === "") {
-                        return;
+                    if (rawProblem !== "") {
+                        const problem: Problem = JSON.parse(rawProblem);
+                        handleNewProblem(problem);
                     }
-                    const problem: Problem = JSON.parse(rawProblem);
-                    handleNewProblem(problem);
                 } catch (e) {
                     vscode.window.showErrorMessage(
                         `Error parsing problem from companion "${e}. Raw problem: '${rawProblem}'"`,
                     );
                 }
-            });
-            res.write(JSON.stringify(savedResponse));
-            if (headers["cph-submit"] === "true") {
-                if (savedResponse.empty !== true) {
-                    judgeViewProvider.extensionToJudgeViewMessage({
-                        command: "submit-finished",
-                    });
+
+                if (csesData !== "") {
+                    handleCsesStatusData(csesData);
                 }
-                savedResponse = emptyResponse;
-            }
-            res.end();
+
+                res.write(JSON.stringify(savedResponse));
+
+                if (headers["cph-submit"] === "true") {
+                    if (savedResponse.empty !== true) {
+                        judgeViewProvider.extensionToJudgeViewMessage({
+                            command: "submit-finished",
+                        });
+                    }
+                    savedResponse = emptyResponse;
+                }
+
+                res.end();
+            });
         });
         server.listen(config.port);
         server.on("error", (err) => {
@@ -196,6 +235,18 @@ export const handleNewProblem = async (
         command: "new-problem",
         problem,
     });
+};
+
+export const handleCsesStatusData = async (data: string) => {
+    try {
+        const { csesStatus } = JSON.parse(data) as { csesStatus: Record<string, boolean> };
+        const updated = globalState.setCsesStatus(csesStatus);
+        if(updated) {
+            await codeforcesTreeDataProvider.refresh();
+        }
+    } catch (error) {
+        codeforcesChannel.appendLine(`Failed to save cses status data: ${error}`);
+    }
 };
 
 async function showDescriptionView(

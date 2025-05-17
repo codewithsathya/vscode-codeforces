@@ -135,6 +135,10 @@ export type SubmitCf = {
     command: "submitCf";
 } & WebviewMessageCommon;
 
+export type SubmitCses = {
+    command: "submitCses";
+} & WebviewMessageCommon;
+
 export type GetInitialProblem = {
     command: "get-initial-problem";
 };
@@ -165,6 +169,7 @@ export type WebviewToVSEvent =
     | SaveCommand
     | DeleteTcsCommand
     | SubmitCf
+    | SubmitCses
     | OnlineJudgeEnv
     | OpenUrl
     | GetExtLogs
@@ -249,6 +254,14 @@ export type CphSubmitResponse = {
     sourceCode: string;
     languageId: number;
 };
+
+export type CphCsesSubmitResponse = {
+    url: string,
+    empty: false;
+    sourceCode: string;
+    languageId: string;
+    fileName: string;
+}
 
 export type WebViewpersistenceState = {
     dialogCloseDate: number;

@@ -98,9 +98,6 @@ export class CodeforcesTreeDataProvider
         if (!element.isProblem) {
             return "";
         }
-        if (element.platform === "cses") {
-            return "";
-        }
         switch (element.state) {
             case ProblemState.ACCEPTED:
                 return this.context.asAbsolutePath(

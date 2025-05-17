@@ -12,7 +12,7 @@ import {
 import { setOnlineJudgeEnv } from "../cph/compiler";
 import { globalState } from "../globalState";
 import { codeforcesChannel } from "../codeforcesChannel";
-import { submitProblem } from "../cph/companion";
+import { submitCsesProblem, submitProblem } from "../cph/companion";
 
 import { showDescription } from "./showDescription";
 import runAllAndSave from "./processRunAll";
@@ -85,6 +85,12 @@ class JudgeViewProvider implements vscode.WebviewViewProvider {
                     case "submitCf": {
                         const problem = message.problem;
                         await submitProblem(problem);
+                        break;
+                    }
+
+                    case "submitCses": {
+                        const problem = message.problem;
+                        await submitCsesProblem(problem);
                         break;
                     }
 
