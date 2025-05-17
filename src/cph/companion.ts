@@ -35,6 +35,7 @@ import { isCodeforcesUrl, randomId } from "./utils";
 import { saveProblem } from "./parser";
 import { CphCsesSubmitResponse, CphEmptyResponse, CphSubmitResponse, Problem } from "./types";
 import config from "./config";
+import { codeforcesTreeDataProvider } from "../explorer/codeforcesTreeDataProvider";
 
 
 const emptyResponse: CphEmptyResponse = { empty: true };
@@ -119,7 +120,6 @@ export const setupCompanionServer = () => {
 
                 if (csesData !== "") {
                     handleCsesStatusData(csesData);
-                    console.log(globalState.getCsesStatus());
                 }
 
                 res.write(JSON.stringify(savedResponse));
@@ -241,8 +241,8 @@ export const handleCsesStatusData = async (data: string) => {
     try {
         const { csesStatus } = JSON.parse(data) as { csesStatus: Record<string, boolean> };
         const updated = globalState.setCsesStatus(csesStatus);
-        if(!updated) {
-            console.log(updated);
+        if(updated) {
+            await codeforcesTreeDataProvider.refresh();
         }
     } catch (error) {
         codeforcesChannel.appendLine(`Failed to save cses status data: ${error}`);

@@ -201,7 +201,6 @@ function parseProblemsToPicks(
 }
 
 function parseContestsToPicks(contests: CodeforcesNode[]) {
-    console.log(contests);
     const picks: Array<IQuickItemEx<string>> = contests.map((contest) => {
         const name = contest.id.split("#")[1];
         return Object.assign(

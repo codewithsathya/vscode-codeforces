@@ -135,7 +135,6 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
 
             const problems: Record<string, IProblem[]> = {};
             const csesStatus = globalState.getCsesStatus();
-            console.log("Listing cses problems", csesStatus);
             for (let i = 0; i < nodes.length; i += 2) {
                 const titleNode = $(nodes[i]);
                 const title = titleNode.text().trim() || "Untitled";
