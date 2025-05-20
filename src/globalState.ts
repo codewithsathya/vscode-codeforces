@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { isEqual } from "lodash";
 
 import { CodeforcesSolution } from "./shared";
 
@@ -82,7 +83,7 @@ class GlobalState {
         if (cached) {
             fetchFn()
                 .then((fresh) => this.update(key, fresh))
-                .catch(() => {});
+                .catch(() => { });
             return cached;
         } else {
             const fresh = await fetchFn();
@@ -115,21 +116,19 @@ class GlobalState {
     }
 
     public getCsesStatus(): Record<string, boolean> {
-        if(this._csesStatus === null) {
+        if (this._csesStatus == null) {
             const data = this._state.get(CSES_STATUS_KEY);
-            if(!data) {
-                return {};
-            }
+            this._csesStatus = data as Record<string, boolean> || {};
         }
         return this._csesStatus;
     }
 
-    public setCsesStatus(csesStatus: Record<string, boolean>): boolean {
-        if(JSON.stringify(csesStatus) === JSON.stringify(this.getCsesStatus())) {
+    public async setCsesStatus(csesStatus: Record<string, boolean>): Promise<boolean> {
+        if (isEqual(csesStatus, this.getCsesStatus())) {
             return false;
         }
         this._csesStatus = csesStatus;
-        this._state.update(CSES_STATUS_KEY, csesStatus);
+        await this._state.update(CSES_STATUS_KEY, csesStatus);
         return true;
     }
 

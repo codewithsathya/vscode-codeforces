@@ -240,7 +240,10 @@ export const handleNewProblem = async (
 export const handleCsesStatusData = async (data: string) => {
     try {
         const { csesStatus } = JSON.parse(data) as { csesStatus: Record<string, boolean> };
-        const updated = globalState.setCsesStatus(csesStatus);
+        if(!csesStatus) {
+            return;
+        }
+        const updated = await globalState.setCsesStatus(csesStatus);
         if(updated) {
             await codeforcesTreeDataProvider.refresh();
         }
