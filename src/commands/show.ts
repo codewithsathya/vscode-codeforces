@@ -39,6 +39,7 @@ export async function previewProblem(
                 `${input.name} CSES problem retrieved`,
             );
         }
+        html = html.replaceAll(/src="\/file\/([^"]+)"/g, 'src="https://cses.fi/file/$1"');
     } else {
         const id = `${input.contestId}:${input.index}`;
         html = globalState.getProblemHtml(id);
