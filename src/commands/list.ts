@@ -129,44 +129,44 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
             );
             const $ = cheerio.load(htmlPage as string);
 
-            const contentChildren = $(".content").first().children().toArray();
-
-            const nodes = contentChildren.slice(3, contentChildren.length - 3);
-
             const problems: Record<string, IProblem[]> = {};
             const csesStatus = globalState.getCsesStatus();
-            for (let i = 0; i < nodes.length; i += 2) {
-                const titleNode = $(nodes[i]);
-                const title = titleNode.text().trim() || "Untitled";
 
-                const problemsNode = $(nodes[i + 1]);
-                const problemNodes = problemsNode.children().toArray();
+            $(".content h2").each((_i: number, headerElement: any) => {
+                const title = $(headerElement).text().trim();
+                
+                if (!title || title === "General") {
+                    return;
+                }
 
-                problems[title] = [];
+                const currentCategoryProblems: IProblem[] = [];
+                const taskList = $(headerElement).nextAll("ul.task-list").first();
+                const problemNodes = taskList.find("li.task").toArray();
 
                 for (const problemEl of problemNodes) {
-                    const problemNode = $(problemEl);
+                    const problemNode = $(problemEl as any);
                     const anchor = problemNode.find("a").first();
                     const detail = problemNode.find(".detail").first();
 
-                    if (!anchor.length || !detail.length) {
+                    if (!anchor.length) {
                         continue;
                     }
 
                     const problemName = anchor.text().trim();
                     const problemLink = anchor.attr("href") ?? "";
-                    const solvedText = detail.text() ?? "0 / ?";
-                    const solvedCount = parseInt(
-                        solvedText.split("/")[0].trim(),
-                    );
+                    const solvedText = detail.text().trim() || "0 / 0";
+                    const solvedCount = parseInt(solvedText.split("/")[0].trim()) || 0;
+                    
                     const problemId = problemLink.split("/").pop() ?? "0";
+                    
                     let state: ProblemState = ProblemState.UNKNOWN;
-                    if(csesStatus[problemId] === true) {
+                    if (csesStatus[problemId] === true) {
                         state = ProblemState.ACCEPTED;
                     } else if (csesStatus[problemId] === false) {
                         state = ProblemState.WRONG_ANSWER;
                     }
-                    const problem: IProblem = {
+
+                    currentCategoryProblems.push({
                         isFavorite: false,
                         id: `${problemId}:cses`,
                         name: problemName,
@@ -176,11 +176,13 @@ export async function listCsesProblems(): Promise<Record<string, IProblem[]>> {
                         tags: [],
                         solvedCount,
                         platform: "cses",
-                    };
-
-                    problems[title].push(problem);
+                    });
                 }
-            }
+
+                if (currentCategoryProblems.length > 0) {
+                    problems[title] = currentCategoryProblems;
+                }
+            });
 
             return problems;
         });
